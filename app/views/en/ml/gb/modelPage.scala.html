@@ -1,0 +1,168 @@
+<form class="form-horizontal" method="get" id="form">
+
+
+    @en.ml.generalSection()
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label"> Control the learning rate :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="eta" id="eta" value="0.3" placeholder="Default: 0.3">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Maximum depth of a tree :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="max_depth" id="max_depth" value="6" placeholder="Default: 6">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Minimum sum of instance weight (hessian) needed in a child :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="min_child_weight" id="min_child_weight" value="1" placeholder="Default: 1">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">Subsample ratio of the training instance :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="subsample" id="subsample" value="1" placeholder="Default: 1">
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">max number of boosting iterations :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="nrounds" id="nrounds" value="2" placeholder="Default: 2">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @en.ml.runButton()
+</form>
+
+<script>
+
+            $(function () {
+                RfFormValidation();
+            })
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MlController.gbRun()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#form")[0]),
+                        success: function (data) {
+                            layer.close(index);
+                            if (data.valid == "false") {
+                            } else {
+                                window.location.href = ("@routes.MlController.modelResultEn("gb")")
+                            }
+                        }
+                    })
+                }
+            }
+
+            function RfFormValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Not be empty!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MlController.checkName("gb")',
+                                    message: 'The model name is repeated. '
+                                }
+                            }
+                        },
+                        file: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Please select a matrix file!'
+                                },
+                                callback: {
+                                    callback: () => {
+                                        $("#dent").hide();
+                                        let valid = true;
+                                        $.ajax({
+                                            url: "@routes.MlController.checkMatrixReturnParameter()",
+                                            type: "post",
+                                            async: false,
+                                            processData: false,
+                                            contentType: false,
+                                            data: new FormData($("#form")[0]),
+                                            success: function (data) {
+                                                if (data.valid == "false") {
+                                                    valid = false
+                                                } else {
+                                                    let dependent = "";
+                                                    let independent = "";
+                                                    $.each(data.para, (i, v) => {
+                                                        if (i === data.para.length - 1) {
+                                                            dependent += `<option value="${v}" selected>${v}</option>`;
+                                                        } else {
+                                                            dependent += `<option value="${v}">${v}</option>`;
+                                                        }
+                                                        independent += `<div class="form-check form-check-success"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" name="independent[]"
+                              />${v}<i class="input-helper"></i></label></div>`
+                                                    })
+                                                    $("#dependent").empty();
+                                                    $("#dependent").html(dependent);
+                                                    $("#independent").empty();
+                                                    $("#independent").html(independent);
+                                                    $("#dent").show();
+                                                }
+
+                                            }
+                                        })
+
+                                        changeByDependent()
+
+                                        return valid;
+                                    },
+                                    message: "Please upload a tab-delimited matrix file!"
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+    </script>
+
+

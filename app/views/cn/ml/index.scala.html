@@ -1,0 +1,161 @@
+@()(implicit session: Session)
+@cn.home.main("机器学习") {
+
+    <style>
+
+
+            .text-title {
+                color: #2D8B67;
+                font-size: 22px;
+                padding: 10px 0 10px 0;
+                border-bottom: 1px solid #d0dbdc;
+            }
+
+            .btn-my {
+                float: right;
+                background-color: #2D8B67;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 10px;
+                margin-right: 20px;
+            }
+
+        .ml-row{
+            display: flex;
+            display: -webkit-flex;
+            flex-flow: row wrap;
+            margin-bottom: 50px;
+        }
+
+        .ml-box{
+            display: flex;
+            display: -webkit-flex;
+            flex-flow: row nowrap;
+            border: 1px solid #10A48E;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .ml-box-img{
+            width: 400px;
+            display: flex;
+            flex-flow: row;
+            justify-content: center
+        }
+
+        .ml-box-img img{
+            width: 350px;
+        }
+
+        .ml-box-text{
+            width: 800px;
+        }
+
+        .ml-box-text p{
+            text-indent: 2em;
+            line-height: 25px
+        }
+
+    </style>
+
+    <div class="row">
+
+
+        <h1 class="page-heading">机器学习</h1>
+
+
+        <div class="ml-row">
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/logistics.png" />
+                </div>
+
+                <div class="ml-box-text">
+                    <h1 class="text-title">逻辑回归模型</h1>
+                    <p>逻辑回归（Logistic regression，又译作对数几率回归、罗吉斯回归）是一种对数几率模型（英语：Logit model，
+                        又译作逻辑模型、评定模型、分类评定模型）是离散选择法模型之一，属于多重变量分析范畴，是社会学、生物统计学、临床、
+                        数量心理学、计量经济学、市场营销等统计实证分析的常用方法。</p>
+                    <a href="@routes.MlController.modelPage("logistics")" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/rf.png"/>
+                </div>
+
+                <div class="ml-box-text">
+                    <h1 class="text-title">随机森林模型</h1>
+                    <p> 随机森林模型使用随机的数据子集得到大量决策树。使用“装袋”的方法选择这些随机子集。每个随机子集包含约三分之二的数据。另外三分之一的数据不用来构建树，这部分数据被称为'袋子外'数据，之后用来评估模型。
+                    </p> <p>  在随机森林分析中，用临床和组学指标的随机子集分解决策树。树木没有剪枝直至生长到最大尺寸，然后对所有树的预测值进行平均，以得到最强分类模型的预测变量。
+
+                    </p>
+                    <a href="@routes.MlController.modelPage("rf")" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/neural.png" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">神经网络模型</h1>
+                    <p> 术语“人工神经网络”是指一大批受到生物神经网络，特别是有大量连接的神经元来处理信息的大脑启发的模型。类似地，人工神经网络由大量节点和连接组成。它们通常按层次组织：将数据送入模型的输入层，多个隐藏层，以及模型结果的输出层。
+                    </p> <p>   它反映了生物神经系统处理外界事物的基本过程，是在模拟人脑神经组织的基础上发展起来的计算系统，是由大量处理单元通过广泛互联而构成的网络体系，它具有生物神经系统的基本特征，在一定程度上反映了人脑功能的若干反映，是对生物系统的某种模拟。
+
+                    </p>
+                    <a href="@routes.MlController.modelPage("neural")" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/gb.png" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">梯度提升树模型</h1>
+                    <p> 增强回归树模型。如名所示，这类模型是两种技术的结合：决策树模型和增强方法。像随机森林模型一样，增强回归树模型通过不断拟合多个决策树来提高模型的准确性。这两种方法的区别之一是选择构建树的数据的方法。这两种技术都是从全部数据中随机选择构建每个新树的数据。所有随机子集具有相同的数据量，都是从完整的数据集中选择。用过的数据会放回到完整数据集中，以便在随后的树中再次选择。如上所述，随机森林模型使用装袋的方法选择数据。使用这种方法，每个数据点被每个新的随机子集选中的概率相同。增强回归树使用增强方法，在后续建立的树中对输入数据进行加权。加权方法是，在之前的树中建模较差的数据有较高的概率被新树选中。所以，在这个过程中，拟合完第一棵树之后，模型在拟合下一棵树的时候就会考虑该树的预测残差等。通过考虑以前构建树的拟合结果，模型不断改进以增加准确性。这种顺序方法的增强具有唯一性。
+
+                    </p>
+                    <a href="@routes.MlController.modelPage("gb")" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/catboost.png" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">CatBoost模型</h1>
+                    <p> CatBoost这个名字来自两个词“Category”和“Boosting”。如前所述，该库可以很好地处理各种类别型数据，是一种能够很好地处理类别型特征的梯度提升算法库。
+                    </p>
+                    <a href="@routes.MlController.modelPage("catboost")" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/svm.png" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">支持向量机模型</h1>
+                    <p> 支持向量机（SVM）是一类按监督学习方式对数据进行二元分类的广义线性分类器，其决策边界是对学习样本求解的最大边距超平面。从某种意义上来说， SVM算法是逻辑回归算法的强化：通过给予逻辑回归算法更严格的优化条件， SVM算法可以获得比逻辑回归更好的分类界线。
+                    </p> <p>     SVM是一种二分类模型，它的基本模型是定义在特征空间上的间隔最大的线性分类器；SVM还包括核技巧，这使它成为实质上的非线性分类器。SVM的的学习策略就是间隔最大化，可形式化为一个求解凸二次规划的问题，也等价于正则化的合页损失函数的最小化问题。SVM的的学习算法就是求解凸二次规划的最优化算法。
+                    </p>
+                    <a href="@routes.MlController.modelPage("svm")" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+}

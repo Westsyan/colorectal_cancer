@@ -1,0 +1,8 @@
+@(question: String, name: String, options: Seq[(String, String)])
+
+<div class="form-group row reDraw">
+    <label class="col-sm-3 col-form-label">@question：</label>
+    <div  class="col-sm-6">
+        <select name="@name" id="@name"></select>
+    </div>
+</div>

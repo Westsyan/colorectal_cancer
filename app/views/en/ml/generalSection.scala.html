@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Model's name:</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="name">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Upload matrix file:</label>
+            <div class="col-sm-4">
+                <input type="file" name="file" class="file-upload-default" style="width: 500px" id="file">
+                <div class="input-group col-xs-12">
+                    <input type="text" class="form-control file-upload-info" disabled placeholder="Upload matrix file">
+                    <span class="input-group-append">
+                        <button class="file-upload-browse btn btn-primary" type="button">
+                                                        Browse</button>
+                    </span>
+                </div>
+                <span class="example"><a href="/colorectal/utils/downloadExample?file=rf.txt"><em id="egCrics">
+                                                Example File</em>
+                </a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display: none;" id="dent">
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Dependent variable :</label>
+            <div class="col-sm-4">
+                <select class="form-control" name="dependent" id="dependent" onchange="changeByDependent()">
+
+                                            </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Independent variable :</label>
+            <div class="col-sm-7" id="independent" style="display: flex;
+                flex-wrap: wrap">
+
+                                        </div>
+        </div>
+    </div>
+
+</div>

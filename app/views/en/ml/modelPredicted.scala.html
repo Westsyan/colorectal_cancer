@@ -1,0 +1,182 @@
+@(mlTypes: String)(implicit session: Session)
+    @en.manage.main("Model Prediction","ml") {
+
+        <style>
+
+                .col-form-label {
+                    text-align: right;
+                }
+
+                .example {
+                    font-size: 14px;
+                }
+
+                select.form-control {
+                    color: black !important;
+                }
+
+                .help-block {
+                    display: block;
+                }
+
+                .select2 {
+                    margin-top: 12px;
+                }
+
+                .select2-container--default .select2-selection--single {
+                    height: 46px;
+                }
+
+                .select2-container--default .select2-selection--single .select2-selection__rendered {
+                    height: 46px;
+                    line-height: 46px;
+                }
+
+                .select2-container--default .select2-selection--single .select2-selection__arrow {
+                    height: 46px;
+                }
+        </style>
+
+        <div class="content-wrapper">
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <div class="d-flex align-items-end flex-wrap">
+                            <div class="d-flex">
+                                <i class="mdi mdi-home text-muted hover-cursor"></i>
+                                <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Machine Learning&nbsp;/&nbsp;</p>
+                                <p class="text-primary mb-0 hover-cursor">@{
+                                    mlTypes match {
+                                        case "logistics" => "Logistic Regression"
+                                        case "rf" => "Random Forest"
+                                        case "neural" => "Neural Network"
+                                        case "gb" => "GBDT"
+                                        case "catboost" => "CatBoost"
+                                        case "svm" => "SVM"
+                                    }
+                                }&nbsp;/&nbsp;</p>
+                                <p class="text-primary mb-0 hover-cursor">Model Prediction</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+
+                            @{
+                                mlTypes match {
+                                    case "logistics" => en.ml.fiveModelPredicted()
+                                    case "rf" =>  en.ml.fiveModelPredicted()
+                                    case "neural" => en.ml.fiveModelPredicted()
+                                    case "gb" =>  en.ml.fiveModelPredicted()
+                                    case "catboost" => en.ml.catboost.modelPredicted()
+                                    case "svm" =>  en.ml.fiveModelPredicted()
+                                }
+                            }
+
+                            <div id="result" style="display: none">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    <script>
+
+
+            $(function () {
+
+                $.ajax({
+                    url: "/colorectal/platform/ml/getSuccessByMl?ml=@mlTypes",
+                    type: "post",
+                    async: false,
+                    success: function (data) {
+                        $("#name").select2({data:data})
+                    }
+                })
+                getTitle();
+            })
+
+            let ids = [];
+            let formvalidation;
+
+            function getTitle() {
+                ids = [];
+                let id = $("#name").val();
+                $.post("/colorectal/platform/ml/getTitleById?id=" + id, (data) => {
+                    $("#row").empty();
+
+                    let f = {};
+                    $.each(data, (i, v) => {
+                        ids.push("t" + i);
+                        let names = "t" + i
+
+                        if (v[1][0] !== "input") {
+
+                            let select = "";
+                            $.each(v[1], (i1, v1) => {
+                                select += `<option value="${v1}">${v1}</option>`
+                            })
+
+                            let html = `<div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">${v[0]} :</label>
+                                            <div class="col-sm-6">
+                                                <select class="form-control" id="t${i}" name="t${i}">
+                                                    ${select}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>`
+                            $("#row").append(html);
+                        } else {
+                            f[names] = {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'Not be empty!'
+                                    },
+                                    numeric: {
+                                        message: 'Must be an numeric!'
+                                    }
+                                }
+                            }
+                            let html = `    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">${v[0]} :</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="t${i}"  name="t${i}"/>
+                                            </div>
+                                        </div>
+                                    </div>`
+                            $("#row").append(html);
+                        }
+                    })
+
+                     $('#form').formValidation({
+                        framework: 'bootstrap',
+                        icon: {
+                            valid: 'mdi mdi-check',
+                            invalid: 'mdi mdi-close',
+                            validating: 'mdi mdi-refresh'
+                        },
+                        fields: f
+                    })
+
+                  //  $('#form').data('formValidation').destroy();
+                    $("#btn").show();
+
+
+                })
+            }
+
+
+    </script>
+
+    }

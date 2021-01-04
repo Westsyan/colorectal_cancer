@@ -1,0 +1,123 @@
+@()(implicit session: Session)
+@en.manage.main("Seer Database", "publicdb") {
+
+    <style>
+            .form-check-label {
+                cursor: pointer;
+            }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="mdi mdi-home text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Public Database&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">Seer Database</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table  table-bordered" id="table" data-pagination="true"
+                        data-toolbar="#toolbar" >
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+            $(function () {
+                $("#table").bootstrapTable({
+                    method: 'post',
+                    url: "@routes.PublicdbController.getAllSeerData()",
+                    sidePagination: "server",
+                    pageNumber: 1,
+                    pagination: true,
+                    pageList: [10],
+                    height:700,
+                    contentType: "application/x-www-form-urlencoded",
+                    advancedSortable: true,
+                    columns: [{
+                        field: "id",
+                        title: "Patient ID",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text",
+                    }, {
+                        field: "sex",
+                        title: "Sex",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "race",
+                        title: "Race recode",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "year",
+                        title: "Year of diagnosis",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "age",
+                        title: "Age at diagnosis",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "cs",
+                        title: "CS lymph nodes (2004+)",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "examined",
+                        title: "Regional nodes examined (1988+)",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "positive",
+                        title: "Regional nodes positive (1988+)",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "months",
+                        title: "Survival months",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "flag",
+                        title: "Survival months flag",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "site",
+                        title: "Site recode ICD-O-3/WHO 2008",
+                        valign: "middle",
+                        sortable: true,
+                        searchType: "text"
+                    }]
+                });
+            })
+
+
+    </script>
+
+}

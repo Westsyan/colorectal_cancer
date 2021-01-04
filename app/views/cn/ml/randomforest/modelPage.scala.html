@@ -1,0 +1,184 @@
+<form class="form-horizontal" method="get" id="form">
+
+    @cn.ml.generalSection()
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">随机森林所包含的决策树数目 :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="ntree" id="ntree" value="500">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-12" >
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">节点中用于二叉树的变量个数:</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="mtry" id="mtry" placeholder="未填写为默认设置">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label"> Bootstrap随机抽样的方式是否需要更换？</label>
+                <div class="col-sm-4">
+                    <select name="replace" class="form-control" id="replace">
+                        <option value="TRUE" selected>yes</option>
+                        <option value="FALSE">no</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-12" >
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">决策树节点的最小个数：</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="nodesize" id="nodesize" placeholder="未填写为默认设置，判别模型为1，回归模型为5">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">决策树节点的最大个数：</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="maxnodes" id="maxnodes" placeholder="未填写为默认设置">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @cn.ml.runButton()
+</form>
+
+<script>
+
+            $(function () {
+                $(`#replace`).select2({minimumResultsForSearch: -1});
+
+                RfFormValidation();
+            })
+
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MlController.fitRandomForest()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#form")[0]),
+                        success: function (data) {
+                            layer.close(index);
+                            if (data.valid == "false") {
+                            } else {
+                                window.location.href = ("@routes.MlController.modelResult("rf")")
+                            }
+                        }
+                    })
+                }
+            }
+
+            function RfFormValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MlController.checkName("rf")',
+                                    message: '模型名称重复，请重新输入'
+                                }
+                            }
+                        },
+                        file: {
+                            validators: {
+                                notEmpty: {
+                                    message: '请选择一个矩阵文件！'
+                                },
+                                callback: {
+                                    callback: () => {
+                                        $("#dent").hide();
+                                        let valid = true;
+                                        $.ajax({
+                                            url: "@routes.MlController.checkMatrixReturnParameter()",
+                                            type: "post",
+                                            async: false,
+                                            processData: false,
+                                            contentType: false,
+                                            data: new FormData($("#form")[0]),
+                                            success: function (data) {
+                                                if (data.valid == "false") {
+                                                    valid = false
+                                                } else {
+                                                    let dependent = "";
+                                                    let independent = "";
+                                                    $.each(data.para, (i, v) => {
+                                                        if (i === data.para.length - 1) {
+                                                            dependent += `<option value="${v}" selected>${v}</option>`;
+                                                        } else {
+                                                            dependent += `<option value="${v}">${v}</option>`;
+                                                        }
+                                                        independent += `<div class="form-check form-check-success"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" name="independent[]"
+                              />${v}<i class="input-helper"></i></label></div>`
+                                                    })
+                                                    $("#dependent").empty();
+                                                    $("#dependent").html(dependent);
+                                                    $("#independent").empty();
+                                                    $("#independent").html(independent);
+                                                    $("#dent").show();
+                                                }
+
+                                            }
+                                        })
+
+                                        changeByDependent()
+
+                                        return valid;
+                                    },
+                                    message: "请上传以制表符分隔的矩阵文件！"
+                                }
+                            }
+                        },
+                        ntree: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空！'
+                                },
+                                integer: {
+                                    message: '必须为整数！'
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+
+
+    </script>
+

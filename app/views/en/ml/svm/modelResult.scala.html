@@ -1,0 +1,75 @@
+<table class="table table-bordered" id="table" data-pagination="true" data-search="true"
+data-toolbar="#toolbar" data-search-align="left" data-multiple-search="true"></table>
+
+
+
+    <script>
+
+                $(function () {
+                    $("#table").bootstrapTable({
+                        columns: [{
+                            field: "name",
+                            title: "Model's name",
+                            valign: "middle",
+                            sortable: true
+                        }, {
+                            field: "start",
+                            title: "Time",
+                            valign: "middle",
+                            sortable: true
+                        }, {
+                            field: "state",
+                            title: "Status",
+                            valign: "middle",
+                            sortable: true,
+                            formatter: function (v, row) {
+                                if (row.state === "2") {
+                                    return `<p class="failed">Failure</p><input class='state' value='${row.state}'>`
+                                } else if (row.state === "1") {
+                                    return `<p class="success">Success</p><input class='state' value='${row.state}'>`
+                                } else {
+                                    return `Running <img src='/assets/images/timg.gif'  style='width: 20px; height: 20px;'><input class='state' value='${row.state}'>`;
+                                }
+                            }
+                        }, {
+                            field: "operation",
+                            title: "Operation",
+                            formatter: function (value, row) {
+                                let log = "<button class=\"btn btn-secondary btn-rounded btn-fw\" onclick=\"OpenLog('" + row.id + "')\" style='margin-right: 10px' >Log</button>";
+                                let success = "<button class=\"btn btn-success btn-rounded btn-fw\" onclick=\"OpenModel('" + row.id + "')\" style='margin-right: 10px' >Model</button>";
+                                let de = "<button class='btn btn-danger btn-rounded btn-fw' onclick=\"DeleteById('" + row.id + "')\" style='margin-right: 10px'>Delete</button>";;
+                                if (row.state === "2") {
+                                    return de + log;
+                                } else if (row.state === "1") {
+                                    return success+ de + log;
+                                } else {
+                                    return de;
+                                }
+                            }
+                        }
+                        ]
+                    })
+
+                    UpdateTable();
+
+                    webScoket("svm")
+                })
+
+
+
+                function UpdateTable() {
+                    $.ajax({
+                        url: "@routes.MlController.getAllMl("svm")",
+                        type: "post",
+                        success: function (data) {
+                            $("#table").bootstrapTable("load", data)
+                        }
+                    })
+                }
+
+
+
+
+
+
+        </script>

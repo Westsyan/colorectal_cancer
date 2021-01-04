@@ -1,0 +1,263 @@
+@()(implicit session: Session)
+@en.manage.main("TCGA Database", "publicdb") {
+
+    <style>
+            .form-check-label {
+                cursor: pointer;
+            }
+
+            .bootstrap-table .fixed-table-container .table td {
+                white-space: nowrap;
+            }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="mdi mdi-home text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Public DataBase&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">TCGA Database</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" style="margin-bottom: 20px">
+                            Filter</button>
+
+                        <table class="table" id="table"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Filter</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-sm-12 row" id="filter">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+            $(function () {
+
+                $("#table").bootstrapTable({
+                    method: 'post',
+                    url: "@routes.PublicdbController.getTcgaData()",
+                    sidePagination: "server",
+                    pageNumber: 1,
+                    pagination: true,
+                    pageList: [15],
+                    pageSize: 15,
+                    contentType: "application/x-www-form-urlencoded",
+                    advancedSortable: true,
+                    columns: [{
+                        field: "CaseID",
+                        title: "Case ID",
+                        sortable: true,
+                        searchType: "text",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/cases/${v["Case UUID"]}?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.primary_site%22%2C%22value%22%3A%5B%22colon%22%2C%22rectum%22%2C%22rectosigmoid%20junction%22%5D%7D%7D%5D%7D" target="_blank">${v["CaseID"]}</a>`
+                        }
+                    }, {
+                        field: "Project",
+                        title: "Project",
+                        sortable: true,
+                        searchType: "text",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/projects/${v["Project"]}" target="_blank">${v["Project"]}</a>`
+                        }
+                    }, {
+                        field: "PrimarySite",
+                        title: "Primary Site",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "Gender",
+                        title: "Gender",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "Files",
+                        title: "Files",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["Files"]}</a>`
+                        }
+                    }, {
+                        field: "Seq",
+                        title: "Seq",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22Sequencing%20Reads%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["Seq"]}</a>`
+                        }
+                    }, {
+                        field: "Exp",
+                        title: "Exp",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22Transcriptome%20Profiling%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["Exp"]}</a>`
+                        }
+                    }, {
+                        field: "SNV",
+                        title: "SNV",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22Simple%20Nucleotide%20Variation%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["SNV"]}</a>`
+                        }
+                    }, {
+                        field: "CNV",
+                        title: "CNV",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22Copy%20Number%20Variation%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["CNV"]}</a>`
+                        }
+                    }, {
+                        field: "Meth",
+                        title: "Meth",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22DNA%20Methylation%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["Meth"]}</a>`
+                        }
+                    }, {
+                        field: "Clinical",
+                        title: "Clinical",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22Clinical%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["Clinical"]}</a>`
+                        }
+                    }, {
+                        field: "Bio",
+                        title: "Bio",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/repository?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22files.data_category%22%2C%22value%22%3A%5B%22Biospecimen%22%5D%7D%7D%5D%7D&searchTableTab=files" target="_blank">${v["Bio"]}</a>`
+                        }
+                    }, {
+                        field: "Mutations",
+                        title: "# Mutations",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/exploration?cases_size=100&filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.primary_site%22%2C%22value%22%3A%5B%22colon%22%2C%22rectum%22%2C%22rectosigmoid%20junction%22%5D%7D%7D%5D%7D&searchTableTab=mutations" target="_blank">${v["Mutations"]}</a>`
+                        }
+                    }, {
+                        field: "Genes",
+                        title: "# Genes",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/exploration?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.available_variation_data%22%2C%22value%22%3A%5B%22ssm%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%2C%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.primary_site%22%2C%22value%22%3A%5B%22colon%22%2C%22rectum%22%2C%22rectosigmoid%20junction%22%5D%7D%7D%2C%7B%22op%22%3A%22NOT%22%2C%22content%22%3A%7B%22field%22%3A%22ssms.ssm_id%22%2C%22value%22%3A%22MISSING%22%7D%7D%5D%7D&searchTableTab=genes" target="_blank">${v["Genes"]}</a>`
+                        }
+                    }, {
+                        field: "Slides",
+                        title: "Slides",
+                        sortable: true,
+                        searchType: "num",
+                        formatter: function (i, v) {
+                            return `<a href="https://portal.gdc.cancer.gov/image-viewer?filters=%7B%22op%22%3A%22and%22%2C%22content%22%3A%5B%7B%22op%22%3A%22in%22%2C%22content%22%3A%7B%22field%22%3A%22cases.case_id%22%2C%22value%22%3A%5B%22${v["Case UUID"]}%22%5D%7D%7D%5D%7D" target="_blank">${v["Slides"]}</a>`
+                        }
+                    }, {
+                        field: "Program",
+                        title: "Program",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "DiseaseType",
+                        title: "Disease Type",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "Ageatdiagnosis",
+                        title: "Age at diagnosis",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "Daystodeath",
+                        title: "Days to death",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "VitalStatus",
+                        title: "Vital Status",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "PrimaryDiagnosis",
+                        title: "Primary Diagnosis",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "Ethnicity",
+                        title: "Ethnicity",
+                        sortable: true,
+                        searchType: "text"
+                    }, {
+                        field: "Race",
+                        title: "Race",
+                        sortable: true,
+                        searchType: "text"
+                    }]
+                })
+
+
+                const fields = ["CaseID", "Project", "PrimarySite", "Gender", "Files", "Seq", "Exp", "SNV", "CNV", "Meth", "Clinical",
+                    "Bio", "Mutations", "Genes", "Slides", "Program", "DiseaseType", "Ageatdiagnosis", "Daystodeath",
+                    "VitalStatus", "PrimaryDiagnosis", "Ethnicity", "Race"];
+
+                const titles = ["Case ID", "Project", "Primary Site", "Gender", "Files", "Seq", "Exp", "SNV", "CNV", "Meth", "Clinical",
+                    "Bio", "# Mutations", "# Genes", "Slides", "Program", "Disease Type", "Age at diagnosis", "Days to death",
+                    "Vital Status", "Primary Diagnosis", "Ethnicity", "Race"];
+
+                $.each(fields, (i, v) => {
+                    $("#filter").append(`<div class="form-check form-check-success col-sm-4"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" onclick="setColumns('${v}')"
+                               />${titles[i]}<i class="input-helper"></i></label></div>`)
+                })
+            })
+
+            function setColumns(value) {
+                let element = $("input:checkbox[value=" + value + "]");
+                if (element.is(":checked")) {
+                    $('#table').bootstrapTable('showColumn', value);
+                } else {
+                    $('#table').bootstrapTable('hideColumn', value);
+                }
+            }
+
+    </script>
+
+}

@@ -1,0 +1,359 @@
+@()(implicit session: Session)
+    @cn.home.main("结直肠癌防治智能系统") {
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("model/css/semantic.min.css")">
+
+        <style>
+
+
+                .res {
+                    text-align: center;
+                    border: none;
+                    padding-left: 40px;
+                    padding-right: 40px;
+                    padding-top: 20px;
+                }
+
+                .resLink {
+                    color: white;
+                }
+
+                .resLink:hover {
+                    color: white;
+                }
+
+                .index-text {
+                    padding-top: 15px;
+                    padding-bottom: 15px;
+                }
+
+                .resSearch {
+                    padding-left: 10px;
+                    padding-top: 10px;
+                }
+
+        </style>
+        <div class="row">
+            <div class="col-md-9">
+                <style>
+
+                        /* left content */
+                        #mainBox {
+                            width: 100%;
+                            margin-top: 20px;
+                        }
+
+                        .post01 {
+                            width: 830px;
+                            margin-bottom: 20px;
+                            line-height: 1.6;
+                            margin-top: 30px;
+                        }
+
+
+                        .post01 p {
+                            font-weight: normal;
+                            margin: 0;
+                            text-indent: 2em;
+                        }
+
+                        .res > h3 {
+                            margin-top: 20px;
+                        }
+
+                        .box-main {
+                            margin-bottom: 10px;
+                            display: flex;
+                            display: -webkit-flex;
+                            flex-flow: row;
+                            justify-content: space-between;
+                            width: 870px;
+                        }
+
+                        .box-prevention {
+                            width: 250px;
+                            height: 200px;
+                            border-radius: 10px;
+                            background: linear-gradient(#10A48E, #2D8B67);
+                            color: white;
+                            display: flex;
+                            display: -webkit-flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                        }
+
+                        .box-prevention:hover {
+                            cursor: pointer;
+                            background: #2D8B67;
+                        }
+
+                        .box-prevention p:first-child {
+                            font-size: 23px;
+                            font-weight: bold;
+                        }
+
+                        .box-prevention p:last-child {
+                            font-size: 18px;
+                            margin-top: 20px;
+                        }
+
+                        h3 {
+                            font-size: 22px;
+                            color: #2D8B67;
+                        }
+
+
+                        .box-ml {
+                            width: 250px;
+                            height: 200px;
+                            text-align: center;
+                            border-radius: 10px;
+                            display: flex;
+                            display: -webkit-flex;
+                            flex-direction: column;
+                            align-items: center;
+                            background-color: white;
+                            border: 1px solid #10A48E;
+                        }
+
+                        .box-ml:hover {
+                            cursor: pointer;
+                            border: 1px solid black;
+                        }
+
+                        .box-ml p {
+                            color: #2D8B67;
+                            font-size: 23px;
+                            padding-top: 15px;
+                            font-weight: bold;
+                        }
+
+                        .box-ml img {
+                            width: 200px;
+                        }
+
+                        hr {
+                            margin-top: 10px;
+                            margin-bottom: 10px;
+                        }
+
+
+                </style>
+
+                <div id="mainBox">
+
+                    <div class="post01">
+                        <p>结肠直肠癌（carcinoma of colon and rectum）胃肠道中常见的恶性肿瘤，早期症状不明显，随着癌肿的增大而表现排便习惯改变、便血、腹泻、腹泻与便秘交替、局部腹痛等症状，晚期则表现贫血、体重减轻等全身症状。其发病率和病死率在消化系统恶性肿瘤中仅次于胃癌、食管癌和原发性肝癌。 </p>
+                    </div>
+
+
+                    <h3>精准预防</h3>
+                    <hr/>
+                    <div class="box-main">
+                        <a href="@routes.PreventController.preventPage("primaryPage")">
+                            <div class="box-prevention">
+                                <p>一级预防</p>
+                                <p>(早期特征，病因预防)</p>
+                            </div>
+                        </a>
+
+                        <a href="@routes.PreventController.preventPage("secondaryPage")">
+                            <div class="box-prevention">
+                                <p>二级预防</p>
+                                <p>(预防肠癌，普及筛查)</p>
+                            </div>
+                        </a>
+
+                        <a href="@routes.PreventController.preventPage("tertiaryPage")">
+                            <div class="box-prevention">
+                                <p>三级预防</p>
+                                <p>(预后科学规范的诊治)</p>
+                            </div>
+                        </a>
+                    </div>
+
+
+                    <div style="margin-top: 20px">
+                        <h3>机器学习</h3>
+                        <hr>
+                        <div class="box-main">
+                            <a href="@routes.MlController.modelPage("logistics")" target="_blank">
+                                <div class="box-ml">
+                                    <p>逻辑回归模型</p>
+                                    <img src="/assets/images/logistics.png"/>
+                                </div>
+                            </a>
+
+                            <a href="@routes.MlController.modelPage("rf")" target="_blank">
+                                <div class="box-ml">
+                                    <p>随机森林模型</p>
+                                    <img src="/assets/images/rf.png"/>
+                                </div>
+                            </a>
+
+                            <a href="@routes.MlController.modelPage("neural")" target="_blank">
+                                <div class="box-ml">
+                                    <p>神经网络模型</p>
+                                    <img src="/assets/images/neural.png"/>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="box-main">
+
+                            <a href="@routes.MlController.modelPage("gb")" target="_blank">
+                                <div class="box-ml">
+                                    <p>逻梯度提升树模型</p>
+                                    <img src="/assets/images/gb.png"/>
+                                </div>
+                            </a>
+
+                            <a href="@routes.MlController.modelPage("catboost")" target="_blank">
+                                <div class="box-ml">
+                                    <p>CatBoost模型</p>
+                                    <img src="/assets/images/catboost.png"/>
+                                </div>
+                            </a>
+
+                            <a href="@routes.MlController.modelPage("svm")" target="_blank">
+                                <div class="box-ml">
+                                    <p>支持向量机模型</p>
+                                    <img src="/assets/images/svm.png"/>
+                                </div>
+                            </a>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+            <aside id="sidebar" class="col-md-3">
+
+                <style>
+                        .rpanel {
+                            margin-top: 20px;
+                            border: 1px solid #ddd;
+                            box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+                            border-radius: 5px;
+                        }
+
+                        .rpanel-header {
+                            background-color: #5AABBC;
+                            height: 40px;
+                            line-height: 40px;
+                            padding-left: 15px;
+                        }
+
+                        .rpanel-title {
+                            color: white;
+                        }
+
+                        .rpanel-body {
+                            padding: 15px 15px 0 15px;
+                        }
+
+                        .ui.big.label {
+                            font-size: 13px;
+                        }
+
+                        .ui > p {
+                            margin-bottom: 10px;
+                        }
+
+                        .ui.teal.ribbon.label {
+                            border-color: #197854 !important;
+                        }
+
+                        .ui.teal.label, .ui.teal.labels .label {
+                            background-color: #2D8B67 !important;
+                            border-color: #00b5ad !important;
+                            color: #fff !important;
+                        }
+                </style>
+                <div class="ui raised segment">
+                    <h4 class="text-primary"><span class="ui teal ribbon label big"><i class="fas fa-chart-pie"></i>
+                        应用</span>
+                    </h4>
+                    <br>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        为科研用户提供大数据分析方法</p>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        为结直肠癌高危人群提供精准预防</p>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        为结直肠癌患者提供精准诊断和精准治疗</p>
+
+                </div>
+
+                <div class="ui raised segment">
+                    <h4 class="text-primary"><span class="ui teal ribbon label big"><i class="fas fa-chart-pie"></i>
+                        多组学数据</span>
+                    </h4>
+                    <br>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        基因组学 : 3,814</p>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        细菌组学 : 2,114</p>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        真菌组学 : 714</p>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        病毒组学 : 824</p>
+                    <p><i class="fa fa-chevron-circle-right"></i>
+                        代谢组学 : 114</p>
+                </div>
+
+                <div class="ui raised segment">
+                    <h4 class="text-primary"><span class="ui teal ribbon label big"><i class="fas fa-chart-pie"></i>
+                        标准化流程 </span>
+                    </h4>
+                    <br>
+                    <p><a href="@routes.SopController.sopPage("stoolPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                        粪便标本采集流程</a></p>
+                    <p><a href="@routes.SopController.sopPage("bfPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                        细菌组和真菌组分析流程</a></p>
+                    <p><a href="@routes.SopController.sopPage("metaPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                        代谢组学分析流程</a></p>
+                    <p><a href="@routes.SopController.sopPage("virusPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                        病毒组学分析流程</a></p>
+                    <p><a href="@routes.SopController.sopPage("phonePage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                        电话随访流程</a></p>
+
+                </div>
+
+            </aside>
+
+
+        </div>
+
+
+        <div style="font-size: 13px;
+            background-color: white;
+
+            width: 100%;
+            margin: 0 auto;
+
+            margin-bottom: 10px;
+            font-weight: 300;
+            color: black;
+            margin-top: 100px;
+            text-align: center;">
+            <hr>
+
+            Copyright 2020 Auto Parts All Right Reserved
+
+        </div>
+
+
+        <script>
+
+                function showExample() {
+                    $("#example").val("PF00566 IPR000195 Rab-GTPase");
+                }
+
+
+        </script>
+
+    }

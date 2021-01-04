@@ -1,0 +1,310 @@
+@(mlTypes: String)(implicit session: Session)
+    @en.manage.main("Model Management","ml") {
+
+         <style>
+
+
+                 .col-form-label {
+                     text-align: right;
+                 }
+
+                 .example {
+                     font-size: 14px;
+                 }
+
+                 select.form-control {
+                     color: black !important;
+                 }
+
+                 .help-block {
+                     display: block;
+                 }
+
+                 .failed {
+                     color: #ff4747;
+                     /*                    width: 100px;
+                                         padding: 5px;
+                                         border-radius: 10px;
+                                         text-align: center;
+                                         background-color: #ff4747;*/
+                 }
+
+                 .success {
+                     color: #5d9e12;
+                     /*   background-color: #5d9e12;*/
+                 }
+
+                 .mean th,.mean td{
+                     padding: 10px;
+                 }
+
+                 .state{
+                     display: none;
+                 }
+
+                 .fade{
+                     padding: 30px 80px;
+                     min-height: 650px;
+                 }
+
+                 .fade h4{
+                     margin-bottom: 25px;
+                 }
+
+                 .card-title{
+                     padding-left: 40px;
+                     padding-top: 20px;
+                     font-size: 23px !important;
+                 }
+
+        </style>
+
+        <div class="content-wrapper">
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <div class="d-flex align-items-end flex-wrap">
+                            <div class="d-flex">
+                                <i class="mdi mdi-home text-muted hover-cursor"></i>
+                                <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Machine Learning&nbsp;/&nbsp;</p>
+                                <p class="text-primary mb-0 hover-cursor">@{
+                                    mlTypes match {
+                                        case "logistics" => "Logistic Regression"
+                                        case "rf" => "Random Forest"
+                                        case "neural" => "Neural Network"
+                                        case "gb" => "GBDT"
+                                        case "catboost" => "CatBoost"
+                                        case "svm" => "SVM"
+                                    }
+                                }&nbsp;/&nbsp;</p>
+                                <p class="text-primary mb-0 hover-cursor">Model Management</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table table-bordered" id="table" data-pagination="true" data-search="true"
+                            data-toolbar="#toolbar" data-search-align="left" data-multiple-search="true"></table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row" style="display: none" id="result">
+                <div class="col-md-12 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-title">Model：<span id="model-title"></span></p>
+
+                            <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="imp-tab" data-toggle="tab" href="#imp" role="tab" aria-controls="imp" aria-selected="true">Var.importance</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="roc-tab" data-toggle="tab" href="#roc" role="tab" aria-controls="roc" aria-selected="false">ROC curve plot</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="sumary-tab" data-toggle="tab" href="#sumary" role="tab" aria-controls="sumary" aria-selected="false">Model.sumary</a>
+                                </li>
+                                <li class="nav-item" id="confuse-tab">
+                                    <a class="nav-link" id="cv-tab" data-toggle="tab" href="#cv" role="tab" aria-controls="cv" aria-selected="false">CV.confuse matrix</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content py-0 px-0">
+                                <div class="tab-pane fade show active" id="imp" role="tabpanel" aria-labelledby="imp-tab">
+                                    <h4>Var.importance:</h4>
+                                    <div class="col-md-12 row">
+                                        <div class="col-sm-6" >
+                                            <img id="imp-img" style="max-width: 550px;width: 100%" />
+                                        </div>
+                                        <div class="col-sm-6" >
+                                            <table class="table table-bordered mean" id="imp-table"></table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="tab-pane fade" id="roc" role="tabpanel" aria-labelledby="roc-tab">
+                                    <h4>ROC curve plot:</h4>
+                                    <img id="roc-img"  style="max-width: 550px;width: 100%"/>
+                                </div>
+                                <div class="tab-pane fade" id="sumary" role="tabpanel" aria-labelledby="sumary-tab">
+                                    <h4>Model.sumary:</h4>
+                                    <h5>Accuracy rate: <span id="accuracy_rate"></span> %</h5>
+                                    <div class="col-md-12 row">
+                                        <div class="col-sm-6" >
+                                            <img id="sumary-img"  style="max-width: 550px;width: 100%"   />
+                                        </div>
+                                        <div class="col-sm-6" >
+                                            <table class="table table-bordered" id="sumary-table"  data-pagination="true"
+                                            data-page-list="[15]" data-page-size="15">
+                                                <thead>
+                                                    <tr>
+                                                        <th data-field="orgin">Original value</th>
+                                                        <th data-field="predict">Predict value</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <div class="tab-pane fade" id="cv" role="tabpanel" aria-labelledby="cv-tab">
+                                    <h4>CV.confuse matrix:</h4>
+                                    <table class="table table-bordered" id="confuse-table"></table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script src="@routes.Assets.versioned("webscoket/webscoket.js")" type="text/javascript"></script>
+
+
+    <script>
+
+
+            $(function () {
+                $("#table").bootstrapTable({
+                    columns: [{
+                        field: "name",
+                        title: "Model's name",
+                        valign: "middle",
+                        sortable: true
+                    }, {
+                        field: "start",
+                        title: "Time",
+                        valign: "middle",
+                        sortable: true
+                    }, {
+                        field: "state",
+                        title: "Status",
+                        valign: "middle",
+                        sortable: true,
+                        formatter: function (v, row) {
+                            if (row.state === "2") {
+                                return `<p class="failed">Failure</p><input class='state' value='${row.state}'>`
+                            } else if (row.state === "1") {
+                                return `<p class="success">Success</p><input class='state' value='${row.state}'>`
+                            } else {
+                                return `Running <img src='/assets/images/timg.gif'  style='width: 20px; height: 20px;'><input class='state' value='${row.state}'>`;
+                            }
+                        }
+                    }, {
+                        field: "operation",
+                        title: "Operation",
+                        formatter: function (value, row) {
+                            let log = "<button class=\"btn btn-secondary btn-rounded btn-fw\" onclick=\"OpenLog('" + row.id + "')\" style='margin-right: 10px' >Log</button>";
+                            let success = "<button class=\"btn btn-success btn-rounded btn-fw\" onclick=\"OpenModel('" + row.id + "')\" style='margin-right: 10px' >Model</button>";
+                            let de = "<button class='btn btn-danger btn-rounded btn-fw' onclick=\"DeleteById('" + row.id + "')\" style='margin-right: 10px'>Delete</button>";;
+                            if (row.state === "2") {
+                                return de + log;
+                            } else if (row.state === "1") {
+                                return success+ de + log;
+                            } else {
+                                return de;
+                            }
+                        }
+                    }
+                    ]
+                })
+
+                UpdateTable();
+
+                webScoket("@mlTypes")
+            })
+
+            function UpdateTable() {
+                $.ajax({
+                    url: "@routes.MlController.getAllMl(mlTypes)",
+                    type: "post",
+                    success: function (data) {
+                        $("#table").bootstrapTable("load", data)
+                    }
+                })
+            }
+
+
+            function OpenLog(id) {
+                $.ajax({
+                    url: "/colorectal/platform/ml/openLog?id=" + id,
+                    type: "get",
+                    success: function (data) {
+                        layer.open({
+                            type: 1,
+                            title: 'Log',
+                            skin: 'layui-layer-rim', //加上边框
+                            area: ['600px', '360px'],
+                            shadeClose: true, //点击遮罩关闭
+                            content: data
+                        });
+                    }
+                })
+            }
+
+            function DeleteById(id) {
+                swal({
+                            title: "",
+                            text: "Sure you want to delete?\n",
+                            type: "warning",
+                            showCancelButton: true,
+                            showConfirmButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: false,//设置为false才可以触发双重swal
+                            cancelButtonClass: "btn-outline-danger",
+                            cancelButtonText: "Cancel"
+                        },
+                        function () {
+                            var index = layer.load(1, {
+                                shade: [0.1, '#fff']
+                            });
+                            $.ajax({
+                                url: "/colorectal/platform/ml/deleteModelById?id=" + id,
+                                type: "delete",
+                                success: function () {
+                                    swal("", "\nDelete success！\n", "success")
+                                    layer.close(index);
+                                    UpdateTable();
+                                }
+                            });
+                        });
+
+
+            }
+
+            function OpenModel(obj) {
+                $.post("/colorectal/platform/ml/getRminerModelById?id=" + obj, (data) => {
+                    $("#model-title").html(data.name)
+                    $("#imp-img").attr("src",`/colorectal/utils/getImage?path=${data.path}/imp.png`)
+                    $("#imp-table").html(data.mean);
+                    $("#roc-img").attr("src",`/colorectal/utils/getImage?path=${data.path}/roc.png`)
+                    $("#sumary-img").attr("src",`/colorectal/utils/getImage?path=${data.path}/reg.png`)
+                    $("#accuracy_rate").html(data.rate);
+                    if(data.conf === ""){
+                        $("#confuse-tab").hide()
+                    }else{
+                        $("#confuse-table").html(data.conf);
+                    }
+                    $("#sumary-table").bootstrapTable({data:data.reg})
+                    $("#result").show();
+                    let target_top = $("#result").offset().top - 60;
+                    $("html,body").animate({scrollTop: target_top}, 800);
+                })
+            }
+
+    </script>
+
+    }
+

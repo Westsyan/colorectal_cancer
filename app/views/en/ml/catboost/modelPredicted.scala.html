@@ -1,0 +1,69 @@
+<form class="form-horizontal" method="get" id="form">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Selective prediction model:</label>
+                <div class="col-sm-3">
+                    <select class="form-control" name="name" id="name" onchange="getTitle()">
+
+                                                </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="row">
+
+                                </div>
+
+    <div class="row" style="display: none" id="btn">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <div class="col-sm-2"></div>
+                <button type="button" class="btn btn-primary" style="width: 200px" onclick="run()">
+                                                Predict</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+
+
+                function run() {
+
+                    let form = $("#form");
+                    let fv = form.data("formValidation");
+                    fv.validate();
+                    console.log(fv.isValid())
+                    if (fv.isValid()) {
+                        let index = layer.load(1, {
+                            shade: [0.1, '#fff']
+                        });
+                        let json = "";
+                        $.each(ids, (i, v) => {
+                            let val = $("#" + v).val();
+                            json += "\t" + val;
+                        })
+                        $.ajax({
+                            url: "@routes.MlController.predictCatboost()",
+                            type: "post",
+                            data: {
+                                "id": $("#name").val(),
+                                "data": json
+                            },
+                            success: function (data) {
+                                $("#result").empty();
+                                $("#result").html(data);
+                                $("#result").show();
+                                layer.close(index);
+                                let target_top = $("#result").offset().top;
+                                $("html,body").animate({scrollTop: target_top}, 800);
+                            }
+                        })
+                    }
+                }
+
+        </script>

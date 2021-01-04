@@ -1,0 +1,96 @@
+@()(implicit session: Session)
+@en.manage.main("", "samples") {
+
+    <style>
+            .form-check-label {
+                cursor: pointer;
+            }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="icon icon-browse text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Data Analysis&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">Sample Browser</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">Filter</button>
+
+                        <table class="table  table-bordered" id="table" data-pagination="true"
+                        data-toolbar="#toolbar"  data-advanced-sortable="true">
+                            <thead>
+                                <tr id="thead">
+
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">筛选列</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-sm-12 row" id="filter">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    @* <button type="button" class="btn btn-primary" onclick="Filter()">筛选</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+            $(function () {
+                $.get("@routes.SampleController.getAllSample()", (data) => {
+                    let first = data[0]
+                    let checkbox = "";
+                    for (let s in first) {
+                        $("#thead").append(`<th data-field="${s}" data-sortable="true" data-search-type="text">${s}</th>`);
+                        checkbox += `<div class="form-check form-check-success col-sm-4"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${s}" class="form-check-input" onclick="setColumns('${s}')"
+                               />${s}<i class="input-helper"></i></label></div>`
+                    }
+                    $("#filter").html(checkbox);
+                    $("#table").bootstrapTable({data: data})
+                })
+            })
+
+            function setColumns(value) {
+                let element = $("input:checkbox[value=" + value + "]");
+                if (element.is(":checked")) {
+                    $('#table').bootstrapTable('showColumn', value);
+                } else {
+                    $('#table').bootstrapTable('hideColumn', value);
+                }
+            }
+
+    </script>
+
+}

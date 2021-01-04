@@ -1,0 +1,99 @@
+@(tp: String)
+
+<link rel="stylesheet" href="@routes.Assets.versioned("icomoon/style.css")">
+
+
+    @if(tp == "ml") {
+
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                @cn.ml.siderbarMl("逻辑回归模型", "logistics")
+                @cn.ml.siderbarMl("随机森林模型", "rf")
+                @cn.ml.siderbarMl("神经网络模型", "neural")
+                @cn.ml.siderbarMl("梯度提升树模型", "gb")
+                @cn.ml.siderbarMl("CatBoost模型", "catboost")
+                @cn.ml.siderbarMl("支持向量机模型", "svm")
+            </ul>
+        </nav>
+    }
+    @if(tp == "samples") {
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.SampleController.samplePage()" >
+
+                        <i class="icon icon-browse  menu-icon"></i>
+                        <span class="menu-title">样本展示</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.SampleController.sampleTyping()" >
+
+                        <i class="icon icon-type-in  menu-icon"></i>
+                        <span class="menu-title">样本录入</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    }
+
+    @if(tp == "publicdb") {
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.PublicdbController.tcgaPage()" >
+
+                        <i class="menu-icon"><img src="/assets/images/tcga.icon" width="17px"/></i>
+                        <span class="menu-title">TCGA 数据库</span>
+                    </a>
+                </li>
+
+                <li class="nav-item" id="cbioportal">
+                    <a class="nav-link" href="@routes.PublicdbController.cBioPortalPage()" >
+
+                        <i class=" menu-icon"><img src="/assets/images/cbioportal_icon.png" width="17px"/></i>
+                        <span class="menu-title">cBioPortal 数据库</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.PublicdbController.oncominePage()" >
+
+                        <i class="menu-icon"><img src="/assets/images/omg_log.ico" width="17px"/></i>
+                        <span class="menu-title">Oncomine 数据库</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.PublicdbController.seerPage()" >
+
+                        <i class="menu-icon"><img src="/assets/images/seer_logo.png" width="17px"/></i>
+                        <span class="menu-title">Seer 数据库</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    }
+
+    @if(tp =="tools"){
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+            @cn.tools.sidebarTools("主成分分析(PCA)", "pca")
+            @cn.tools.sidebarTools("PCoA", "pcoa")
+            @cn.tools.sidebarTools("CCA/RDA", "cca")
+            @cn.tools.sidebarTools("热图(Heatmap)", "heatmap")
+            @cn.tools.sidebarTools("组内相关性分析", "igc")
+            @cn.tools.sidebarTools("组间相关性分析", "itc")
+            @cn.tools.sidebarTools("Tax4Fun功能预测", "tax4")
+            @cn.tools.sidebarTools("火山图(Volcano)", "volcano")
+            @cn.tools.sidebarTools("频率直方图", "fh")
+            @cn.tools.sidebarTools("三元图", "ternary")
+            @cn.tools.sidebarTools("树图(Treemap)", "treemap")
+            @cn.tools.sidebarTools("lefse分析", "lefse")
+        </ul>
+    </nav>
+    }

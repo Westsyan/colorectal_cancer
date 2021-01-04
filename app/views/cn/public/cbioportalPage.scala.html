@@ -1,0 +1,94 @@
+@()(implicit session: Session)
+@cn.manage.main("cBioPortal 数据库", "publicdb") {
+
+    <style>
+
+            .bootstrap-table .fixed-table-container .table td, .bootstrap-table .fixed-table-container .table th {
+                line-height: 25px;
+            }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="mdi mdi-home text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;公共数据库&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">cBioPortal 数据库</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-title">Colorectal Adenocarcinoma</p>
+                        <table class="table" id="table" style="max-width: 1200px">
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>引用</th>
+                                </tr>
+                            </thead>
+                            <tbody id="colorectal">
+
+                            </tbody>
+                        </table>
+
+                        <p class="card-title" style="margin-top: 20px">Colon Adenocarcinoma</p>
+                        <table class="table" id="table2" style="max-width: 1200px" >
+                            <tbody id="colon">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+            $(function () {
+                let colorectal = {
+                    "Colorectal Adenocarcinoma (DFCI, Cell Reports 2016)": "Giannakis et al. Cell Reports 2016",
+                    "Colorectal Adenocarcinoma (Genentech, Nature 2012)": "Seshagiri et al. Nature 2012",
+                    "Colorectal Adenocarcinoma (TCGA, Firehose Legacy)": "",
+                    "Colorectal Adenocarcinoma (TCGA, Nature 2012)": "TCGA, Nature 2012",
+                    "Colorectal Adenocarcinoma (TCGA, PanCancer Atlas)": "TCGA, Cell 2018",
+                    "Colorectal Adenocarcinoma Triplets (MSKCC, Genome Biol 2014)": "Brannon et al. Genome Biol 2014",
+                    "Metastatic Colorectal Cancer (MSKCC, Cancer Cell 2018)": "Yaeger et al. Cancer Cell 2018",
+                    "Rectal Cancer (MSK,Nature Medicine 2019)": ""
+                }
+
+                $.each(colorectal, (i, v) => {
+                    let html = `<tr><td><a href="/colorectal/cn/platform/publicdb/cbioportalFilesPage?name=${i}">${i}</a></td><td>${v}</td><tr>`;
+                    $("#colorectal").append(html)
+                })
+
+                let colon = {
+                    "Colon Adenocarcinoma (CaseCCC, PNAS 2015)": "Guda et al. PNAS 2015",
+                    "Colon Cancer (CPTAC-2 Prospective, Cell 2019)": "Vasaikar et al. Cell 2019"
+                }
+
+                $.each(colon, (i, v) => {
+                    let html = `<tr><td><a href="/colorectal/cn/platform/publicdb/cbioportalFilesPage?name=${i}">${i}</a></td><td>${v}</td><tr>`;
+                    $("#colon").append(html)
+                })
+
+
+                $("#table").bootstrapTable()
+                $("#table2").bootstrapTable()
+            })
+
+
+
+    </script>
+
+
+}

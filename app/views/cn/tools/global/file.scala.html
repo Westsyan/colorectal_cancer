@@ -1,0 +1,22 @@
+@(title:String,name:String,example:String)
+
+<div class="col-md-12" id="@name">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">@title:</label>
+        <div class="col-sm-4">
+            <input type="file" name="@name" class="file-upload-default" style="width: 500px">
+            <div class="input-group col-xs-12">
+                <input type="text" class="form-control file-upload-info" disabled placeholder="@title">
+                <span class="input-group-append">
+                    <button class="file-upload-browse btn btn-primary" type="button">
+                                选择</button>
+                </span>
+            </div>
+            <span class="example"><a href="/colorectal/utils/downloadExample?file=@example"><em id="egCrics">
+                        示例文件</em>
+            </a>
+            </span>
+        </div>
+    </div>
+</div>
+

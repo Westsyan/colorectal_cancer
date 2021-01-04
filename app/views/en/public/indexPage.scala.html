@@ -1,0 +1,148 @@
+@()(implicit session: Session)
+@en.home.main("Public DataBase") {
+
+    <style>
+
+
+            .text-title {
+                color: #2D8B67;
+                font-size: 22px;
+                padding: 10px 0 10px 0;
+                border-bottom: 1px solid #d0dbdc;
+            }
+
+            .btn-my {
+                float: right;
+                background-color: #2D8B67;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 10px;
+                margin-right: 20px;
+            }
+
+            .ml-row{
+                display: flex;
+                display: -webkit-flex;
+                flex-flow: row wrap;
+                margin-bottom: 50px;
+            }
+
+            .ml-box{
+                display: flex;
+                display: -webkit-flex;
+                flex-flow: row nowrap;
+                border: 1px solid #10A48E;
+                border-radius: 10px;
+                padding: 10px;
+                margin-top: 20px;
+            }
+
+            .ml-box-img{
+                width: 400px;
+                display: flex;
+                flex-flow: row;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .ml-box-img img{
+                width: 350px;
+            }
+
+            .ml-box-text{
+                width: 800px;
+            }
+
+            .ml-box-text p{
+                text-indent: 2em;
+                line-height: 25px
+            }
+
+    </style>
+
+    <div class="row">
+
+
+        <h1 class="page-heading">Public DataBase</h1>
+
+
+        <div class="ml-row">
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/tcga.svg" />
+                </div>
+
+                <div class="ml-box-text">
+                    <h1 class="text-title">TCGA Database</h1>
+                    <p>TCGA, The Cancer Genome Atlas, is a Cancer Research project jointly established by The National Cancer Institute (NCI) and The National Human Genome Research Institute (NHGRI). It provides a large, free reference database for Cancer Research by collecting and sorting various omics data related to Cancer.</p>
+                    <a href="@routes.PublicdbController.tcgaPageEn()" target="_blank"><button class="btn-my">
+                        <i class=" mdi mdi-hand-pointing-right"></i> Enter</button></a>
+                </div>
+
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/cbioportal.png"/>
+                </div>
+
+                <div class="ml-box-text">
+                    <h1 class="text-title">cBioPortal Database</h1>
+                    <p>CBioPortal contains genetic data types including somacellular mutations, CHANGES in DNA copy
+                        number,mRNA and microRNA expression,DNA methylation, protein abundance and phosphorus protein
+                        abundance. To date,cBioPortal contains 10 published tumor research results and more than 20 TCGA
+                        results for each tumor sample and data that can be downloaded from the websiteCBioPortal these
+                        complex data consolidated and simplified from gene level, each sample can query the specific
+                        biological characteristics, such as gene mutations, homozygous absence, gene amplification, mRNA
+                        and increase or decrease of micrornas, protein increased or decreased etc. This allows researchers
+                        to query each gene and sample genes change, verify some fake.</p>
+                    <a href="@routes.PublicdbController.cBioPortalPageEn()" target="_blank"><button class="btn-my">
+                        <i class=" mdi mdi-hand-pointing-right"></i> Enter</button></a>
+                </div>
+
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/oncomine.gif" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">Oncomine Database</h1>
+                    <p>Oncomine is currently the world's largest database of cancer gene chips and an integrated data
+                        mining platform designed to mine cancer genetic information. Oncomine has the most complete
+                        cancer mutation profile, gene expression data, and relevant clinical information that can be
+                        used to identify new biomarkers or new therapeutic targets. Oncomine combines RNA and DNA-SEQ
+                        data from GEO, TCGA and published literature sources.</p>
+                    <a href="@routes.PublicdbController.oncominePageEn()" target="_blank"><button class="btn-my">
+                        <i class=" mdi mdi-hand-pointing-right"></i> Enter</button></a>
+                </div>
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/seer_logo.png" style="width: 170px" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">SEER Database</h1>
+                    <p> SEER database, the U.S. national cancer institute, "surveillance, epidemiology and result
+                        database" SEER in North America is one of the most representative large tumor registration
+                        database, collected a large number of relevant data of evidence-based medicine, evidence-based
+                        practice for clinicians and clinical medical research provides evidence to support and valuable
+                        first-hand information. Clinical data from the SEER database includes patient registration
+                        Numbers, personal information, location of the primary lesion, tumor size, tumor code, treatment,
+                        cause of death, and more.
+                    </p>
+                    <a href="@routes.PublicdbController.seerPageEn()" target="_blank"><button class="btn-my">
+                        <i class=" mdi mdi-hand-pointing-right"></i> Enter</button></a>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+}

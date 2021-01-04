@@ -1,0 +1,131 @@
+@()(implicit session: Session)
+@cn.home.main("公共数据库") {
+
+    <style>
+
+
+            .text-title {
+                color: #2D8B67;
+                font-size: 22px;
+                padding: 10px 0 10px 0;
+                border-bottom: 1px solid #d0dbdc;
+            }
+
+            .btn-my {
+                float: right;
+                background-color: #2D8B67;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 10px;
+                margin-right: 20px;
+            }
+
+            .ml-row{
+                display: flex;
+                display: -webkit-flex;
+                flex-flow: row wrap;
+                margin-bottom: 50px;
+            }
+
+            .ml-box{
+                display: flex;
+                display: -webkit-flex;
+                flex-flow: row nowrap;
+                border: 1px solid #10A48E;
+                border-radius: 10px;
+                padding: 10px;
+                margin-top: 20px;
+            }
+
+            .ml-box-img{
+                width: 400px;
+                display: flex;
+                flex-flow: row;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .ml-box-img img{
+                width: 350px;
+            }
+
+            .ml-box-text{
+                width: 800px;
+            }
+
+            .ml-box-text p{
+                text-indent: 2em;
+                line-height: 25px
+            }
+
+    </style>
+
+    <div class="row">
+
+
+        <h1 class="page-heading">公共数据库</h1>
+
+
+        <div class="ml-row">
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/tcga.svg" />
+                </div>
+
+                <div class="ml-box-text">
+                    <h1 class="text-title">TCGA数据库</h1>
+                    <p>TCGA全称The Cancer Genome Atlas，是由National Cancer Institute ( NCI, 美国国家癌症研究所) 和  National Human Genome Research Institute (NHGRI, 国家人类基因组研究所) 合作建立的癌症研究项目，通过收集整理癌症相关的各种组学数据，提供了一个大型的，免费的癌症研究参考数据库。</p>
+                    <a href="@routes.PublicdbController.tcgaPage()" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/cbioportal.png"/>
+                </div>
+
+                <div class="ml-box-text">
+                    <h1 class="text-title">cBioPortal数据库</h1>
+                    <p>cBioPortal整合的基因数据类型包括体细胞突变，DNA拷贝数改变，mRNA和microRNA表达，DNA甲基化，蛋白丰度以及磷蛋白
+                        丰度。迄今为止，cBioPortal包含了10已发表的肿瘤研究结果和20多个TCGA的结果。每个肿瘤样本和数据可以从网站上下载。
+                        cBioPortal把这些复杂的数据从基因水平上进行了整合和简化，每个样本可以查询特定的生物学特性，如基因突变，纯合子缺失，
+                        基因扩增，mRNA和miRNA的增加或减少，蛋白质的增加或减少等。这让研究人员可以查询每个基因和样本的基因改变，验证一些假
+                        设。</p>
+                    <a href="@routes.PublicdbController.cBioPortalPage()" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/oncomine.gif" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">Oncomine数据库</h1>
+                    <p>Oncomine 是目前世界上最大的癌基因芯片数据库和整合数据挖掘平台，旨在挖掘癌症基因信息。Oncomine 拥有最全的癌症突变谱、基因表达数据以及相关的临床信息，可用于发现新的生物标记物或新的治疗靶点。Oncomine 整合了GEO、TCGA和已发表的文献来源的RNA和DNA-seq数据。</p>
+                    <a href="@routes.PublicdbController.oncominePage()" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+            </div>
+
+            <div class="ml-box">
+                <div class="ml-box-img">
+                    <img src="/assets/images/seer_logo.png" style="width: 170px" />
+                </div>
+                <div class="ml-box-text">
+                    <h1 class="text-title">SEER数据库</h1>
+                    <p> SEER数据库，美国国立癌症研究所“监测、流行病学和结果数据库”SEER是北美最具代表性的大型肿瘤登记注册数据库之一，收集了大量循证医学的相关数据，为临床医师的循证实践及临床医学研究提供了系统的证据支持和宝贵的第一手资料。SEER数据库提供的临床数据，数据记录中包括患者的注册编号、个人信息、原发病灶部位、肿瘤尺寸、肿瘤编码、治疗方案、死亡原因等信息。
+                    </p>
+                    <a href="@routes.PublicdbController.seerPage()" target="_blank"><button class="btn-my"><i class=" mdi mdi-hand-pointing-right"></i> 点击进入</button></a>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+}

@@ -1,0 +1,79 @@
+@(tp: String)
+
+<link rel="stylesheet" href="@routes.Assets.versioned("icomoon/style.css")">
+
+
+    @if(tp == "ml") {
+
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                @en.ml.siderbarMl("Logistic Regression", "logistics")
+                @en.ml.siderbarMl("Random Forest", "rf")
+                @en.ml.siderbarMl("Neural Network", "neural")
+                @en.ml.siderbarMl("GBDT", "gb")
+                @en.ml.siderbarMl("CatBoost", "catboost")
+                @en.ml.siderbarMl("SVM", "svm")
+            </ul>
+        </nav>
+    }
+    @if(tp == "samples") {
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.SampleController.samplePageEn()" >
+
+                        <i class="icon icon-browse  menu-icon"></i>
+                        <span class="menu-title">Sample Browser</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.SampleController.sampleTypingEn()" >
+
+                        <i class="icon icon-type-in  menu-icon"></i>
+                        <span class="menu-title">Sample Upload</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    }
+
+    @if(tp == "publicdb") {
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.PublicdbController.tcgaPageEn()" >
+
+                        <i class="menu-icon"><img src="/assets/images/tcga.icon" width="17px"/></i>
+                        <span class="menu-title">TCGA Database</span>
+                    </a>
+                </li>
+
+                <li class="nav-item" id="cbioportal">
+                    <a class="nav-link" href="@routes.PublicdbController.cBioPortalPageEn()" >
+
+                        <i class=" menu-icon"><img src="/assets/images/cbioportal_icon.png" width="17px"/></i>
+                        <span class="menu-title">cBioPortal Database</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.PublicdbController.oncominePageEn()" >
+
+                        <i class="menu-icon"><img src="/assets/images/omg_log.ico" width="17px"/></i>
+                        <span class="menu-title">Oncomine Database</span>
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@routes.PublicdbController.seerPageEn()" >
+
+                        <i class="icon icon-browse  menu-icon"></i>
+                        <span class="menu-title">Seer Database</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }

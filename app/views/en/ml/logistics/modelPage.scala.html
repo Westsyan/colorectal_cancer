@@ -1,0 +1,117 @@
+<form class="form-horizontal" method="get" id="form">
+
+    @en.ml.generalSection()
+
+    @en.ml.runButton()
+</form>
+
+<script>
+
+            $(function () {
+                RfFormValidation();
+            })
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MlController.logisticRun()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#form")[0]),
+                        success: function (data) {
+                            layer.close(index);
+                            if (data.valid == "false") {
+                            } else {
+                                window.location.href = ("@routes.MlController.modelResultEn("logistics")")
+                            }
+                        }
+                    })
+                }
+            }
+
+            function RfFormValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Not be empty!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MlController.checkName("logistics")',
+                                    message: 'The model name is repeated. '
+                                }
+                            }
+                        },
+                        file: {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Please select a matrix file!'
+                                },
+                                callback: {
+                                    callback: () => {
+                                        $("#dent").hide();
+                                        let valid = true;
+                                        $.ajax({
+                                            url: "@routes.MlController.checkMatrixReturnParameter()",
+                                            type: "post",
+                                            async: false,
+                                            processData: false,
+                                            contentType: false,
+                                            data: new FormData($("#form")[0]),
+                                            success: function (data) {
+                                                if (data.valid == "false") {
+                                                    valid = false
+                                                } else {
+                                                    let dependent = "";
+                                                    let independent = "";
+                                                    $.each(data.para, (i, v) => {
+                                                        if (i === data.para.length - 1) {
+                                                            dependent += `<option value="${v}" selected>${v}</option>`;
+                                                        } else {
+                                                            dependent += `<option value="${v}">${v}</option>`;
+                                                        }
+                                                        independent += `<div class="form-check form-check-success"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" name="independent[]"
+                              />${v}<i class="input-helper"></i></label></div>`
+                                                    })
+                                                    $("#dependent").empty();
+                                                    $("#dependent").html(dependent);
+                                                    $("#independent").empty();
+                                                    $("#independent").html(independent);
+                                                    $("#dent").show();
+                                                }
+
+                                            }
+                                        })
+
+                                        changeByDependent()
+
+                                        return valid;
+                                    },
+                                    message: "Please upload a tab-delimited matrix file!"
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+
+    </script>
+
+

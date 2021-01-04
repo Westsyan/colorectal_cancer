@@ -1,0 +1,173 @@
+
+
+<form class="form-horizontal" method="get" id="form">
+
+
+    @cn.ml.generalSection()
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">核函数（Kernel） :</label>
+                <div class="col-sm-4">
+                    <select  class="form-control"  name="kernel" id="kernel">
+                        <option value="vanilladot">Linear kernel </option>
+                        <option value="rbfdot">Radial Basis kernel "Gaussian" </option>
+                        <option value="polydot"> Polynomial kernel </option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">C（cost of constraints violation） :</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="c" value="1"  placeholder="默认值： 1"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">设置允许的终止判据:</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="tol" value="0.001"  placeholder="默认值： 0.001"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-3 col-form-label">设置e -SVR 中损失函数p的值:</label>
+                <div class="col-sm-4">
+                    <input class="form-control" name="epsilon" value="0.1" placeholder="默认值： 0.1" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @cn.ml.runButton()
+
+</form>
+
+<script>
+
+            $(function () {
+                $("#kernel").select2()
+
+                RfFormValidation();
+            })
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MlController.svmRun()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#form")[0]),
+                        success: function (data) {
+                            layer.close(index);
+                            if (data.valid == "false") {
+                            } else {
+                                window.location.href = ("@routes.MlController.modelResult("svm")")
+                            }
+                        }
+                    })
+                }
+            }
+
+
+            function RfFormValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MlController.checkName("svm")',
+                                    message: '模型名称重复，请重新输入'
+                                }
+                            }
+                        },
+                        file: {
+                            validators: {
+                                notEmpty: {
+                                    message: '请选择一个矩阵文件！'
+                                },
+                                callback: {
+                                    callback: () => {
+                                        $("#dent").hide();
+                                        let valid = true;
+                                        $.ajax({
+                                            url: "@routes.MlController.checkMatrixReturnParameter()",
+                                            type: "post",
+                                            async: false,
+                                            processData: false,
+                                            contentType: false,
+                                            data: new FormData($("#form")[0]),
+                                            success: function (data) {
+                                                if (data.valid == "false") {
+                                                    valid = false
+                                                } else {
+                                                    let dependent = "";
+                                                    let independent = "";
+                                                    $.each(data.para, (i, v) => {
+                                                        if (i === data.para.length - 1) {
+                                                            dependent += `<option value="${v}" selected>${v}</option>`;
+                                                        } else {
+                                                            dependent += `<option value="${v}">${v}</option>`;
+                                                        }
+                                                        independent += `<div class="form-check form-check-success"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" name="independent[]"
+                              />${v}<i class="input-helper"></i></label></div>`
+                                                    })
+                                                    $("#dependent").empty();
+                                                    $("#dependent").html(dependent);
+                                                    $("#independent").empty();
+                                                    $("#independent").html(independent);
+                                                    $("#dent").show();
+                                                }
+
+                                            }
+                                        })
+
+                                        changeByDependent()
+
+                                        return valid;
+                                    },
+                                    message: "请上传以制表符分隔的矩阵文件！"
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+
+
+    </script>
+
+

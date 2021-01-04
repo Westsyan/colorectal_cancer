@@ -1,0 +1,80 @@
+@cn.user.main("登录") {
+
+
+    <div class="box-right">
+
+        <p class="page-title">登录</p>
+
+        <form id="form" method="get" action="@routes.UserController.loginSuccess()">
+            <div class="row form-group">
+
+                <input type="text" placeholder="账号" class="form-input" name="user"  style="font-family: password"/>
+                <i class="fa fa-user fa-icon"></i>
+
+
+            </div>
+
+            <div class="row form-group">
+                <input type="password" placeholder="密码" class="form-input" name="pwd"/>
+                <i class="fa fa-unlock-alt fa-icon"></i>
+            </div>
+
+            <div class="row form-group">
+                <input type="text" placeholder="验证码" class="form-input" name="code" style="width: 70%"/>
+                <i class="fa fa-shield  fa-icon"></i>
+                <input type="button" class="form-input code" id="code" onclick="createCode()" />
+            </div>
+
+            <div class="row">
+                <button type="button" class="btn" onclick="Login()">立即登录</button>
+            </div>
+
+            <a href="@routes.UserController.registerPage()">
+                <div class="row">
+                    <button type="button" class="btn" >注册</button>
+                </div>
+            </a>
+
+            <div class="row-login">
+
+                <p><a href="@routes.HomeController.index()"><i class="fa fa-mail-reply "></i> 返回首页</a></p>
+            </div>
+        </form>
+
+    </div>
+
+
+    <script>
+
+            $(function () {
+                createCode();
+                loginFormValidation()
+            })
+
+            function Login() {
+                console.log("test");
+                let form = $("#form");
+                form.formValidation("revalidateField", "code");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    $.ajax({
+                        url: "@routes.UserController.checkLogin()",
+                        type: "post",
+                        data: $("#form").serialize(),
+                        success: function (data) {
+                            createCode();
+                            if (data === "false") {
+                                swal("错误", "用户名或密码错误", "error")
+                            }else{
+                                //form.submit()由于在firefox中不执行，故换成：
+                                document.forms[0].submit();
+                            }
+                        }
+                    })
+                }
+            }
+
+    </script>
+
+}

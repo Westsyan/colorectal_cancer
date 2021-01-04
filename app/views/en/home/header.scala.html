@@ -1,0 +1,154 @@
+@(session: Session)
+
+<style>
+
+        .dropdown-menu {
+            margin: 0;
+        }
+
+        .dropdown-menu li {
+            width: 100%;
+        }
+
+        .lang {
+            float: right !important;
+        }
+
+        .lang a {
+            font-size: 12px !important;
+            margin-top: 5px;
+            padding: 0.5em !important;
+
+        }
+
+        .lang a:hover {
+            cursor: pointer;
+            color: #2D8B67 !important;
+            background: white !important;
+            border: 1px solid #2D8B67;
+            border-radius: 5px;
+        }
+
+</style>
+<div class="header">
+    <div class="top-header" style="height: 160px">
+        <div class="wrap" style="width: 1200px">
+
+            <div class="top-header-left" style="margin-top: 15px;
+                margin-bottom: 5px;">
+                <img src="/assets/images/logo1.gif" height="130px" style="float: left"/>
+                <div style="float: left;
+                    margin-top: 13px;">
+                    <img src="/assets/images/logo2.gif" height="60px" />
+                </div>
+                <div>
+                    <img src="/assets/images/logo3.jpg" height="33px" />
+                </div>
+            </div>
+            <div class="right-left" style="margin-top: 102px;
+                margin-right: 25px">
+                @if(session.get("id").isEmpty) {
+                    <a href="@routes.UserController.loginPageEn()" style="color: white"><i class="fa fa-user-o"></i>
+                        Login</a>
+                } else {
+                    <a style="color: white">Welcome，@session.get("user").get !</a>
+                }
+
+            </div>
+            <div class="clear"> </div>
+        </div>
+    </div>
+
+    <style>
+            .dropdown a:hover {
+
+            .dropdown-menu {
+                display: unset;
+            }
+
+            }
+    </style>
+    <div class="top-nav" style="border-bottom: 1px solid #2D8B67;">
+        <div class="wrap menu-div" style="width: 1200px">
+            <ul>
+                <li id="home"><a href="@routes.HomeController.indexEn()">Home</a></li>
+                <li id="ml"><a href="@routes.MlController.mlIndexEn()">Machine Learning</a></li>
+                <li id="publicdb"><a href="@routes.PublicdbController.indexPageEn()">Public DataBase</a></li>
+                @* <li><a href="@routes.SampleController.samplePageEn()">Data Analysis</a></li>*@
+                <li class="dropdown" id="prevent">
+                    <a href="">Prevention <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.PreventController.preventPageEn("primaryPageEn")">Primary Prevention</a></li>
+                        <li><a href="@routes.PreventController.preventPageEn("secondaryPageEn")">Secondary Prevention</a></li>
+                        <li><a href="@routes.PreventController.preventPageEn("tertiaryPageEn")">Tertiary Prevention</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown"  id="diagnosis">
+                    <a href="#">Diagnosis <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.DiagnosisController.diagnosisPageEn("diseasePage")">Identify the type according to the disease</a></li>
+                        <li><a href="@routes.DiagnosisController.diagnosisPageEn("drugPage")">According to the treatment drug type</a></li>
+                        <li><a href="@routes.DiagnosisController.diagnosisPageEn("prognosisPage")">Type according to prognosis</a></li>
+                        <li><a href="@routes.DiagnosisController.diagnosisPageEn("biologicalPage")">According to biological behavior classification</a></li>
+                    </ul>
+
+                </li>
+                <li class="dropdown" id="treatment">
+                    <a href="#">Treatment <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.TreatmentController.treatmentPageEn("nonmetastaticPage")">Nonmetastatic colorectal cancer</a></li>
+                        <li><a href="@routes.TreatmentController.treatmentPageEn("metastaticPage")">Metastatic colorectal cancer</a></li>
+                        <li><a href="@routes.TreatmentController.treatmentPageEn("evaluationPage")">Therapeutic evaluation</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown" id="sop">
+                    <a href="#">SOP <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.SopController.sopPageEn("stoolPage")">Collection of fecal samples</a></li>
+                        <li><a href="@routes.SopController.sopPageEn("bfPage")">Analysis of bacterial group and fungal group</a>
+                        </li>
+                        <li><a href="@routes.SopController.sopPageEn("metaPage")">Metabolomics analysis</a></li>
+                        <li><a href="@routes.SopController.sopPageEn("virusPage")">Virusomics analysis </a></li>
+                        <li><a href="@routes.SopController.sopPageEn("phonePage")">Telephone follow-up</a></li>
+                    </ul>
+
+                </li>
+
+
+                <li class="lang"><a href="javascript:ToEn()">中文</a></li>
+                <div class="clear"> </div>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+
+        const href = window.location.href;
+        const array = href.split("/");
+        const code = array[array.length - 2];
+        if (array.length < 5) {
+            $("#home").addClass('active');
+        } else {
+            $("#" + code).addClass('active');
+        }
+
+        $(".dropdown").mouseover(function () {
+            $(this).find(".dropdown-menu").show();
+        })
+
+        $(".dropdown").mouseout(function () {
+            $(this).find(".dropdown-menu").hide();
+        })
+
+
+        function ToEn() {
+            let pathName = window.location.pathname
+            if (pathName === "/colorectal/en/home/index") {
+                window.location.href = href.replace("colorectal/en/home/index", "");
+            } else {
+                window.location.href = href.replace("/en/", "/cn/");
+            }
+        }
+
+</script>

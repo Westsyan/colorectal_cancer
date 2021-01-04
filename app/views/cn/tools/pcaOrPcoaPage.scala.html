@@ -1,0 +1,192 @@
+@(name: String)
+
+<style>
+        #showarrow, #group, #xRange, #yRange {
+            display: none;
+        }
+</style>
+
+
+<form class="form-horizontal row" method="get" id="form">
+
+    @cn.tools.global.taskname()
+
+    @cn.tools.global.file("上传矩阵文件", "matrix", name + "_table.txt")
+
+    @cn.tools.global.radio("是否显示样本名", "showname", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "ShowOrHide('showname','showarrow')")
+
+    @cn.tools.global.radio("是否显示箭头", "showarrow", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "")
+
+    @cn.tools.global.radio("是否分组绘图", "isgroup", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "ShowOrHide('isgroup','group')")
+
+    @cn.tools.global.file("上传分组文件", "group", name + "_group.txt")
+
+    @cn.tools.global.runButton()
+</form>
+
+<script>
+
+        $(function () {
+            MyTable.prototype.getTaskName("@name.toUpperCase")
+            ShowOrHide('showname', 'showarrow');
+            ShowOrHide('isgroup', 'group');
+            webScoket("@name")
+        })
+
+        function ShowRange() {
+            let value = $("input[name=big]:checked").val()
+            if (value === "x") {
+                $("#yRange").hide();
+                $("#xRange").css("display", "flex");
+            } else if (value === "y") {
+                $("#xRange").hide();
+                $("#yRange").css("display", "flex");
+            } else {
+                $("#xRange").hide();
+                $("#yRange").hide();
+            }
+        }
+
+
+        function OpenResult(id) {
+            $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=@name", (data) => {
+                const $result = $("#result")
+
+                const html = `                            <div class="col-sm-6" style="min-width: 600px;
+                                margin-top: 35px">
+                                <img id="resultImg" width="100%"/>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <form id="reForm"  enctype="multipart/form-data">
+                                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                                        <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;
+                                            border-bottom: 1px solid #ddd">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="picpara-tab" data-toggle="tab" href="#picpara" role="tab" aria-controls="picpara" aria-selected="true">
+                                                    数据布局参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="colopara-tab" data-toggle="tab" href="#colopara" role="tab" aria-controls="colopara" aria-selected="false">
+                                                    颜色参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="fontpara-tab" data-toggle="tab" href="#fontpara" role="tab" aria-controls="fontpara" aria-selected="false">
+                                                    字体参数</a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content" style="box-sizing: border-box !important;
+                                            padding-top: 30px">
+                                            <div class="tab-pane fade active  show" id="picpara">
+                                                @cn.tools.reGlobal.select("选择x轴数据", "xdata", Seq())
+                                                @cn.tools.reGlobal.select("选择y轴数据", "ydata", Seq())
+                                                @cn.tools.reGlobal.radio("是否显示样本名", "showname2", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "ShowOrHide('showname2','showarrow2')")
+                                                @cn.tools.reGlobal.radio("是否显示箭头", "showarrow2", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "")
+                                                @cn.tools.reGlobal.radio("是否画置信椭圆", "c", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "")
+                                                @cn.tools.reGlobal.radio("放大显示区域", "big", Seq(("no", "no"), ("x", "放大x轴范围"), ("y", "放大y轴范围")), "no", "ShowRange()")
+                                                @cn.tools.reGlobal.numRange("X范围", "xdamin", "", "xdamax", "", "xRange")
+                                                @cn.tools.reGlobal.numRange("Y范围", "ydamin", "", "ydamax", "", "yRange")
+                                                @cn.tools.reGlobal.radio("清晰度", "resolution", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+                                                @cn.tools.reGlobal.numRange("图片长宽", "width", "15", "length", "12", "imgRange")
+                                            </div>
+                                            <div class="tab-pane fade" id="colopara">
+                                                <p class="card-title" style="margin-left:12%">自定义颜色(当前分组 - 颜色)：</p>
+                                            </div>
+                                            <div class="tab-pane fade" id="fontpara">
+                                                @cn.tools.reGlobal.slider("x轴字体大小", "xts", "0", "50", "1", "15")
+                                                @cn.tools.reGlobal.slider("x轴标题大小", "xls", "0", "50", "1", "17")
+                                                @cn.tools.reGlobal.slider("y轴字体大小", "yts", "0", "50", "1", "15")
+                                                @cn.tools.reGlobal.slider("y轴标题大小", "yls", "0", "50", "1", "17")
+                                                @cn.tools.reGlobal.slider("说明文字大小", "lts", "0", "50", "1", "14")
+                                                @cn.tools.reGlobal.slider("说明标题大小", "lms", "0", "50", "1", "15")
+                                                @cn.tools.reGlobal.slider("主标题大小", "ms", "0", "50", "1", "15")
+                                                @cn.tools.reGlobal.text("说明标题", "lmtext", "标题不可含有汉字")
+                                                @cn.tools.reGlobal.text("主标题", "mstext", "标题不可含有汉字")
+                                            </div>
+                                        </div>
+                                        @cn.tools.reGlobal.runButton()
+                                    </div>
+                                </form>
+
+
+                            </div>`
+                $("#redraw").empty().html(html)
+
+                $("#task_title").text(data.title)
+                $("#reButton").attr("onclick", "ReDraw('" + id + "')")
+                $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=@name/${id}/@{name}.png&num=` + Math.random())
+                let tableData = [];
+
+                $.each(data.tableData, (i, v) => {
+                    tableData.push({
+                        "filename": v[0],
+                        "explain": v[1],
+                        "download": `<a class="result-download" href="/colorectal/cn/platform/tools/downloadToolsFile?path=@name/${id}/${v[0]}" ><i class="mdi mdi-download"></i></a>`
+                    })
+                })
+
+                $("#fileTable").bootstrapTable({data: tableData})
+
+                const drawParams = data.drawParams;
+                $("#xdata").select2({
+                    data: data.cols
+                }).val(drawParams.xdata).select2({minimumResultsForSearch: -1})
+                $("#ydata").select2({
+                    data: data.cols
+                }).val(drawParams.ydata).select2({minimumResultsForSearch: -1})
+
+                $.each(data.group, function (i, v) {
+                    let name ;
+                    if (v === "nogroup") {
+                        name = "未分组"
+                    } else{
+                        name = v
+                    }
+                    let colo = `<div class="form-group row reDraw" >
+                                        <label class="col-sm-3 col-form-label">${name}：</label>
+                                        <div  class="col-sm-9" style="display: flex">
+                                            <input id='color${i}'  name='color' class='colorPicker evo-cp0 form-control'>
+                                        </div>
+                                    </div>`
+                    $("#colopara").append(colo);
+                    $("#color" + i).colorpicker({color: data.color[i], defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                //formValidation重新验证颜色
+
+                            });
+                });
+
+
+                let slider = ["xts", "xls", "yts", "yls", "lts", "lms", "ms"]
+
+                $.each(slider, (i, v) => {
+                    let $sliderId = $("#" + v)
+                    $sliderId.bootstrapSlider({tooltip: 'always'});
+                    $sliderId.bootstrapSlider('setValue', drawParams[v]);
+                })
+
+                let text = ["xdamin", "xdamax", "ydamin", "ydamax", "width", "length", "lmtext", "mstext"]
+
+                $.each(text, (i, v) => {
+                    $("#" + v).val(drawParams[v])
+                })
+
+                let radio = ["showname2", "showarrow2", "c", "big", "resolution"]
+
+                $.each(radio, (i, v) => {
+                    $("input[name=" + v + "][value=" + drawParams[v] + "]").prop("checked", true)
+                })
+
+                ShowOrHide("showname2", "showarrow2");
+                ShowRange();
+
+                $result.show()
+                let target_top = $result.offset().top - 50;
+                $("html,body").animate({scrollTop: target_top}, 800);
+            })
+        }
+
+
+
+</script>

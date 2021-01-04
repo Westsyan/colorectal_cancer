@@ -1,0 +1,357 @@
+@()(implicit session: Session)
+@en.home.main("结直肠癌防治智能系统") {
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("model/css/semantic.min.css")">
+
+    <style>
+
+
+            .res {
+                text-align: center;
+                border: none;
+                padding-left: 40px;
+                padding-right: 40px;
+                padding-top: 20px;
+            }
+
+            .resLink {
+                color: white;
+            }
+
+            .resLink:hover {
+                color: white;
+            }
+
+            .index-text {
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
+
+            .resSearch {
+                padding-left: 10px;
+                padding-top: 10px;
+            }
+
+    </style>
+    <div class="row">
+        <div class="col-md-9">
+            <style>
+
+                    /* left content */
+                    #mainBox {
+                        width: 100%;
+                        margin-top: 20px;
+                    }
+
+                    .post01 {
+                        width: 830px;
+                        margin-bottom: 20px;
+                        line-height: 1.6;
+                        margin-top: 30px;
+                    }
+
+
+                    .post01 p {
+                        font-weight: normal;
+                        margin: 0;
+                        text-indent: 2em;
+                    }
+
+                    .res > h3 {
+                        margin-top: 20px;
+                    }
+
+                    .box-main {
+                        margin-bottom: 10px;
+                        display: flex;
+                        display: -webkit-flex;
+                        flex-flow: row;
+                        justify-content: space-between;
+                        width: 870px;
+                    }
+
+                    .box-prevention {
+                        width: 250px;
+                        height: 200px;
+                        border-radius: 10px;
+                        background: linear-gradient(#10A48E, #2D8B67);
+                        color: white;
+                        display: flex;
+                        display: -webkit-flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .box-prevention:hover {
+                        cursor: pointer;
+                        background: #2D8B67;
+                    }
+
+                    h3 {
+                        font-size: 22px;
+                        color: #2D8B67;
+                    }
+
+
+                    .box-ml {
+                        width: 250px;
+                        height: 200px;
+                        text-align: center;
+                        border-radius: 10px;
+                        display: flex;
+                        display: -webkit-flex;
+                        flex-direction: column;
+                        align-items: center;
+                        background-color: white;
+                        border: 1px solid #10A48E;
+                    }
+
+                    .box-ml:hover {
+                        cursor: pointer;
+                        border: 1px solid black;
+                    }
+
+                    .box-ml p {
+                        color: #2D8B67;
+                        font-size: 23px;
+                        padding-top: 15px;
+                        font-weight: bold;
+                    }
+
+                    .box-ml img {
+                        width: 200px;
+                    }
+
+                    hr {
+                        margin-top: 10px;
+                        margin-bottom: 10px;
+                    }
+
+
+            </style>
+
+            <div id="mainBox">
+
+                <div class="post01">
+                    <p>Colorectal cancer, carcinoma of colon and rectum) of the common malignant tumor in
+                        gastrointestinal tract, the early symptoms are not obvious, and bowel habit changes with
+                        the increase of tumor local abdominal pain symptoms such as bloody diarrhea diarrhea
+                        alternating with constipation, the late is systemic symptom such as anemia, weight loss
+                        its morbidity and mortality after esophageal and gastric cancer in the digestive system
+                        malignant tumor of primary liver cancer.</p>
+                </div>
+
+
+                <h3>Accurate prevention</h3>
+                <hr/>
+                <div class="box-main">
+                    <a href="@routes.PreventController.preventPageEn("primaryPage")">
+                        <div class="box-prevention">
+                            <p>Primary Prevention</p>
+                            <p>Early features</p>
+                            <p> Etiology prevention</p>
+                        </div>
+                    </a>
+
+                    <a href="@routes.PreventController.preventPageEn("secondaryPage")">
+                        <div class="box-prevention">
+                            <p>Secondary Prevention</p>
+                            <p>Prevention of colorectal cancer</p>
+                            <p>Universal screening</p>
+                        </div>
+                    </a>
+
+                    <a href="@routes.PreventController.preventPageEn("tertiaryPage")">
+                        <div class="box-prevention">
+                            <p>Tertiary Prevention</p>
+                            <p>Prognostic science <p>
+                            <p> Standard diagnosis and treatment</p>
+                        </div>
+                    </a>
+                </div>
+
+
+                <div style="margin-top: 20px">
+                    <h3>Machine Learning</h3>
+                    <hr>
+                    <div class="box-main">
+                        <a href="@routes.MlController.modelPageEn("logistics")" target="_blank">
+                            <div class="box-ml">
+                                <p>Logistic Regression</p>
+                                <img src="/assets/images/logistics.png"/>
+                            </div>
+                        </a>
+
+                        <a href="@routes.MlController.modelPageEn("rf")" target="_blank">
+                            <div class="box-ml">
+                                <p>Random Forest</p>
+                                <img src="/assets/images/rf.png"/>
+                            </div>
+                        </a>
+
+                        <a href="@routes.MlController.modelPageEn("neural")" target="_blank">
+                            <div class="box-ml">
+                                <p>Neural Network</p>
+                                <img src="/assets/images/neural.png"/>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="box-main">
+
+                        <a href="@routes.MlController.modelPageEn("gb")" target="_blank">
+                            <div class="box-ml">
+                                <p>GBDT</p>
+                                <img src="/assets/images/gb.png"/>
+                            </div>
+                        </a>
+
+                        <a href="@routes.MlController.modelPageEn("catboost")" target="_blank">
+                            <div class="box-ml">
+                                <p>CatBoost</p>
+                                <img src="/assets/images/catboost.png"/>
+                            </div>
+                        </a>
+
+                        <a href="@routes.MlController.modelPageEn("svm")" target="_blank">
+                            <div class="box-ml">
+                                <p>SVM</p>
+                                <img src="/assets/images/svm.png"/>
+                            </div>
+                        </a>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+        <aside id="sidebar" class="col-md-3">
+
+            <style>
+                    .rpanel {
+                        margin-top: 20px;
+                        border: 1px solid #ddd;
+                        box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+                        border-radius: 5px;
+                    }
+
+                    .rpanel-header {
+                        background-color: #5AABBC;
+                        height: 40px;
+                        line-height: 40px;
+                        padding-left: 15px;
+                    }
+
+                    .rpanel-title {
+                        color: white;
+                    }
+
+                    .rpanel-body {
+                        padding: 15px 15px 0 15px;
+                    }
+
+                    .ui.big.label {
+                        font-size: 13px;
+                    }
+
+                    .ui > p {
+                        margin-bottom: 10px;
+                    }
+
+                    .ui.teal.ribbon.label {
+                        border-color: #197854 !important;
+                    }
+
+                    .ui.teal.label, .ui.teal.labels .label {
+                        background-color: #2D8B67 !important;
+                        border-color: #00b5ad !important;
+                        color: #fff !important;
+                    }
+            </style>
+            <div class="ui raised segment">
+                <h4 class="text-primary"><span class="ui teal ribbon label big"><i class="fas fa-chart-pie"></i>
+                    Application</span>
+                </h4>
+                <br>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    Provide big data analysis method for scientific research users</p>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    To provide accurate prevention for people at high risk of colorectal cancer</p>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    To provide accurate diagnosis and treatment for patients with colorectal cancer</p>
+
+            </div>
+
+            <div class="ui raised segment">
+                <h4 class="text-primary"><span class="ui teal ribbon label big"><i class="fas fa-chart-pie"></i>
+                    Multiomics Data</span>
+                </h4>
+                <br>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    Geneomics : 3,814</p>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    Bacteriaomics : 2,114</p>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    Fungusomics : 714</p>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    Virusomics : 824</p>
+                <p><i class="fa fa-chevron-circle-right"></i>
+                    Metabolomics : 114</p>
+            </div>
+
+            <div class="ui raised segment">
+                <h4 class="text-primary"><span class="ui teal ribbon label big"><i class="fas fa-chart-pie"></i>
+                    SOP </span>
+                </h4>
+                <br>
+                <p><a href="@routes.SopController.sopPageEn("stoolPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                    Collection of fecal samples</a></p>
+                <p><a href="@routes.SopController.sopPageEn("bfPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                    Analysis of bacterial group and fungal group</a></p>
+                <p><a href="@routes.SopController.sopPageEn("metaPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                    Metabolomics analysis</a></p>
+                <p><a href="@routes.SopController.sopPageEn("virusPage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                    Virusomics analysis </a></p>
+                <p><a href="@routes.SopController.sopPageEn("phonePage")" style="color: #2D8B67"><i class="fa fa-chevron-circle-right"></i>
+                    Telephone follow-up</a></p>
+
+            </div>
+
+        </aside>
+
+
+    </div>
+
+
+    <div style="font-size: 13px;
+        background-color: white;
+
+        width: 100%;
+        margin: 0 auto;
+
+        margin-bottom: 10px;
+        font-weight: 300;
+        color: black;
+        margin-top: 100px;
+        text-align: center;">
+        <hr>
+
+        Copyright 2020 Auto Parts All Right Reserved
+
+    </div>
+
+
+    <script>
+
+            function showExample() {
+                $("#example").val("PF00566 IPR000195 Rab-GTPase");
+            }
+
+
+    </script>
+
+}

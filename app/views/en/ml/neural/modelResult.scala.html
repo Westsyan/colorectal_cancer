@@ -1,0 +1,101 @@
+<table class="table table-bordered" id="table" data-pagination="true" data-search="true"
+data-toolbar="#toolbar" data-search-align="left" data-multiple-search="true"></table>
+
+
+
+    <script>
+
+                $(function () {
+                    $("#table").bootstrapTable({
+                        columns: [{
+                            field: "name",
+                            title: "Model's name",
+                            valign: "middle",
+                            sortable: true
+                        }, {
+                            field: "start",
+                            title: "Time",
+                            valign: "middle",
+                            sortable: true
+                        }, {
+                            field: "state",
+                            title: "Status",
+                            valign: "middle",
+                            sortable: true,
+                            formatter: function (v, row) {
+                                if (row.state === "2") {
+                                    return `<p class="failed">Failure</p><input class='state' value='${row.state}'>`
+                                } else if (row.state === "1") {
+                                    return `<p class="success">Success</p><input class='state' value='${row.state}'>`
+                                } else {
+                                    return `Running <img src='/assets/images/timg.gif'  style='width: 20px; height: 20px;'><input class='state' value='${row.state}'>`;
+                                }
+                            }
+                        }, {
+                            field: "operation",
+                            title: "Operation",
+                            formatter: function (value, row) {
+                                let log = "<button class=\"btn btn-secondary btn-rounded btn-fw\" onclick=\"OpenLog('" + row.id + "')\" style='margin-right: 10px' >Log</button>";
+                                let success = "<button class=\"btn btn-success btn-rounded btn-fw\" onclick=\"OpenModel('" + row.id + "')\" style='margin-right: 10px' >Model</button>";
+                                let de = "<button class='btn btn-danger btn-rounded btn-fw' onclick=\"DeleteById('" + row.id + "')\" style='margin-right: 10px'>Delete</button>";;
+                                if (row.state === "2") {
+                                    return de + log;
+                                } else if (row.state === "1") {
+                                    return de + log;
+                                } else {
+                                    return de;
+                                }
+                            }
+                        }
+                        ]
+                    })
+
+                    UpdateTable();
+
+                    webScoket("neural")
+                })
+
+
+                function OpenModel(obj) {
+                    $("#result-text").empty();
+                    $.post("/colorectal/platform/ml/getRminerModelById?id=" + obj, (data) => {
+                        let html = `<p class="card-title">${data.name}</p>
+<div class="col-md-12 row"> <div class="col-md-12"> <h4>Importance:</h4></div>
+                                    <div class="col-sm-6" style="float: left">
+
+                                    <table class="table table-bordered mean">${data.mean}</table>
+                                    </div>
+                                    <div class="col-sm-6" ><img src="/colorectal/utils/getImage?path=${data.path}/imp.png" style="max-width: 550px;width: 100%" /></div>
+
+</div><div class="row" style="margin-top: 20px" >
+<div class="col-sm-6" >
+                                    <h4>ROC curve:</h4>
+                                    <img src="/colorectal/utils/getImage?path=${data.path}/roc.png"  style="max-width: 550px;width: 100%"  />
+</div><div class="col-sm-6" >
+                                    <h4>Regression Plot:</h4>
+                                    <img src="/colorectal/utils/getImage?path=${data.path}/reg.png"  style="max-width: 550px;width: 100%"   />
+</div></div>
+`
+                        $("#result-text").html(html);
+                        $("#result").show();
+                        let target_top = $("#result").offset().top - 60;
+                        $("html,body").animate({scrollTop: target_top}, 800);
+                    })
+                }
+
+                function UpdateTable() {
+                    $.ajax({
+                        url: "@routes.MlController.getAllMl("neural")",
+                        type: "post",
+                        success: function (data) {
+                            $("#table").bootstrapTable("load", data)
+                        }
+                    })
+                }
+
+
+
+
+
+
+        </script>

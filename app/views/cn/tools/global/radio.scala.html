@@ -1,0 +1,16 @@
+@(question:String,name:String,options:Seq[(String,String)],checked:String,onclick:String)
+
+<div class="col-md-12" id="@name">
+    <div class="form-group row">
+        <label class="col-sm-3 col-form-label">@question：</label>
+        <div class="col-sm-4">
+            @for((value,option) <- options){
+                <label class="col-form-label label-radio"> <input type="radio"  name="@name" value="@value" onclick="@onclick"
+                    @if(value == checked){
+                        checked="checked"
+                    }
+                /> @option</label>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,78 @@
+@cn.user.main("注册") {
+
+
+    <div class="box-right">
+
+        <p class="page-title">注册</p>
+
+        <form id="form">
+            <div class="row form-group">
+                <input type="text" placeholder="请输入账号" class="form-input" name="user"/>
+                <i class="fa fa-user fa-icon"></i>
+            </div>
+
+            <div class="row form-group">
+                <input type="password" placeholder="请输入密码" class="form-input" name="pwd"/>
+                <i class="fa fa-unlock-alt fa-icon"></i>
+            </div>
+
+            <div class="row form-group">
+                <input type="password" placeholder="请再次输入密码" class="form-input" name="rPwd"/>
+                <i class="fa fa-unlock-alt fa-icon"></i>
+            </div>
+
+            <div class="row form-group">
+                <input type="text" placeholder="验证码" class="form-input" name="code" style="width: 70%"/>
+                <i class="fa fa-shield  fa-icon"></i>
+                <input type="button" class="form-input code" id="code" onclick="createCode()" />
+
+            </div>
+
+            <div class="row">
+                <button type="button" class="btn" onclick="Register()">立即注册</button>
+            </div>
+
+
+            <div class="row-login">
+
+                <p>已有账号？请<a href="@routes.UserController.loginPage()">登录</a></p>
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <script>
+
+            $(function () {
+                createCode();
+                registerFormValidation();
+            })
+
+            function Register() {
+                let form = $("#form");
+                form.formValidation("revalidateField", "code");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    $.ajax({
+                        url: "@routes.UserController.register()",
+                        type: "post",
+                        data: $("#form").serialize(),
+                        success: function (data) {
+                            createCode();
+                            if (data.valid === "false") {
+                                swal("错误", data.msg, "error")
+                            } else {
+                                //form.submit()由于在firefox中不执行，故换成：
+                                window.location.href="@routes.UserController.registerSuccess()"
+                            }
+                        }
+                    })
+                }
+            }
+
+    </script>
+
+}

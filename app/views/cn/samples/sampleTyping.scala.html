@@ -1,0 +1,704 @@
+@()(implicit session: Session)
+@cn.manage.main("", "samples") {
+
+    <style>
+
+            .form-group {
+                margin-bottom: 0;
+            }
+
+            .form-control {
+                height: 1.5rem;
+            }
+
+            .col-form-label {
+                padding-top: 0.45rem;
+                padding-bottom: 0.45rem;
+                margin-right: 0.75rem;
+            }
+
+            .col-form-label:hover {
+                cursor: pointer;
+            }
+
+            .col-form-label > span {
+                margin-left: 0.3rem;
+            }
+
+            .form-control-feedback {
+                top: -8px;
+                right: 7px;
+            }
+
+            .help-block {
+                position: absolute;
+                top: -8px;
+                right: -60px;
+                z-index: 2;
+                display: block;
+                height: 34px;
+                line-height: 45px;
+                text-align: center;
+                pointer-events: none;
+            }
+    </style>
+
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="icon icon-type-in text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;数据分析&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">样本录入</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+
+                        <form id="form">
+
+                            <div class="row" id="row">
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <div class="col-sm-2"></div>
+                                        <button type="button" class="btn btn-primary" style="width: 200px" onclick="run()">
+                                            录入</button>
+                                        <button type="button" class="btn btn-primary" style="width: 200px;margin-left: 20px" onclick="Example()">
+                                            样例</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl  modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-sm-12 row" id="confirm">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="Upload()">录入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+            let formvalidation;
+            let field2 = {
+                "编号": {"type": "text"},
+                "性别": {"type": "radio", "options": ["男", "女"]},
+                "年龄": {"type": "num"},
+                "联系方式": {"type": "text"},
+                "民族": {"type": "text"},
+                "国家": {"type": "text"},
+                "吸烟史": {"type": "radio", "options": ["是", "否"]},
+                "烟龄(年)": {"type": "num"},
+                "吸烟量（n支/天）": {"type": "num"},
+                "饮酒史": {"type": "radio", "options": ["是", "否"]},
+                "酒龄（年）": {"type": "num"},
+                "饮酒量（n两/天）": {"type": "num"},
+                "肉食": {"type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                "牛奶": {"type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                "蔬菜": {"type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                "水果": {"type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                "腹泻": {"type": "radio", "options": ["是", "否"]},
+                "腹泻的次数（n/天）": {"type": "num"},
+                "便秘": {"type": "radio", "options": ["是", "否"]},
+                "三代以内是否有肿瘤患者": {"type": "radio", "options": ["是", "否"]},
+                "三代以内是否有结直肠癌患者": {"type": "radio", "options": ["是", "否"]},
+                "是否有肠息肉": {"type": "radio", "options": ["是", "否"]},
+                "是否有克罗恩病": {"type": "radio", "options": ["是", "否"]},
+                "是否有炎症性肠病": {"type": "radio", "options": ["是", "否"]},
+                "体重指数(BMI)（kg/m^2 ）": {"type": "between", "range": {"min": "18.5", "max": "24.0"}},
+                "体温（℃）": {"type": "between", "range": {"min": "36.0", "max": "37.0"}},
+                "收缩压（mmHg）": {"type": "between", "range": {"min": "90", "max": "140"}},
+                "舒张压（mmHg）": {"type": "between", "range": {"min": "60", "max": "90"}},
+                "心率(次/分)": {"type": "between", "range": {"min": "60", "max": "100"}},
+                "呼吸(次/分)": {"type": "between", "range": {"min": "16", "max": "20"}},
+                "红细胞(10^12/L)": {"type": "between", "range": {"min": "4.3", "max": "5.8"}},
+                "血红蛋白(g/L)": {"type": "between", "range": {"min": "130.0", "max": "175.0"}},
+                "白细胞(10^9/L)": {"type": "between", "range": {"min": "3.5", "max": "9.5"}},
+                "血小板(10^9/L)": {"type": "between", "range": {"min": "125.0", "max": "350.0"}},
+                "中性粒细胞(10^9/L)": {"type": "between", "range": {"min": "1.8", "max": "6.3"}},
+                "淋巴细胞(10^9/L)": {"type": "between", "range": {"min": "1.1", "max": "3.2"}},
+                "嗜酸性粒细胞(10^9/L)": {"type": "between", "range": {"min": "0.02", "max": "0.52"}},
+                "嗜碱性粒细胞(10^9/L)": {"type": "between", "range": {"min": "0.00", "max": "0.06"}},
+                "平均红细胞血红蛋白含量(pg)": {"type": "between", "range": {"min": "27.0", "max": "34.0"}},
+                "平均红细胞血红蛋白浓度(g/L)": {"type": "between", "range": {"min": "316.0", "max": "354.0"}},
+                "平均红细胞体积(fL)": {"type": "between", "range": {"min": "82.0", "max": "100.0"}},
+                "红细胞分布宽度(%)": {"type": "between", "range": {"min": "11.5", "max": "15.0"}},
+                "超敏C反应蛋白（mg/L）": {"type": "between", "range": {"min": "0.0", "max": "10.0"}},
+                "红细胞压积（%）": {"type": "between", "range": {"min": "40.0", "max": "50.0"}},
+                "活化部分凝血活酶时间（s）": {"type": "between", "range": {"min": "25.0", "max": "31.3"}},
+                "D二聚体（mg/L）": {"type": "lessThan", "range": {"max": "0.50"}},
+                "国际标准化比率": {"type": "between", "range": {"min": "0.85", "max": "1.37"}},
+                "凝血酶原时间（s）": {"type": "between", "range": {"min": "9.8", "max": "12.1"}},
+                "总蛋白(g/L)": {"type": "between", "range": {"min": "65.0", "max": "85.0"}},
+                "白蛋白(g/L)": {"type": "between", "range": {"min": "40.0", "max": "55.0"}},
+                "甘油三酯（mmol/L）": {"type": "between", "range": {"min": "0.45", "max": "1.69"}},
+                "总胆固醇（mmol/L）": {"type": "between", "range": {"min": "2.58", "max": "5.69"}},
+                "高密度脂蛋白（mg/dL）": {"type": "greaterThan", "range": {"min": "35.00"}},
+                "低密度脂蛋白（mg/dL）": {"type": "lessThan", "range": {"max": "150.00"}},
+                "脂蛋白 (a)（mg/dL）": {"type": "between", "range": {"min": "0.0", "max": "30.0"}},
+                "载脂蛋白B(g/L)": {"type": "between", "range": {"min": "0.60", "max": "1.20"}},
+                "葡萄糖（mmol/L）": {"type": "between", "range": {"min": "3.90", "max": "6.10"}},
+                "总胆红素（μmol/L）": {"type": "between", "range": {"min": "1.70", "max": "22.0"}},
+                "直接胆红素（μmol/L）": {"type": "between", "range": {"min": "1.0", "max": "6.8"}},
+                "谷丙转氨酶（U/L）": {"type": "between", "range": {"min": "9.0", "max": "50.0"}},
+                "谷草转氨酶（U/L）": {"type": "between", "range": {"min": "15.0", "max": "40.0"}},
+                "游离脂肪酸（μmol/L）": {"type": "between", "range": {"min": "129.0", "max": "769.0"}},
+                "尿素氮（mmol/L）": {"type": "between", "range": {"min": "3.20", "max": "7.14"}},
+                "肌酐（μmol/L）": {"type": "between", "range": {"min": "44.0", "max": "132.6"}},
+                "糖链抗原125（CA125）（U/mL）": {"type": "lessThan", "range": {"max": "35.00"}},
+                "糖链抗原15-3（CA153）（U/mL）": {"type": "lessThan", "range": {"max": "25.00"}},
+                "糖链抗原72-4（CA724）（U/mL）": {"type": "lessThan", "range": {"max": "6.90"}},
+                "糖链抗原19-9（CA199）（U/mL）": {"type": "lessThan", "range": {"max": "39.00"}},
+                "癌胚抗原（CEA）（ng/mL）": {"type": "between", "range": {"min": "0.00", "max": "5.00"}},
+                "甲胎蛋白（AFP）（ng/mL）": {"type": "between", "range": {"min": "0.00", "max": "8.78"}},
+                "细胞角蛋白19片段（μg/mL）": {"type": "lessThan", "range": {"max": "3.30"}},
+                "神经元特异性烯醇化酶（ng/mL）": {"type": "lessThan", "range": {"max": "15.20"}},
+                "鳞癌相关抗原（ng/mL）": {"type": "between", "range": {"min": "0.00", "max": "1.50"}},
+                "铁蛋白（SF）（ng/mL）": {"type": "between", "range": {"min": "15.8", "max": "367.1"}},
+                "肠镜": {"type": "text"},
+                "CT": {"type": "text"},
+                "MRI": {"type": "text"},
+                "B超": {"type": "text"},
+                "标本类型": {"type": "radio", "options": ["升结肠", "降结肠", "直肠", "乙状结肠", "横结肠"]},
+                "所在位置": {"type": "radio", "options": ["升结肠", "降结肠", "直肠", "乙状结肠", "横结肠"]},
+                "切除标本长度（cm）": {"type": "num"},
+                "肿瘤大体类型": {"type": "radio", "options": ["隆起型", "溃疡型", "浸润型"]},
+                "肿瘤大小": {"type": "text"},
+                "组织学类型": {"type": "radio", "options": ["腺癌", "未分化癌", "腺鳞癌", "鳞状细胞癌", "小细胞癌", "类癌"]},
+                "组织学分级": {"type": "radio", "options": ["高分化", "中分化", "低分化"]},
+                "浸润深度（cm）": {"type": "text"},
+                "侵犯邻近器官": {"type": "radio", "options": ["无", "有"]},
+                "脉管内癌栓": {"type": "radio", "options": ["（-）", "（+）"]},
+                "神经侵犯": {"type": "radio", "options": ["（-）", "（+）"]},
+                "标本上切缘": {"type": "radio", "options": ["（-）", "（+）"]},
+                "标本下切缘": {"type": "radio", "options": ["（-）", "（+）"]},
+                "淋巴结转移情况": {"type": "radio", "options": ["无", "有"]},
+                "淋巴转移部位及数量": {"type": "text"},
+                "TNM分期": {"type": "text"},
+                "肿瘤Dukes分期": {"type": "text"},
+                "P53": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "CEA": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "E-cadherin": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "TOPO-II": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "铁蛋白（SF）（ng/mL）": {"type": "between", "range": [{"min": "0", "max": "100"}]},
+                "CK7": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "CK20": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "SATB2": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "MLH1": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "MSH2": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "MSH6": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "PMS2": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "Her-2": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "EBER": {"type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                "化疗方案-单药方案": {"type": "radio", "options": ["卡培他滨", "替吉奥", "奥沙利铂", "伊立替康"]},
+                "化疗方案-联合用药方案": {
+                    "type": "radio",
+                    "options": ["XELOX", "FOLFOX", "FOLFOXIRI", "FOLFIRI", "sLV5FU2", "mFoLFoX6", "mFoLFoX6+贝伐珠单抗", "mFoLFoX6+西妥昔单抗", "CapeOx+ 贝伐珠单抗", "FOLFIRI + 贝伐珠单抗", "FOLFIRI + 西妥昔单抗"]
+                },
+                "分子靶向药物（化疗药物，剂量，周期": {"type": "radio", "options": ["贝伐珠单抗", "西妥昔单抗", "瑞戈非尼", "维莫非尼", "呋喹替尼"]},
+                "免疫治疗方案（化疗药物，剂量，周期）": {"type": "radio", "options": ["pd1", "pdl1抑制剂"]},
+                "手术方式": {"type": "text"},
+                "放疗方案（部位，剂量，周期）": {"type": "text"},
+                "中医药使用情况": {"type": "text"},
+                "预后评估": {"type": "radio", "options": ["疾病进展", "疾病稳定", "疾病好转"]},
+                "肿瘤进展": {"type": "text"},
+                "生存时间": {"type": "text"}
+            };
+
+            $(function () {
+                let fields = [{
+                    "h1": "一般资料",
+                    "h2": [
+                        {"name": "编号", "type": "text"},
+                        {"name": "性别", "type": "radio", "options": ["男", "女"]},
+                        {"name": "年龄", "type": "between"},
+                        {"name": "联系方式", "type": "text"},
+                        {"name": "民族", "type": "text"},
+                        {"name": "国家", "type": "text"}]
+                }, {
+                    "h1": "生活习惯",
+                    "h2": [
+                        {"name": "吸烟史", "type": "radio", "options": ["是", "否"]},
+                        {"name": "烟龄(年)", "type": "num"},
+                        {"name": "吸烟量（n支/天）", "type": "num"},
+                        {"name": "饮酒史", "type": "radio", "options": ["是", "否"]},
+                        {"name": "酒龄（年）", "type": "num"},
+                        {"name": "饮酒量（n两/天）", "type": "num"},
+                        {"name": "肉食", "type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                        {"name": "牛奶", "type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                        {"name": "蔬菜", "type": "radio", "options": ["经常", "偶尔", "不吃"]},
+                        {"name": "水果", "type": "radio", "options": ["经常", "偶尔", "不吃"]}
+                    ]
+                }, {
+                    "h1": "排便习惯",
+                    "h2": [
+                        {"name": "腹泻", "type": "radio", "options": ["是", "否"]},
+                        {"name": "腹泻的次数（n/天）", "type": "num"},
+                        {"name": "便秘", "type": "radio", "options": ["是", "否"]}
+                    ]
+                }, {
+                    "h1": "家族史",
+                    "h2": [
+                        {"name": "三代以内是否有肿瘤患者", "type": "radio", "options": ["是", "否"]},
+                        {"name": "三代以内是否有结直肠癌患者", "type": "radio", "options": ["是", "否"]}
+                    ]
+                }, {
+                    "h1": "肠道疾病史",
+                    "h2": [
+                        {"name": "是否有肠息肉", "type": "radio", "options": ["是", "否"]},
+                        {"name": "是否有克罗恩病", "type": "radio", "options": ["是", "否"]},
+                        {"name": "是否有炎症性肠病", "type": "radio", "options": ["是", "否"]}
+                    ]
+                }, {
+                    "h1": "生命体征",
+                    "h2": [
+                        {"name": "体重指数(BMI)（kg/m^2 ）", "type": "between", "range": {"min": "18.5", "max": "24.0"}},
+                        {"name": "体温（℃）", "type": "between", "range": {"min": "36.0", "max": "37.0"}},
+                        {"name": "收缩压（mmHg）", "type": "between", "range": {"min": "90", "max": "140"}},
+                        {"name": "舒张压（mmHg）", "type": "between", "range": {"min": "60", "max": "90"}},
+                        {"name": "心率(次/分)", "type": "between", "range": {"min": "60", "max": "100"}},
+                        {"name": "呼吸(次/分)", "type": "between", "range": {"min": "16", "max": "20"}}
+                    ]
+                }, {
+                    "h1": "血常规",
+                    "h2": [
+                        {"name": "红细胞(10^12/L)", "type": "between", "range": {"min": "4.3", "max": "5.8"}},
+                        {"name": "血红蛋白(g/L)", "type": "between", "range": {"min": "130.0", "max": "175.0"}},
+                        {"name": "白细胞(10^9/L)", "type": "between", "range": {"min": "3.5", "max": "9.5"}},
+                        {"name": "血小板(10^9/L)", "type": "between", "range": {"min": "125.0", "max": "350.0"}},
+                        {"name": "中性粒细胞(10^9/L)", "type": "between", "range": {"min": "1.8", "max": "6.3"}},
+                        {"name": "淋巴细胞(10^9/L)", "type": "between", "range": {"min": "1.1", "max": "3.2"}},
+                        {"name": "嗜酸性粒细胞(10^9/L)", "type": "between", "range": {"min": "0.02", "max": "0.52"}},
+                        {"name": "嗜碱性粒细胞(10^9/L)", "type": "between", "range": {"min": "0.00", "max": "0.06"}},
+                        {"name": "平均红细胞血红蛋白含量(pg)", "type": "between", "range": {"min": "27.0", "max": "34.0"}},
+                        {"name": "平均红细胞血红蛋白浓度(g/L)", "type": "between", "range": {"min": "316.0", "max": "354.0"}},
+                        {"name": "平均红细胞体积(fL)", "type": "between", "range": {"min": "82.0", "max": "100.0"}},
+                        {"name": "红细胞分布宽度(%)", "type": "between", "range": {"min": "11.5", "max": "15.0"}},
+                        {"name": "超敏C反应蛋白（mg/L）", "type": "between", "range": {"min": "0.0", "max": "10.0"}},
+                        {"name": "红细胞压积（%）", "type": "between", "range": {"min": "40.0", "max": "50.0"}}
+                    ]
+                }, {
+                    "h1": "凝血功能",
+                    "h2": [
+                        {"name": "活化部分凝血活酶时间（s）", "type": "between", "range": {"min": "25.0", "max": "31.3"}},
+                        {"name": "D二聚体（mg/L）", "type": "lessThan", "range": {"max": "0.50"}},
+                        {"name": "国际标准化比率", "type": "between", "range": {"min": "0.85", "max": "1.37"}},
+                        {"name": "凝血酶原时间（s）", "type": "between", "range": {"min": "9.8", "max": "12.1"}}
+                    ]
+                }, {
+                    "h1": "营养学指标",
+                    "h2": [
+                        {"name": "总蛋白(g/L)", "type": "between", "range": {"min": "65.0", "max": "85.0"}},
+                        {"name": "白蛋白(g/L)", "type": "between", "range": {"min": "40.0", "max": "55.0"}},
+                        {"name": "甘油三酯（mmol/L）", "type": "between", "range": {"min": "0.45", "max": "1.69"}},
+                        {"name": "总胆固醇（mmol/L）", "type": "between", "range": {"min": "2.58", "max": "5.69"}},
+                        {"name": "高密度脂蛋白（mg/dL）", "type": "greaterThan", "range": {"min": "35.00"}},
+                        {"name": "低密度脂蛋白（mg/dL）", "type": "lessThan", "range": {"max": "150.00"}},
+                        {"name": "脂蛋白 (a)（mg/dL）", "type": "between", "range": {"min": "0.0", "max": "30.0"}},
+                        {"name": "载脂蛋白B(g/L)", "type": "between", "range": {"min": "0.60", "max": "1.20"}},
+                        {"name": "葡萄糖（mmol/L）", "type": "between", "range": {"min": "3.90", "max": "6.10"}}
+                    ]
+                }, {
+                    "h1": "肝功能指标",
+                    "h2": [
+                        {"name": "总胆红素（μmol/L）", "type": "between", "range": {"min": "1.70", "max": "22.0"}},
+                        {"name": "直接胆红素（μmol/L）", "type": "between", "range": {"min": "1.0", "max": "6.8"}},
+                        {"name": "谷丙转氨酶（U/L）", "type": "between", "range": {"min": "9.0", "max": "50.0"}},
+                        {"name": "谷草转氨酶（U/L）", "type": "between", "range": {"min": "15.0", "max": "40.0"}},
+                        {"name": "游离脂肪酸（μmol/L）", "type": "between", "range": {"min": "129.0", "max": "769.0"}}
+                    ]
+                }, {
+                    "h1": "肾功能指标",
+                    "h2": [
+                        {"name": "尿素氮（mmol/L）", "type": "between", "range": {"min": "3.20", "max": "7.14"}},
+                        {"name": "肌酐（μmol/L）", "type": "between", "range": {"min": "44.0", "max": "132.6"}}
+                    ]
+                }, {
+                    "h1": "血清肿瘤标志物指标",
+                    "h2": [
+                        {"name": "糖链抗原125（CA125）（U/mL）", "type": "lessThan", "range": {"max": "35.00"}},
+                        {"name": "糖链抗原15-3（CA153）（U/mL）", "type": "lessThan", "range": {"max": "25.00"}},
+                        {"name": "糖链抗原72-4（CA724）（U/mL）", "type": "lessThan", "range": {"max": "6.90"}},
+                        {"name": "糖链抗原19-9（CA199）（U/mL）", "type": "lessThan", "range": {"max": "39.00"}},
+                        {"name": "癌胚抗原（CEA）（ng/mL）", "type": "between", "range": {"min": "0.00", "max": "5.00"}},
+                        {"name": "甲胎蛋白（AFP）（ng/mL）", "type": "between", "range": {"min": "0.00", "max": "8.78"}},
+                        {"name": "细胞角蛋白19片段（μg/mL）", "type": "lessThan", "range": {"max": "3.30"}},
+                        {"name": "神经元特异性烯醇化酶（ng/mL）", "type": "lessThan", "range": {"max": "15.20"}},
+                        {"name": "鳞癌相关抗原（ng/mL）", "type": "between", "range": {"min": "0.00", "max": "1.50"}},
+                        {"name": "铁蛋白（SF）（ng/mL）", "type": "between", "range": {"min": "15.8", "max": "367.1"}}
+                    ]
+                }, {
+                    "h1": "影像学指标",
+                    "h2": [
+                        {"name": "肠镜", "type": "text"},
+                        {"name": "CT", "type": "text"},
+                        {"name": "MRI", "type": "text"},
+                        {"name": "B超", "type": "text"}
+                    ]
+                }, {
+                    "h1": "病理学指标",
+                    "h2": [
+                        {"name": "标本类型", "type": "radio", "options": ["升结肠", "降结肠", "直肠", "乙状结肠", "横结肠"]},
+                        {"name": "所在位置", "type": "radio", "options": ["升结肠", "降结肠", "直肠", "乙状结肠", "横结肠"]},
+                        {"name": "切除标本长度（cm）", "type": "num"},
+                        {"name": "肿瘤大体类型", "type": "radio", "options": ["隆起型", "溃疡型", "浸润型"]},
+                        {"name": "肿瘤大小", "type": "text"},
+                        {"name": "组织学类型", "type": "radio", "options": ["腺癌", "未分化癌", "腺鳞癌", "鳞状细胞癌", "小细胞癌", "类癌"]},
+                        {"name": "组织学分级", "type": "radio", "options": ["高分化", "中分化", "低分化"]},
+                        {"name": "浸润深度（cm）", "type": "text"},
+                        {"name": "侵犯邻近器官", "type": "radio", "options": ["无", "有"]},
+                        {"name": "脉管内癌栓", "type": "radio", "options": ["（-）", "（+）"]},
+                        {"name": "神经侵犯", "type": "radio", "options": ["（-）", "（+）"]},
+                        {"name": "标本上切缘", "type": "radio", "options": ["（-）", "（+）"]},
+                        {"name": "标本下切缘", "type": "radio", "options": ["（-）", "（+）"]},
+                        {"name": "淋巴结转移情况", "type": "radio", "options": ["无", "有"]},
+                        {"name": "淋巴转移部位及数量", "type": "text"},
+                        {"name": "TNM分期", "type": "text"},
+                        {"name": "肿瘤Dukes分期", "type": "text"}
+                    ]
+                }, {
+                    "h1": "免疫组化检查",
+                    "h2": [
+                        {"name": "P53", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "CEA", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "E-cadherin", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "TOPO-II", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "铁蛋白（SF）（ng/mL）", "type": "between", "range": [{"min": "0", "max": "100"}]},
+                        {"name": "CK7", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "CK20", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "SATB2", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "MLH1", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "MSH2", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "MSH6", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "PMS2", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "Her-2", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]},
+                        {"name": "EBER", "type": "radio", "options": ["（-）", "（+）", "（++）", "（+++）"]}
+                    ]
+                }, {
+                    "h1": "治疗方案",
+                    "h2": [
+                        {"name": "化疗方案-单药方案", "type": "radio", "options": ["卡培他滨", "替吉奥", "奥沙利铂", "伊立替康"]},
+                        {
+                            "name": "化疗方案-联合用药方案",
+                            "type": "radio",
+                            "options": ["XELOX", "FOLFOX", "FOLFOXIRI", "FOLFIRI", "sLV5FU2", "mFoLFoX6", "mFoLFoX6+贝伐珠单抗", "mFoLFoX6+西妥昔单抗", "CapeOx+ 贝伐珠单抗", "FOLFIRI + 贝伐珠单抗", "FOLFIRI + 西妥昔单抗"]
+                        },
+                        {
+                            "name": "分子靶向药物（化疗药物，剂量，周期",
+                            "type": "radio",
+                            "options": ["贝伐珠单抗", "西妥昔单抗", "瑞戈非尼", "维莫非尼", "呋喹替尼"]
+                        },
+                        {"name": "免疫治疗方案（化疗药物，剂量，周期）", "type": "radio", "options": ["pd1", "pdl1抑制剂"]},
+                        {"name": "手术方式", "type": "text"},
+                        {"name": "放疗方案（部位，剂量，周期）", "type": "text"},
+                        {"name": "中医药使用情况", "type": "text"}
+                    ]
+                }, {
+                    "h1": "治疗后评估",
+                    "h2": [
+                        {"name": "预后评估", "type": "radio", "options": ["疾病进展", "疾病稳定", "疾病好转"]}
+                    ]
+                }, {
+                    "h1": "随访",
+                    "h2": [
+                        {"name": "肿瘤进展", "type": "text"},
+                        {"name": "生存时间", "type": "text"}
+                    ]
+                }]
+
+
+                let html = "";
+                let valid = {};
+                $.each(fields, (i1, field) => {
+                    let h1 = field["h1"];
+                    let h2Html = "";
+                    $.each(field["h2"], (i2, h2) => {
+                        valid[h2["name"]] = {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空！'
+                                }
+                            }
+                        }
+
+                        if (h2["type"] === "text" || h2["type"] === "num" || h2["type"] === "between" ||
+                                h2["type"] === "lessThan" || h2["type"] === "greaterThan") {
+                            h2Html += `<div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">${h2["name"]} :</label>
+                                        <div class="col-sm-4">
+                                            <input class="form-control"  name="${h2["name"]}">
+                                        </div>
+                                    </div>
+                                </div>`
+                        } else if (h2["type"] === "radio") {
+                            let options = ``;
+                            $.each(h2["options"], (i3, option) => {
+                                options += `<label class="col-form-label "><input type="radio" name="${h2["name"]}" value="${option}" /><span>${option}</span></label>`
+                            })
+
+                            h2Html += `<div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">${h2["name"]} :</label>
+                                        <div class="col-sm-4 form-check-success ">
+                                            ${options}
+                                        </div>
+                                    </div>
+                                </div>`
+                        }
+                    })
+
+                    html += `<div class="col-sm-12">
+                            <p class="card-title">${h1}</p>
+                            ${h2Html}
+                         </div>`
+
+                })
+
+
+                $("#row").html(html);
+
+                Formvalidation(valid);
+
+            })
+
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let x = $("#form").serializeArray();
+                    $("#confirm").empty()
+                    $.each(x, (i, v) => {
+                        let json = field2[v.name];
+                        let types = json["type"];
+                        let color = "black";
+
+
+                        if (types === "between") {
+                            let range = json["range"];
+                            let min = parseFloat(range["min"]);
+                            let max = parseFloat(range["max"]);
+                            let value = parseFloat(v.value)
+                            if (value > max || value < min) {
+                                color = "red"
+                            }
+                        } else if (types === "lessThan") {
+                            let range = json["range"];
+                            let max = parseFloat(range["max"]);
+                            let value = parseFloat(v.value);
+                            if (value > max) {
+                                color = "red"
+                            }
+                        } else if (types === "greaterThan") {
+                            let range = json["range"];
+                            let min = parseFloat(range["min"]);
+                            let value = parseFloat(v.value);
+                            if (value < min) {
+                                color = "red"
+                            }
+                        }
+
+
+                        $("#confirm").append(`<div class="col-sm-6" style="font-size: 0.875rem;color:${color}">${v.name} : ${v.value}</div>`)
+
+                    })
+                    $("#staticBackdrop").modal("show");
+                }
+
+            }
+
+            function Formvalidation(valid) {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: valid
+                })
+            }
+
+            function Example() {
+                let example = {
+                    "编号": "00002",
+                    "性别": "男",
+                    "年龄": "32",
+                    "联系方式": "12345678910",
+                    "民族": "汉",
+                    "国家": "中国",
+                    "吸烟史": "是",
+                    "烟龄(年)": "2",
+                    "吸烟量（n支/天）": "4",
+                    "饮酒史": "否",
+                    "酒龄（年）": "0",
+                    "饮酒量（n两/天）": "0",
+                    "肉食": "经常",
+                    "牛奶": "偶尔",
+                    "蔬菜": "经常",
+                    "水果": "偶尔",
+                    "腹泻": "否",
+                    "腹泻的次数（n/天）": "0",
+                    "便秘": "否",
+                    "三代以内是否有肿瘤患者": "否",
+                    "三代以内是否有结直肠癌患者": "否",
+                    "是否有肠息肉": "否",
+                    "是否有克罗恩病": "否",
+                    "是否有炎症性肠病": "否",
+                    "体重指数(BMI)（kg/m^2 ）": "20",
+                    "体温（℃）": "36.5",
+                    "收缩压（mmHg）": "100",
+                    "舒张压（mmHg）": "70",
+                    "心率(次/分)": "65",
+                    "呼吸(次/分)": "18",
+                    "红细胞(10^12/L)": "5.3",
+                    "血红蛋白(g/L)": "150.0",
+                    "白细胞(10^9/L)": "5.5",
+                    "血小板(10^9/L)": "225.0",
+                    "中性粒细胞(10^9/L)": "3.8",
+                    "淋巴细胞(10^9/L)": "2.1",
+                    "嗜酸性粒细胞(10^9/L)": "0.22",
+                    "嗜碱性粒细胞(10^9/L)": "0.02",
+                    "平均红细胞血红蛋白含量(pg)": "30.0",
+                    "平均红细胞血红蛋白浓度(g/L)": "326.0",
+                    "平均红细胞体积(fL)": "90.0",
+                    "红细胞分布宽度(%)": "13.5",
+                    "超敏C反应蛋白（mg/L）": "5.0",
+                    "红细胞压积（%）": "45.0",
+                    "活化部分凝血活酶时间（s）": "27.0",
+                    "D二聚体（mg/L）": "0.40",
+                    "国际标准化比率": "0.95",
+                    "凝血酶原时间（s）": "10.8",
+                    "总蛋白(g/L)": "75.0",
+                    "白蛋白(g/L)": "45.0",
+                    "甘油三酯（mmol/L）": "1.45",
+                    "总胆固醇（mmol/L）": "3.58",
+                    "高密度脂蛋白（mg/dL）": "38.00",
+                    "低密度脂蛋白（mg/dL）": "100.00",
+                    "脂蛋白 (a)（mg/dL）": "10.0",
+                    "载脂蛋白B(g/L)": "0.80",
+                    "葡萄糖（mmol/L）": "4.90",
+                    "总胆红素（μmol/L）": "11.70",
+                    "直接胆红素（μmol/L）": "4.0",
+                    "谷丙转氨酶（U/L）": "29.0",
+                    "谷草转氨酶（U/L）": "25.0",
+                    "游离脂肪酸（μmol/L）": "429.0",
+                    "尿素氮（mmol/L）": "4.20",
+                    "肌酐（μmol/L）": "64.0",
+                    "糖链抗原125（CA125）（U/mL）": "30.00",
+                    "糖链抗原15-3（CA153）（U/mL）": "20.00",
+                    "糖链抗原72-4（CA724）（U/mL）": "3.90",
+                    "糖链抗原19-9（CA199）（U/mL）": "30.00",
+                    "癌胚抗原（CEA）（ng/mL）": "2.00",
+                    "甲胎蛋白（AFP）（ng/mL）": "6.00",
+                    "细胞角蛋白19片段（μg/mL）": "1.30",
+                    "神经元特异性烯醇化酶（ng/mL）": "10.20",
+                    "鳞癌相关抗原（ng/mL）": "1.00",
+                    "铁蛋白（SF）（ng/mL）": "150.8",
+                    "肠镜": "-",
+                    "CT": "-",
+                    "MRI": "-",
+                    "B超": "-",
+                    "标本类型": "升结肠",
+                    "所在位置": "升结肠",
+                    "切除标本长度（cm）": "50",
+                    "肿瘤大体类型": "隆起型",
+                    "肿瘤大小": "-",
+                    "组织学类型": "腺癌",
+                    "组织学分级": "中分化",
+                    "浸润深度（cm）": "-",
+                    "侵犯邻近器官": "有",
+                    "脉管内癌栓": "（-）",
+                    "神经侵犯": "（-）",
+                    "标本上切缘": "（-）",
+                    "标本下切缘": "（-）",
+                    "淋巴结转移情况": "有",
+                    "淋巴转移部位及数量": "-",
+                    "TNM分期": "-",
+                    "肿瘤Dukes分期": "-",
+                    "P53": "（+）",
+                    "CEA": "（-）",
+                    "E-cadherin": "（++）",
+                    "TOPO-II": "（-）",
+                    "铁蛋白（SF）（ng/mL）": "50",
+                    "CK7": "（-）",
+                    "CK20": "（-）",
+                    "SATB2": "（+）",
+                    "MLH1": "（-）",
+                    "MSH2": "（++）",
+                    "MSH6": "（-）",
+                    "PMS2": "（+）",
+                    "Her-2": "（++）",
+                    "EBER": "（+）",
+                    "化疗方案-单药方案": "卡培他滨",
+                    "化疗方案-联合用药方案": "mFoLFoX6+贝伐珠单抗",
+                    "分子靶向药物（化疗药物，剂量，周期": "贝伐珠单抗",
+                    "免疫治疗方案（化疗药物，剂量，周期）": "pd1",
+                    "手术方式": "-",
+                    "放疗方案（部位，剂量，周期）": "-",
+                    "中医药使用情况": "-",
+                    "预后评估": "疾病进展",
+                    "肿瘤进展": "-",
+                    "生存时间": "-"
+                };
+
+                $.each(example,(i,v)=>{
+                    $("input[name='" + i +"']").val(v)
+                    $("input[name='" + i +"']").prop("checked","checked")
+                    $("#form").formValidation("revalidateField",i)
+                })
+
+            }
+
+
+            function Upload() {
+                $.ajax({
+                    url:"@routes.SampleController.getData()",
+                    type:"post",
+                    data:$("#form").serialize(),
+                    success:function(data){
+                        $("#staticBackdrop").modal("hide");
+                        swal("\n录入成功！","","success")
+
+                    }
+                })
+            }
+
+    </script>
+
+
+}

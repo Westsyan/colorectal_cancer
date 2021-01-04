@@ -1,0 +1,210 @@
+<form class="form-horizontal" method="get" id="form">
+
+    @cn.ml.generalSection()
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">隐层结点数:</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="size" id="size" value="3" placeholder="默认值： 3">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">权值衰减参数 :</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="decay" id="decay" value="0" placeholder="默认值： 0">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">最大迭代次数 :</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="maxit" id="maxit" value="100" placeholder="默认值： 100">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">初始随机权重 [-rang, rang] :</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="rang" id="rang" value="0.7" placeholder="默认值： 0.7">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Stop if the fit criterion falls below abstol, indicating an essentially perfect fit. :</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="abstol" id="abstol" value="1.0e-4" placeholder="默认值： 1.0e-4">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-12">
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">Top if the optimizer is unable to reduce the fit criterion by a factor of at least 1 - reltol :</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="reltol" id="reltol" value="1.0e-8" placeholder="默认值： 1.0e-8">
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    @cn.ml.runButton()
+</form>
+
+<script>
+
+            $(function () {
+                RfFormValidation();
+            })
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MlController.neuralRun()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#form")[0]),
+                        success: function (data) {
+                            layer.close(index);
+                            if (data.valid == "false") {
+                            } else {
+                                window.location.href = ("@routes.MlController.modelResult("neural")")
+                            }
+                        }
+                    })
+                }
+            }
+
+            //js 读取文件
+            function jsReadFiles(files) {
+                if (files.length) {
+                    let file = files[0];
+                    console.log(file)
+                    let reader = new FileReader();//new一个FileReader实例
+                    reader.readAsText(file)
+                    reader.onload = () => {
+                        let txt = reader.result;
+                        let lines = txt.split("\n");
+                        let head = lines[0].split("\t").length;
+                        $.each(lines, (i, v) => {
+                            let row = v.split("\t");
+                            if (head !== row.length) {
+                                return false
+                            }
+                        })
+                    }
+                }
+            }
+
+            function RfFormValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MlController.checkName("neural")',
+                                    message: '模型名称重复，请重新输入'
+                                }
+                            }
+                        },
+                        file: {
+                            validators: {
+                                notEmpty: {
+                                    message: '请选择一个矩阵文件！'
+                                },
+                                callback: {
+                                    callback: () => {
+                                        $("#dent").hide();
+                                        let valid = true;
+                                        $.ajax({
+                                            url: "@routes.MlController.checkMatrixReturnParameter()",
+                                            type: "post",
+                                            async: false,
+                                            processData: false,
+                                            contentType: false,
+                                            data: new FormData($("#form")[0]),
+                                            success: function (data) {
+                                                if (data.valid == "false") {
+                                                    valid = false
+                                                } else {
+                                                    let dependent = "";
+                                                    let independent = "";
+                                                    $.each(data.para, (i, v) => {
+                                                        if (i === data.para.length - 1) {
+                                                            dependent += `<option value="${v}" selected>${v}</option>`;
+                                                        } else {
+                                                            dependent += `<option value="${v}">${v}</option>`;
+                                                        }
+                                                        independent += `<div class="form-check form-check-success"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" name="independent[]"
+                              />${v}<i class="input-helper"></i></label></div>`
+                                                    })
+                                                    $("#dependent").empty();
+                                                    $("#dependent").html(dependent);
+                                                    $("#independent").empty();
+                                                    $("#independent").html(independent);
+                                                    $("#dent").show();
+                                                }
+
+                                            }
+                                        })
+
+                                        changeByDependent()
+
+                                        return valid;
+                                    },
+                                    message: "请上传以制表符分隔的矩阵文件！"
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+            function changeByDependent() {
+                let dependent = $("#dependent").val();
+                $("input[name='independent[]']").each(function () {
+                    if ($(this).val() === dependent) {
+                        $(this).prop("checked", false);
+                        $(this).parent().parent().hide()
+                    } else {
+                        $(this).prop("checked", true);
+                        $(this).parent().parent().show()
+                    }
+                })
+            }
+
+    </script>
+
+

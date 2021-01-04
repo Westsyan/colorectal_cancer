@@ -1,0 +1,131 @@
+@(session: Session)
+
+<style>
+
+        .mr-1 {
+            padding: 18px;
+        }
+
+        .mr-1 a:hover {
+            text-decoration: unset;
+        }
+
+        .header-active {
+            background-color: #2D8B67;
+        }
+
+        .header-active a {
+            color: white;
+        }
+
+        .lang a {
+            padding: 1em;
+            border-radius: 20px;
+        }
+
+        .lang a:hover {
+            background-color: #2D8B67;
+            color: white;
+        }
+
+
+</style>
+<nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+    <div class="navbar-brand-wrapper d-flex justify-content-center">
+        <div class="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
+
+            <span class="brand-logo">
+
+                <img src="/assets/images/logo3.jpg" width="185px" />
+            </span>
+            <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+                <span class="mdi mdi-sort-variant"></span>
+            </button>
+        </div>
+    </div>
+    <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+
+        <ul class="navbar-nav navbar-nav-left">
+            <li class="nav-item dropdown mr-1" id="home"><a href="@routes.HomeController.index()">首页</a></li>
+            <li class="nav-item dropdown mr-1" id="ml"><a href="@routes.MlController.modelPage("logistics")">机器学习</a></li>
+            <li class="nav-item dropdown mr-1" id="sample"><a href="@routes.SampleController.samplePage()">数据分析</a></li>
+            <li class="nav-item dropdown mr-1" id="tools"><a href="@routes.ToolsController.toolsPage("pca")">分析工具</a></li>
+            <li class="nav-item dropdown mr-1" id="publicdb"><a href="@routes.PublicdbController.tcgaPage()">公共数据库</a></li>
+            @* <li class="nav-item dropdown mr-1"><a href="#">精准预防</a>
+            <li class="nav-item dropdown mr-1"><a href="#">精准诊断</a>
+            <li class="nav-item dropdown mr-1"><a href="#">精准治疗</a>
+            <li class="nav-item dropdown mr-1"><a href="#">标准化流程</a>*@
+        </ul>
+
+        <ul class="navbar-nav navbar-nav-right">
+            @* <li class="nav-item dropdown mr-1">
+            <a class="nav-link count-indicator dropdown-toggle d-flex justify-content-center align-items-center" id="messageDropdown" href="#" data-toggle="dropdown">
+            <i class="mdi mdi-message-text mx-0"></i>
+            <span class="count"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="messageDropdown">
+            <p class="mb-0 font-weight-normal float-left dropdown-header">Messages</p>
+
+            </div>
+            </li>*@
+            @* <li class="nav-item dropdown mr-4">
+            <a class="nav-link count-indicator dropdown-toggle d-flex align-items-center justify-content-center notification-dropdown" id="notificationDropdown" href="#" data-toggle="dropdown">
+            <i class="mdi mdi-bell mx-0"></i>
+            <span class="count"></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="notificationDropdown">
+            <p class="mb-0 font-weight-normal float-left dropdown-header">Notifications</p>
+
+            </div>
+            </li>*@
+
+            <li class="nav-item nav-profile lang"><a href="javascript:ToCn()">English</a></li>
+
+            <li class="nav-item nav-profile dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+                    <span class="nav-profile-name">@session.get("user")</span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+                    <a class="dropdown-item">
+                        <i class="mdi mdi-settings text-primary"></i>
+                        设置
+                    </a>
+                    <a class="dropdown-item" href="@routes.UserController.loginPage()">
+                        <i class="mdi mdi-logout text-primary"></i>
+                        退出登录
+                    </a>
+                </div>
+            </li>
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+            <span class="mdi mdi-menu"></span>
+        </button>
+    </div>
+</nav>
+
+<script>
+        $(function () {
+            const host = window.location.href;
+            const array = host.split("/");
+            const code = array[6];
+            console.log(code)
+            if (array.length < 5) {
+                $("#home").addClass('header-active');
+            } else {
+                $("#" + code).addClass('header-active');
+            }
+        })
+
+        function ToCn() {
+            const href = window.location.href;
+            let pathName = window.location.pathname
+            if (pathName === "/") {
+                window.location.href = href + "colorectal/en/home/index";
+            } else {
+                window.location.href = href.replace("/cn/", "/en/");
+            }
+
+        }
+
+
+</script>

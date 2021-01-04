@@ -1,0 +1,140 @@
+<form class="form-horizontal" method="get" id="form">
+
+    @cn.ml.generalSection()
+    
+    @cn.ml.runButton()
+
+</form>
+
+<script>
+
+            $(function () {
+                RfFormValidation();
+            })
+
+            function run() {
+                let form = $("#form");
+                let fv = form.data("formValidation");
+                fv.validate();
+                if (fv.isValid()) {
+                    let index = layer.load(1, {
+                        shade: [0.1, '#fff']
+                    });
+                    $.ajax({
+                        url: "@routes.MlController.logisticRun()",
+                        type: "post",
+                        processData: false,
+                        contentType: false,
+                        data: new FormData($("#form")[0]),
+                        success: function (data) {
+                            layer.close(index);
+                            if (data.valid == "false") {
+                            } else {
+                                window.location.href = ("@routes.MlController.modelResult("logistics")")
+                            }
+                        }
+                    })
+                }
+            }
+
+            //js 读取文件
+            function jsReadFiles(files) {
+                if (files.length) {
+                    let file = files[0];
+                    console.log(file)
+                    let reader = new FileReader();//new一个FileReader实例
+                    reader.readAsText(file)
+                    reader.onload = () => {
+                        let txt = reader.result;
+                        let lines = txt.split("\n");
+                        let head = lines[0].split("\t").length;
+                        $.each(lines, (i, v) => {
+                            let row = v.split("\t");
+                            if (head !== row.length) {
+                                return false
+                            }
+                        })
+                    }
+                }
+            }
+
+            function RfFormValidation() {
+                $('#form').formValidation({
+                    framework: 'bootstrap',
+                    icon: {
+                        valid: 'mdi mdi-check',
+                        invalid: 'mdi mdi-close',
+                        validating: 'mdi mdi-refresh'
+                    },
+                    fields: {
+                        name: {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空!'
+                                },
+                                remote: {
+                                    type: 'POST',
+                                    url: '@routes.MlController.checkName("logistics")',
+                                    message: '模型名称重复，请重新输入'
+                                }
+                            }
+                        },
+                        file: {
+                            validators: {
+                                notEmpty: {
+                                    message: '请选择一个矩阵文件！'
+                                },
+                                callback: {
+                                    callback: () => {
+                                        $("#dent").hide();
+                                        let valid = true;
+                                        $.ajax({
+                                            url: "@routes.MlController.checkMatrixReturnParameter()",
+                                            type: "post",
+                                            async: false,
+                                            processData: false,
+                                            contentType: false,
+                                            data: new FormData($("#form")[0]),
+                                            success: function (data) {
+                                                if (data.valid == "false") {
+                                                    valid = false
+                                                } else {
+                                                    let dependent = "";
+                                                    let independent = "";
+                                                    $.each(data.para, (i, v) => {
+                                                        if (i === data.para.length - 1) {
+                                                            dependent += `<option value="${v}" selected>${v}</option>`;
+                                                        } else {
+                                                            dependent += `<option value="${v}">${v}</option>`;
+                                                        }
+                                                        independent += `<div class="form-check form-check-success"><label class="form-check-label">
+                               <input type='checkbox' checked='checked' value="${v}" class="form-check-input" name="independent[]"
+                              />${v}<i class="input-helper"></i></label></div>`
+                                                    })
+                                                    $("#dependent").empty();
+                                                    $("#dependent").html(dependent);
+                                                    $("#independent").empty();
+                                                    $("#independent").html(independent);
+                                                    $("#dent").show();
+                                                }
+
+                                            }
+                                        })
+
+                                        changeByDependent()
+
+                                        return valid;
+                                    },
+                                    message: "请上传以制表符分隔的矩阵文件！"
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+
+
+
+    </script>
+
+

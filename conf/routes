@@ -1,0 +1,121 @@
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET           /                                                              controllers.HomeController.index
+GET           /colorectal/en/home/index                                      controllers.HomeController.indexEn
+
+
+
+GET           /colorectal/user/loginPage                                     controllers.UserController.loginPage
+POST          /colorectal/user/checkLogin                                    controllers.UserController.checkLogin
+GET           /colorectal/user/checkAccount                                  controllers.UserController.checkAccount
+GET           /colorectal/user/loginSuccess                                  controllers.UserController.loginSuccess
+GET           /colorectal/user/registerPage                                  controllers.UserController.registerPage
+POST          /colorectal/user/register                                      controllers.UserController.register
+GET           /colorectal/user/registerSuccess                               controllers.UserController.registerSuccess
+
+GET           /colorectal/en/user/loginPage                                  controllers.UserController.loginPageEn
+GET           /colorectal/en/user/registerPage                               controllers.UserController.registerPageEn
+GET           /colorectal/en/user/registerSuccess                            controllers.UserController.registerSuccessEn
+
+
+
+GET           /colorectal/cn/ml/mlIndex                                      controllers.MlController.mlIndex
+
+GET           /colorectal/cn/platform/ml/:ml/$ml<[^/]+>ModelPage             controllers.MlController.modelPage(ml:String)
+GET           /colorectal/cn/platform/ml/:ml/$ml<[^/]+>ModelResult           controllers.MlController.modelResult(ml:String)
+GET           /colorectal/cn/platform/ml/:ml/$ml<[^/]+>ModelPredicted        controllers.MlController.modelPredicted(ml:String)
+POST          /colorectal/platform/ml/rf/fitRandomForest                     controllers.MlController.fitRandomForest
+POST          /colorectal/platform/ml/:ml/getAllMl                           controllers.MlController.getAllMl(ml:String)
+POST          /colorectal/platform/ml/checkName                              controllers.MlController.checkName(ml:String)
+DELETE        /colorectal/platform/ml/deleteModelById                        controllers.MlController.deleteModelById(id:Int)
+GET           /colorectal/platform/ml/openLog                                controllers.MlController.openLog(id:Int)
+POST          /colorectal/platform/ml/getAllNameByMl                         controllers.MlController.getAllNameByMl(ml:String)
+POST          /colorectal/platform/ml/getSuccessByMl                         controllers.MlController.getSuccessByMl(ml:String)
+POST          /colorectal/platform/ml/getTitleById                           controllers.MlController.getTitleById(id:Int)
+POST          /colorectal/platform/ml/runPredict                             controllers.MlController.runPredict
+POST          /colorectal/platform/ml/getModelById                           controllers.MlController.getModelById(id:Int)
+POST          /colorectal/platform/ml/checkMatrixReturnParameter             controllers.MlController.checkMatrixReturnParameter
+POST          /colorectal/platform/ml/logistics/logisticRun                  controllers.MlController.logisticRun
+POST          /colorectal/platform/ml/neural/neuralRun                       controllers.MlController.neuralRun
+POST          /colorectal/platform/ml/svm/svmRun                             controllers.MlController.svmRun
+POST          /colorectal/platform/ml/gb/gbRun                               controllers.MlController.gbRun
+POST          /colorectal/platform/ml/catboost/trainCatboost                 controllers.MlController.trainCatboost
+POST          /colorectal/platform/ml/catboost/predictCatboost               controllers.MlController.predictCatboost
+POST          /colorectal/platform/ml/catboost/getCatboostModelById          controllers.MlController.getCatboostModelById(id:Int)
+POST          /colorectal/platform/ml/getRminerModelById                     controllers.MlController.getRminerModelById(id:Int)
+
+
+GET           /colorectal/en/ml/mlIndex                                      controllers.MlController.mlIndexEn
+GET           /colorectal/en/platform/ml/:ml/$ml<[^/]+>ModelPage             controllers.MlController.modelPageEn(ml:String)
+GET           /colorectal/en/platform/ml/:ml/$ml<[^/]+>ModelResult           controllers.MlController.modelResultEn(ml:String)
+GET           /colorectal/en/platform/ml/:ml/$ml<[^/]+>ModelPredicted        controllers.MlController.modelPredictedEn(ml:String)
+
+
+
+GET           /colorectal/cn/platform/sample/samplePage                      controllers.SampleController.samplePage
+GET           /colorectal/platform/sample/getAllSample                       controllers.SampleController.getAllSample
+GET           /colorectal/cn/platform/sample/sampleTyping                    controllers.SampleController.sampleTyping
+POST          /colorectal/platform/sample/getData                            controllers.SampleController.getData
+
+GET           /colorectal/en/platform/sample/samplePage                      controllers.SampleController.samplePageEn
+GET           /colorectal/en/platform/sample/sampleTyping                    controllers.SampleController.sampleTypingEn
+
+GET           /colorectal/cn/publicdb/index                                  controllers.PublicdbController.indexPage
+GET           /colorectal/cn/platform/publicdb/seerPage                      controllers.PublicdbController.seerPage
+POST          /colorectal/platform/publicdb/getAllSeerData                   controllers.PublicdbController.getAllSeerData
+GET           /colorectal/cn/platform/publicdb/cBioPortalPage                controllers.PublicdbController.cBioPortalPage
+GET           /colorectal/cn/platform/publicdb/cbioportalFilesPage           controllers.PublicdbController.cbioportalFilesPage(name:String)
+GET           /colorectal/cn/platform/publicdb/cbioportalDbPageEn            controllers.PublicdbController.cbioportalDbPage(db:String,name:String)
+GET           /colorectal/platform/publicdb/getCBioPortalFileList            controllers.PublicdbController.getCBioPortalFileList(name:String)
+POST          /colorectal/platform/publicdb/getCBioPortalDataHeader          controllers.PublicdbController.getCBioPortalDataHeader(db:String,name:String)
+POST          /colorectal/platform/publicdb/getCBioPortalData                controllers.PublicdbController.getCBioPortalData(db:String,name:String,total:Int)
+GET           /colorectal/platform/publicdb/insertCbio                       controllers.PublicdbController.insertCbio
+GET           /colorectal/cn/platform/publicdb/tcgaPage                      controllers.PublicdbController.tcgaPage
+POST          /colorectal/platform/publicdb/getTcgaData                      controllers.PublicdbController.getTcgaData
+GET           /colorectal/cn/platform/publicdb/oncominePage                  controllers.PublicdbController.oncominePage
+
+
+GET           /colorectal/en/publicdb/index                                  controllers.PublicdbController.indexPageEn
+GET           /colorectal/en/platform/publicdb/seerPage                      controllers.PublicdbController.seerPageEn
+GET           /colorectal/en/platform/publicdb/cBioPortalPage                controllers.PublicdbController.cBioPortalPageEn
+GET           /colorectal/en/platform/publicdb/cbioportalFilesPage           controllers.PublicdbController.cbioportalFilesPageEn(name:String)
+GET           /colorectal/en/platform/publicdb/cbioportalDbPageEn            controllers.PublicdbController.cbioportalDbPageEn(db:String,name:String)
+GET           /colorectal/en/platform/publicdb/tcgaPage                      controllers.PublicdbController.tcgaPageEn
+GET           /colorectal/en/platform/publicdb/oncominePage                  controllers.PublicdbController.oncominePageEn
+
+GET           /colorectal/cn/prevent/:page                                   controllers.PreventController.preventPage(page:String)
+GET           /colorectal/en/prevent/:page                                   controllers.PreventController.preventPageEn(page:String)
+
+GET           /colorectal/cn/diagnosis/:page                                 controllers.DiagnosisController.diagnosisPage(page:String)
+GET           /colorectal/en/diagnosis/:page                                 controllers.DiagnosisController.diagnosisPageEn(page:String)
+
+GET           /colorectal/cn/treatment/:page                                 controllers.TreatmentController.treatmentPage(page:String)
+GET           /colorectal/en/treatment/:page                                 controllers.TreatmentController.treatmentPageEn(page:String)
+
+GET           /colorectal/cn/sop/:page                                       controllers.SopController.sopPage(page:String)
+GET           /colorectal/en/sop/:page                                       controllers.SopController.sopPageEn(page:String)
+
+GET           /colorectal/cn/platform/tools/$tools<[^/]+>Page                controllers.ToolsController.toolsPage(tools:String)
+POST          /colorectal/cn/platform/tools/$tools<[^/]+>Run                 controllers.ToolsController.toolsRun(tools:String)
+POST          /colorectal/cn/platform/tools/getAll$tools<[^/]+>Info          controllers.ToolsController.getAllInfoByTools(tools:String)
+POST          /colorectal/cn/platform/tools/open$tools<[^/]+>Log             controllers.ToolsController.openLog(id:Int,tools:String)
+DELETE        /colorectal/cn/platform/tools/delete$tools<[^/]+>ById          controllers.ToolsController.deleteById(id:Int,tools:String)
+GET           /colorectal/cn/platform/tools/getToolsImage                    controllers.UtilsController.getToolsImage(path:String,num:String)
+GET           /colorectal/cn/platform/tools/downloadToolsFile                controllers.UtilsController.downloadToolsFile(path:String)
+POST          /colorectal/cn/platform/tools/getRedrawParams                  controllers.ToolsController.getRedrawParams(id:Int,tools:String)
+POST          /colorectal/platform/tools/reDrawRun                           controllers.ToolsController.reDrawRun
+
+GET           /colorectal/utils/getImage                                     controllers.UtilsController.getImage(path:String)
+GET           /colorectal/utils/downloadExample                              controllers.UtilsController.downloadExample(file:String)
+
+GET           /ws                                                            controllers.SocketController.socket
+
+GET           /sample/insert                                                 controllers.SampleController.insert
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET           /assets/*file                                                  controllers.Assets.versioned(path="/public", file: Asset)
+

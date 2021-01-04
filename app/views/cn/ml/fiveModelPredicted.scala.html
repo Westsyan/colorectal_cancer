@@ -1,0 +1,75 @@
+<form class="form-horizontal" method="get" id="form">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">选择预测模型:</label>
+                <div class="col-sm-3">
+                    <select class="form-control" name="name" id="name" onchange="getTitle()">
+
+                                                </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="row">
+
+                                </div>
+
+    <div class="row" style="display: none" id="btn">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <div class="col-sm-2"></div>
+                <button type="button" class="btn btn-primary" style="width: 200px" onclick="run()">
+                                                开始预测</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+
+
+                function run() {
+                    let form = $("#form");
+                    let fv = form.data("formValidation");
+                    fv.validate();
+                    console.log(fv.isValid())
+                    if (fv.isValid()) {
+                        let element = "<div id='content'><span id='info'>预测中...</span>&nbsp;<img class='runningImage' src='/assets/images/running2.gif' style='width: 30px;height: 20px;'></div>"
+                        let index = layer.alert(element, {
+                            skin: 'layui-layer-molv'
+                            , closeBtn: 0,
+                            title: "Info",
+                            btn: []
+                        });
+                        let json = "";
+                        $.each(ids, (i, v) => {
+                            let val = $("#" + v).val();
+                            json += "\t" + val;
+                        })
+                        $.ajax({
+                            url: "@routes.MlController.runPredict()",
+                            type: "post",
+                            data: {
+                                "id": $("#name").val(),
+                                "data": json
+                            },
+                            success: function (data) {
+                                $("#result").empty();
+                                $("#result").html(data);
+
+
+                                $("#result").show();
+                                layer.close(index);
+                                let target_top = $("#result").offset().top;
+                                $("html,body").animate({scrollTop: target_top}, 800);
+                                $("#table").bootstrapTable();
+                            }
+                        })
+                    }
+                }
+
+        </script>

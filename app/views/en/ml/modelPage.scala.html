@@ -1,0 +1,95 @@
+@(mlTypes: String)(implicit session: Session)
+@en.manage.main("Model Construction", "ml") {
+
+
+    <script src="@routes.Assets.versioned("modelb/js/file-upload.js")"></script>
+
+    <style>
+            .example {
+                font-size: 14px;
+            }
+
+            .form-check {
+                float: left;
+                margin-right: 40px;
+                width: 15%;
+                min-width: 100px;
+            }
+
+            .select2-container--default .select2-selection--single {
+                height: 46px;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                height: 46px;
+                line-height: 46px;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 46px;
+            }
+
+    </style>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="mdi mdi-home text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Machine Learning&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">@{
+                                mlTypes match {
+                                    case "logistics" => "Logistic Regression"
+                                    case "rf" => "Random Forest"
+                                    case "neural" => "Neural Network"
+                                    case "gb" => "GBDT"
+                                    case "catboost" => "CatBoost"
+                                    case "svm" => "SVM"
+                                }
+                            }&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">Model Construction</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                    @{
+                        mlTypes match {
+                            case "logistics" => en.ml.logistics.modelPage()
+                            case "rf" => en.ml.randomforest.modelPage()
+                            case "neural" => en.ml.neural.modelPage()
+                            case "gb" => en.ml.gb.modelPage()
+                            case "catboost" => en.ml.catboost.modelPage()
+                            case "svm" => en.ml.svm.modelPage()
+                        }
+                    }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+            function changeByDependent() {
+                let dependent = $("#dependent").val();
+                $("input[name='independent[]']").each(function () {
+                    if ($(this).val() === dependent) {
+                        $(this).prop("checked", false);
+                        $(this).parent().parent().hide()
+                    } else {
+                        $(this).prop("checked", true);
+                        $(this).parent().parent().show()
+                    }
+                })
+            }
+
+    </script>
+}

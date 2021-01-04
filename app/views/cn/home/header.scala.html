@@ -1,0 +1,157 @@
+@(session: Session)
+
+<style>
+
+        .dropdown-menu {
+            margin: 0;
+        }
+
+        .dropdown-menu li {
+            width: 100%;
+        }
+
+        .lang {
+            float: right !important;
+        }
+
+        .lang a {
+            font-size: 12px !important;
+            margin-top: 8px;
+            padding: 0.5em !important;
+
+        }
+
+        .lang a:hover {
+            cursor: pointer;
+            color: #2D8B67 !important;
+            background: white !important;
+            border: 1px solid #2D8B67;
+            border-radius: 5px;
+        }
+
+
+</style>
+<div class="header">
+    <div class="top-header" style="height: 160px">
+        <div class="wrap" style="width: 1200px">
+
+            <div class="top-header-left" style="margin-top: 15px;
+                margin-bottom: 5px;">
+                <img src="/assets/images/logo1.gif" height="130px" style="float: left"/>
+                <div style="float: left;
+                    margin-top: 13px;">
+                    <img src="/assets/images/logo2.gif" height="60px" />
+                </div>
+                <div>
+                    <img src="/assets/images/logo3.jpg" height="33px" />
+                </div>
+            </div>
+            <div class="right-left" style="margin-top: 102px;
+                margin-right: 25px">
+
+
+                @if(session.get("id").isEmpty) {
+                    <a href="@routes.UserController.loginPage()" style="color: white"><i class="fa fa-user-o"></i> 登录</a>
+                } else {
+                    <a style="color: white">欢迎你，@session.get("user").get !</a>
+                }
+
+            </div>
+            <div class="clear"> </div>
+        </div>
+    </div>
+
+    <style>
+            .dropdown a:hover {
+
+            .dropdown-menu {
+                display: unset;
+            }
+
+            }
+    </style>
+    <div class="top-nav" style="border-bottom: 1px solid #2D8B67;">
+        <div class="wrap menu-div" style="width: 1200px">
+            <ul>
+                <li id="home"><a href="@routes.HomeController.index()">首页</a></li>
+                <li id="ml"><a href="@routes.MlController.mlIndex()">机器学习</a></li>
+                <li id="publicdb"><a href="@routes.PublicdbController.indexPage()">公共数据库</a></li>
+                @* <li><a href="@routes.SampleController.samplePage()">数据分析</a></li>*@
+                <li class="dropdown" id="prevent">
+                    <a href="">精准预防 <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.PreventController.preventPage("primaryPage")">一级预防</a></li>
+                        <li><a href="@routes.PreventController.preventPage("secondaryPage")">二级预防</a></li>
+                        <li><a href="@routes.PreventController.preventPage("tertiaryPage")">三级预防</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown" id="diagnosis">
+                    <a href="#">精准诊断 <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.DiagnosisController.diagnosisPage("diseasePage")">根据疾病鉴别分型</a></li>
+                        <li><a href="@routes.DiagnosisController.diagnosisPage("drugPage")">根据治疗药物分型</a></li>
+                        <li><a href="@routes.DiagnosisController.diagnosisPage("prognosisPage")">根据预后分型</a></li>
+                        <li><a href="@routes.DiagnosisController.diagnosisPage("biologicalPage")">根据生物学行为分型</a></li>
+                    </ul>
+
+                </li>
+                <li class="dropdown" id="treatment">
+                    <a href="#">精准治疗  <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.TreatmentController.treatmentPage("nonmetastaticPage")">非转移性结肠癌</a></li>
+                        <li><a href="@routes.TreatmentController.treatmentPage("metastaticPage")">转移性结肠癌</a></li>
+                        <li><a href="@routes.TreatmentController.treatmentPage("evaluationPage")">疗效评价</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown" id="sop">
+                    <a href="#">标准化流程 <i class="fa fa-caret-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@routes.SopController.sopPage("stoolPage")">粪便标本采集流程</a></li>
+                        <li><a href="@routes.SopController.sopPage("bfPage")">细菌组和真菌组分析流程</a></li>
+                        <li><a href="@routes.SopController.sopPage("metaPage")">代谢组学分析流程</a></li>
+                        <li><a href="@routes.SopController.sopPage("virusPage")">病毒组学分析流程</a></li>
+                        <li><a href="@routes.SopController.sopPage("phonePage")">电话随访流程</a></li>
+                    </ul>
+
+                </li>
+
+                <li class="lang"><a href="javascript:ToCn()">English</a></li>
+
+                <div class="clear"> </div>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+
+        const href = window.location.href;
+        const array = href.split("/");
+        const code = array[array.length - 2];
+        if (array.length < 5) {
+            $("#home").addClass('active');
+        } else {
+            $("#" + code).addClass('active');
+        }
+
+        $(".dropdown").mouseover(function () {
+            $(this).find(".dropdown-menu").show();
+        })
+
+        $(".dropdown").mouseout(function () {
+            $(this).find(".dropdown-menu").hide();
+        })
+
+
+        function ToCn() {
+            let pathName = window.location.pathname
+            if (pathName === "/") {
+                window.location.href = href + "colorectal/en/home/index";
+            } else {
+                window.location.href = href.replace("/cn/", "/en/");
+            }
+
+        }
+
+
+</script>
