@@ -1,10 +1,13 @@
 @(question: String, name: String, placeholder: String = "", value: String = "", id: String = "")
 
-<div class="form-group row reDraw" id="@id">
-    <label class="col-sm-3 col-form-label">@question:</label>
-    <div class="col-sm-6">
-        <input class="form-control" name="@name" id="@name" placeholder="@placeholder" value="@value">
+<div class="form-group row" id="@id">
+    <div class="reDraw">
+        <label class="col-sm-3 col-form-label">@question：</label>
+        <div class="col-sm-6">
+            <input class="form-control" name="@name" id="@name" placeholder="@placeholder" value="@value">
+        </div>
     </div>
+
 </div>
 
 

@@ -2938,7 +2938,7 @@
 	    },
 	    classes: {
 	      buttonsPrefix: 'btn',
-	      buttons: 'secondary',
+	      buttons: 'default',
 	      buttonsGroup: 'btn-group',
 	      buttonsDropdown: 'btn-group',
 	      pull: 'float',
@@ -2984,7 +2984,7 @@
 	    },
 	    classes: {
 	      buttonsPrefix: 'btn',
-	      buttons: 'secondary',
+	      buttons: 'default',
 	      buttonsGroup: 'btn-group',
 	      buttonsDropdown: 'btn-group',
 	      pull: 'float',

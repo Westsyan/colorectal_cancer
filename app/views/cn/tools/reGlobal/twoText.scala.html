@@ -1,0 +1,21 @@
+@(question: String, name1: String, name2: String, placeholder1: String = "", value1: String = "", placeholder2: String = "", value2: String = "", symbol: String, id: String = "")
+
+<div class="form-group row" id="@id">
+    <div class="reDraw">
+        <label class="col-sm-3 col-form-label">@question：</label>
+        <div class="col-sm-6" style="display: flex;
+            justify-content: space-between;
+            align-items: center">
+            <div class="col-sm-5" style="padding-left: 0">
+                <input type="text" class="form-control" name="@name1" id="@name1" placeholder="@placeholder1" value="@value1" >
+            </div>
+
+            <label>@symbol</label>
+            <div class="col-sm-5" style="padding-left: 0">
+                <input type="text" id="@name2" name="@name2" class="form-control" placeholder="@placeholder2" value="@value2" >
+            </div>
+        </div>
+    </div>
+</div>
+
+

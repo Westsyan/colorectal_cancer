@@ -1,10 +1,12 @@
 @(question: String, n1: String, v1:String,n2:String,v2:String,id:String)
 
-<div class="form-group row reDraw" id="@id">
+<div class="form-group row" id="@id">
+    <div class="reDraw">
     <label class="col-sm-3 col-form-label">@question：</label>
     <div  class="col-sm-9" style="display: flex">
         <input type="text" id="@n1" name="@n1" class="form-control" value="@v1" placeholder="数字"  style="width: 30%;margin-right: 5px">
         <label style="line-height: 45px">--</label>
         <input type="text" id="@n2" name="@n2" class="form-control" value="@v2" placeholder="数字"  style="width: 30%;margin-left: 5px;">
     </div>
+</div>
 </div>

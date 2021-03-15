@@ -2393,7 +2393,7 @@
 	    bootstrap3: 'glyphicon-export icon-share',
 	    materialize: 'file_download',
 	    'bootstrap-table': 'icon-download'
-	  }[$.fn.bootstrapTable.theme] || 'fa-download'
+	  }[$.fn.bootstrapTable.theme] || 'mdi mdi-download'
 	});
 	$.extend($.fn.bootstrapTable.locales, {
 	  formatExport: function formatExport() {

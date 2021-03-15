@@ -24,6 +24,7 @@
 <script>
 
         $(function () {
+            ValidationForm();
             MyTable.prototype.getTaskName("CCA")
             ShowOrHide('isgroup', 'group');
             webScoket("cca")
@@ -63,19 +64,21 @@
                                             <div class="tab-pane fade active  show" id="picpara">
                                                 @cn.tools.reGlobal.select("选择x轴数据", "xdata", Seq())
                                                 @cn.tools.reGlobal.select("选择y轴数据", "ydata", Seq())
-                                                @cn.tools.reGlobal.numRange("原点坐标(X : Y)", "xaxis", "0", "yaxis", "0", "axisRange")
+                                                @cn.tools.reGlobal.twoText("原点坐标(X : Y)", "xaxis","yaxis","数字","0","数字","0", "--", "axisRange")
                                                 @cn.tools.reGlobal.text("样品点大小", "samsize", "数字","6")
-                                                @cn.tools.reGlobal.radio("是否显示样本名", "showname", Seq(("true", "是"), ("false", "否")), "true", "")
-                                                @cn.tools.reGlobal.radio("是否显示环境因子", "showevi", Seq(("true", "是"), ("false", "否")), "true", "")
-                                                @cn.tools.reGlobal.radio("是否显示物种", "showspecies", Seq(("true", "是"), ("false", "否")), "true", "ShowOrHide('showspecies','speciesId')")
+                                                @cn.tools.reGlobal.radio("是否显示样本名", "showname", Seq(("true", "是"), ("false", "否")), "true", "ShowOrHide('showname','showEnvColor')")
+                                                @cn.tools.reGlobal.radio("是否显示环境因子", "showevi", Seq(("true", "是"), ("false", "否")), "true", "ShowOrHide('showevi','showEnvLineColor')")
+                                                @cn.tools.reGlobal.radio("是否显示物种", "showspecies", Seq(("true", "是"), ("false", "否")), "true", "ShowSpecies()")
                                                 @cn.tools.reGlobal.text("物种点大小", "speciessize", "数字","6","speciesId")
-                                                @cn.tools.reGlobal.radio("清晰度", "resolution", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
-                                                @cn.tools.reGlobal.numRange("图片长宽", "width", "15", "length", "15", "imgRange")
+                                                @cn.tools.reGlobal.radio("清晰度", "dpi", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+                                                @cn.tools.reGlobal.twoText("图片长宽", "width", "length","数字", "15","数字", "15","--", "imgRange")
                                             </div>
                                             <div class="tab-pane fade" id="colopara">
-                                                <p class="card-title" style="margin-left:12%">自定义颜色(当前分组 - 颜色)：</p>
+                                                <p class="card-title" style="margin-left:12%" id="selfColor">自定义颜色(当前分组 - 颜色)：</p>
 
                                                 @cn.tools.reGlobal.color("环境因子名颜色","envColor","showEnvColor")
+                                                @cn.tools.reGlobal.color("环境因子坐标线颜色","envLineColor","showEnvLineColor")
+                                                @cn.tools.reGlobal.color("物种颜色","speciesColor","showSpeciesColor")
                                             </div>
                                             <div class="tab-pane fade" id="fontpara">
                                                 @cn.tools.reGlobal.slider("样品名字体大小", "samfont", "0", "15", "1", "7")
@@ -129,32 +132,17 @@
                     } else {
                         name = v
                     }
-                    let colo = `<div class="form-group row reDraw" >
+                    let colo = `<div class="form-group row" >
+                                    <div class="reDraw">
                                         <label class="col-sm-3 col-form-label">${name}：</label>
-                                        <div  class="col-sm-9" style="display: flex">
+                                        <div  class="col-sm-4" style="display: flex">
                                             <input id='color${i}'  name='color' class='colorPicker evo-cp0 form-control'>
-                                        </div>
+                                        </div></div>
                                     </div>`
-                    $("#colopara").append(colo);
-                    $("#color" + i).colorpicker({color: data.color[i], defaultPalette: 'web', showOn: "button"})
-                            .on("change.color", function (event, color) { //选择颜色事件
-                                //formValidation重新验证颜色
-
-                            });
+                    $("#selfColor").after(colo);
                 });
 
-                let color = ["envColor"];
-
-                $.each(color,(i,v)=>{
-                    $("#" + v).colorpicker({color: data.color[i], defaultPalette: 'web', showOn: "button"})
-                            .on("change.color", function (event, color) { //选择颜色事件
-                                //formValidation重新验证颜色
-
-                            });
-                })
-
-
-                let slider = ["samfont","evifont","speciesfont","xts", "xls", "yts", "yls", "lts", "lms", "ms"]
+                let slider = ["samfont", "evifont", "speciesfont", "xts", "xls", "yts", "yls", "lts", "lms", "ms"]
 
                 $.each(slider, (i, v) => {
                     let $sliderId = $("#" + v)
@@ -168,12 +156,36 @@
                     $("#" + v).val(drawParams[v])
                 })
 
-                let radio = ["showname", "showarrow", "c", "big", "resolution"]
+                let radio = ["showname",  "dpi","showevi","showspecies"]
 
                 $.each(radio, (i, v) => {
                     $("input[name=" + v + "][value=" + drawParams[v] + "]").prop("checked", true)
                 })
 
+                ValidationReForm()
+
+                $.each(data.group, function (i, v) {
+                    $("#color" + i).colorpicker({color: data.color[i], defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                //formValidation重新验证颜色
+                                $("#reForm").formValidation("revalidateField", "color")
+                            });
+                })
+
+                let color = ["envColor","envLineColor","speciesColor"];
+
+                $.each(color, (i, v) => {
+                    console.log(drawParams[v])
+                    $("#" + v).colorpicker({color: drawParams[v], defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                $("#reForm").formValidation("revalidateField", v)
+                                //formValidation重新验证颜色
+                            });
+                })
+
+                ShowOrHide('showname','showEnvColor')
+                ShowOrHide('showevi','showEnvLineColor')
+                ShowSpecies()
 
                 $result.show()
                 let target_top = $result.offset().top - 50;
@@ -181,6 +193,35 @@
             })
         }
 
+        function ShowSpecies() {
+            let value = $("input[name=showspecies]:checked").val()
+            if (value.toUpperCase() === "TRUE") {
+                $("#showSpeciesColor").show()
+                $("#speciesId").slideDown(400)
+            } else {
+                $("#showSpeciesColor").hide()
+                $("#speciesId").slideUp(400)
+            }
 
+        }
+
+        function ValidationForm() {
+            let field = {};
+            let text = ["name"];
+            field = FieldText(field, text)
+            let file = ["otu", "env", "group"];
+            field = FieldFile(field, file)
+            addFormValidation("form", field)
+        }
+
+        function ValidationReForm() {
+            let field = {};
+            let number = ["xaxis", "yaxis", "samsize", "speciessize", "width", "length"];
+            FieldNumber(field, number);
+            let color = ["envColor", "color","envLineColor","speciesColor"];
+            FieldColor(field, color);
+            let excluded = []
+            addFormValidation("reForm", field, excluded)
+        }
 
 </script>

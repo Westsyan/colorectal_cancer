@@ -118,30 +118,33 @@
                             </ul>
                             <div class="tab-content py-0 px-0">
                                 <div class="tab-pane fade show active" id="imp" role="tabpanel" aria-labelledby="imp-tab">
-                                    <h4>Var.importance:</h4>
+                                    <h4>Var.importance: <a id="imp-down"><button class="btn btn-primary" >Download</button></a></h4>
                                     <div class="col-md-12 row">
                                         <div class="col-sm-6" >
                                             <img id="imp-img" style="max-width: 550px;width: 100%" />
                                         </div>
                                         <div class="col-sm-6" >
-                                            <table class="table table-bordered mean" id="imp-table"></table>
+                                            <table class="table table-bordered mean" id="imp-table"
+                                            data-show-export="true" data-export-types="['excel','txt']" data-export-data-type="all"
+                                            ></table>
                                         </div>
                                     </div>
 
                                 </div>
                                 <div class="tab-pane fade" id="roc" role="tabpanel" aria-labelledby="roc-tab">
-                                    <h4>ROC curve plot:</h4>
+                                    <h4>ROC curve plot:<a id="roc-down"><button class="btn btn-primary" >Download</button></a></h4>
                                     <img id="roc-img"  style="max-width: 550px;width: 100%"/>
                                 </div>
                                 <div class="tab-pane fade" id="sumary" role="tabpanel" aria-labelledby="sumary-tab">
-                                    <h4>Model.sumary:</h4>
+                                    <h4>Model.sumary:<a id="sumary-down"><button class="btn btn-primary" >Download</button></a></h4>
                                     <h5>Accuracy rate: <span id="accuracy_rate"></span> %</h5>
                                     <div class="col-md-12 row">
                                         <div class="col-sm-6" >
                                             <img id="sumary-img"  style="max-width: 550px;width: 100%"   />
                                         </div>
-                                        <div class="col-sm-6" >
+                                        <div class="col-sm-6"  style="margin-top: -55px">
                                             <table class="table table-bordered" id="sumary-table"  data-pagination="true"
+                                            data-show-export="true" data-export-types="['excel','txt']" data-export-data-type="all"
                                             data-page-list="[15]" data-page-size="15">
                                                 <thead>
                                                     <tr>
@@ -157,7 +160,9 @@
                                 </div>
                                 <div class="tab-pane fade" id="cv" role="tabpanel" aria-labelledby="cv-tab">
                                     <h4>CV.confuse matrix:</h4>
-                                    <table class="table table-bordered" id="confuse-table"></table>
+                                    <table class="table table-bordered" id="confuse-table"
+                                    data-show-export="true" data-export-types="['excel','txt']" data-export-data-type="all"
+                                    ></table>
 
                                 </div>
                             </div>
@@ -288,14 +293,23 @@
                 $.post("/colorectal/platform/ml/getRminerModelById?id=" + obj, (data) => {
                     $("#model-title").html(data.name)
                     $("#imp-img").attr("src",`/colorectal/utils/getImage?path=${data.path}/imp.png`)
+                    $("#imp-down").attr("href",`/colorectal/utils/downloadImage?path=${data.path}/imp.pdf`)
                     $("#imp-table").html(data.mean);
+                  //  $("#imp-table").bootstrapTable();
+
                     $("#roc-img").attr("src",`/colorectal/utils/getImage?path=${data.path}/roc.png`)
+                    $("#roc-down").attr("href",`/colorectal/utils/downloadImage?path=${data.path}/roc.pdf`)
+
                     $("#sumary-img").attr("src",`/colorectal/utils/getImage?path=${data.path}/reg.png`)
+                    $("#sumary-down").attr("href",`/colorectal/utils/downloadImage?path=${data.path}/reg.pdf`)
+
                     $("#accuracy_rate").html(data.rate);
                     if(data.conf === ""){
                         $("#confuse-tab").hide()
                     }else{
                         $("#confuse-table").html(data.conf);
+                        $("#confuse-table").bootstrapTable()
+
                     }
                     $("#sumary-table").bootstrapTable({data:data.reg})
                     $("#result").show();

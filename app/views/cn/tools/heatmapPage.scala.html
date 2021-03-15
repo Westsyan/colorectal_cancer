@@ -1,0 +1,414 @@
+<style>
+        #crm, #inputrow, #ccm, #inputcol, #rowgroup, #colgroup, #tag {
+            display: none;
+        }
+
+        #r-crm, #r-rp, #r-ccm, #r-cp {
+            display: none;
+        }
+</style>
+
+<form class="form-horizontal row" id="form">
+
+    @cn.tools.global.taskname()
+
+    @cn.tools.global.file("上传矩阵文件", "matrix", "heatmap.txt")
+
+    @cn.tools.global.radio("是否对行聚类", "cluster_rows", Seq(("FALSE", "不聚类"), ("TRUE", "自动聚类"), ("file", "上传聚类信息文件")), "FALSE", "ShowHeatmap('cluster_rows','crm','inputrow')")
+
+    @cn.tools.global.radio("自动行聚类方法", "crm", Seq(("complete", "complete"), ("single", "single"), ("ward.D", "ward"), ("average", "average"), ("mcquitty", "mcquitty")), "complete", "")
+
+    @cn.tools.global.file("行聚类文件", "inputrow", "heat_inputrow.txt")
+
+    @cn.tools.global.radio("是否对列聚类", "cluster_cols", Seq(("FALSE", "不聚类"), ("TRUE", "自动聚类"), ("file", "上传聚类信息文件")), "FALSE", "ShowHeatmap('cluster_cols','ccm','inputcol')")
+
+    @cn.tools.global.radio("自动列聚类方法", "ccm", Seq(("complete", "complete"), ("single", "single"), ("ward.D", "ward"), ("average", "average"), ("mcquitty", "mcquitty")), "complete", "")
+
+    @cn.tools.global.file("列聚类文件", "inputcol", "heat_inputcol.txt")
+
+    @cn.tools.global.radio("是否行分组", "isgroupr", Seq(("FALSE", "否"), ("TRUE", "是")), "FALSE", "ShowOrHide('isgroupr','rowgroup')")
+
+    @cn.tools.global.file("行分组文件", "rowgroup", "heat_rowgroup.txt")
+
+    @cn.tools.global.radio("是否列分组", "isgroupc", Seq(("FALSE", "否"), ("TRUE", "是")), "FALSE", "ShowOrHide('isgroupc','colgroup')")
+
+    @cn.tools.global.file("列分组文件", "colgroup", "heat_colgroup.txt")
+
+    @cn.tools.global.radio("是否自定义格子标签", "istag", Seq(("FALSE", "否"), ("TRUE", "是")), "FALSE", "ShowOrHide('istag','tag')")
+
+    @cn.tools.global.file("行分组文件", "tag", "heat_tag.txt")
+
+    @cn.tools.global.radio("选填参数（Optional）", "optional", Seq(("FALSE", "收起"), ("TRUE", "展开")), "FALSE", "ShowOrHide('optional','optionalParams')")
+
+<div id="optionalParams" style="width: 100%;
+    display: none">
+
+    @cn.tools.global.text("选择用于作图的行", "inr", "如1-10,13,15-20")
+
+    @cn.tools.global.text("选择用于作图的列", "inc", "如1-10,13,15-20")
+
+    @cn.tools.global.radio("是否取lg", "lg", Seq(("none", "none"), ("lg2", "lg2"), ("lg10", "lg10")), "none", "")
+
+    @cn.tools.global.radio("归一化", "sc", Seq(("none", "none"), ("col", "column"), ("row", "row")), "none", "")
+
+    @cn.tools.global.radio("颜色(从左到右，代表数值越来越大)", "color", Seq(("#E41A1C:#FFFF00:#1E90FF", "蓝-黄-红"), ("#E41A1C:#FFFFFF:#1E90FF", "蓝-白-红")), "#E41A1C:#FFFF00:#1E90FF", "")
+
+    @cn.tools.global.radio("在格子上显示数字", "hasnum", Seq(("FALSE", "no"), ("TRUE", "yes")), "FALSE", "")
+
+    @cn.tools.global.radio("是否显示行名", "hasrname", Seq(("FALSE", "no"), ("TRUE", "yes")), "TRUE", "")
+
+    @cn.tools.global.radio("是否显示列名", "hascname", Seq(("FALSE", "no"), ("TRUE", "yes")), "TRUE", "")
+
+    @cn.tools.global.radio("画出格子的边界", "hasborder", Seq(("none", "no"), ("white", "yes")), "white", "")
+
+</div>
+
+    @cn.tools.global.runButton()
+</form>
+
+<script>
+
+    $(function () {
+        ValidationForm()
+
+        MyTable.prototype.getTaskName("Heatmap")
+
+        ShowHeatmap('cluster_rows', 'crm', 'inputrow');
+        ShowHeatmap('cluster_cols', 'ccm', 'inputcol');
+        ShowOrHide('isgroupr', 'rowgroup');
+        ShowOrHide('isgroupc', 'colgroup')
+        ShowOrHide('istag', 'tag')
+        webScoket("heatmap")
+
+    })
+
+    function ShowHeatmap(name, id1, id2) {
+        let value = $("input[name=" + name + "]:checked").val()
+        if (value === "TRUE") {
+            $("#" + id1).slideDown(400)
+            $("#" + id2).slideUp(400)
+        } else if (value === "file") {
+            $("#" + id1).slideUp(400)
+            $("#" + id2).slideDown(400)
+        } else {
+            $("#" + id1).slideUp(400)
+            $("#" + id2).slideUp(400)
+        }
+    }
+
+    function OpenResult(id) {
+        $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=heatmap", (data) => {
+            const $result = $("#result")
+
+            const html = `<div class="col-sm-6" style="min-width: 600px;margin-top: 35px">
+                                <img id="resultImg" width="100%"/>
+                          </div>
+
+                            <div class="col-sm-6">
+                                <form id="reForm"  enctype="multipart/form-data">
+                                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                                        <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;
+                                            border-bottom: 1px solid #ddd">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="picpara-tab" data-toggle="tab" href="#picpara" role="tab" aria-controls="picpara" aria-selected="true">
+                                                    数据布局参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="colopara-tab" data-toggle="tab" href="#colopara" role="tab" aria-controls="colopara" aria-selected="false">
+                                                    颜色参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="fontpara-tab" data-toggle="tab" href="#fontpara" role="tab" aria-controls="fontpara" aria-selected="false">
+                                                    字体参数</a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content" style="box-sizing: border-box !important;
+                                            padding-top: 30px">
+                                            <div class="tab-pane fade active  show" id="picpara">
+                                                @cn.tools.reGlobal.select("热图显示部分", "smt", Seq(("full", "全部"), ("left", "左半边"), ("right", "右半边"), ("top", "上半边"), ("bottom", "下半边"), ("topTriangle", "右上三角"), ("bottomTriangle", "左下三角")))
+                                                @cn.tools.reGlobal.radio("是否对行聚类", "cluster_rows", Seq(("FALSE", "不聚类"), ("TRUE", "自动聚类"), ("file", "使用上传的聚类信息文件")), "", "ShowCluster('cluster_rows','r-crm','r-rp')")
+                                                @cn.tools.reGlobal.radio("自动行聚类方法", "crm",Seq(("complete", "complete"), ("single", "single"), ("ward.D", "ward"), ("average", "average"), ("mcquitty", "mcquitty")), "", "","r-crm")
+                                                @cn.tools.reGlobal.text("聚类分割数(1-)", "rp", "数字","1","r-rp")
+
+                                                @cn.tools.reGlobal.radio("是否对列聚类", "cluster_cols", Seq(("FALSE", "不聚类"), ("TRUE", "自动聚类"), ("file", "使用上传的聚类信息文件")), "", "ShowCluster('cluster_cols','r-ccm','r-cp')")
+                                                @cn.tools.reGlobal.radio("自动列聚类方法", "ccm",Seq(("complete", "complete"), ("single", "single"), ("ward.D", "ward"), ("average", "average"), ("mcquitty", "mcquitty")), "", "","r-ccm")
+                                                @cn.tools.reGlobal.text("聚类分割数(1-)", "cp", "数字","1","r-cp")
+
+                                                @cn.tools.reGlobal.text("选择用于作图的行", "inr", "如1-10,13,15-20")
+                                                @cn.tools.reGlobal.text("选择用于作图的列", "inc", "如1-10,13,15-20")
+                                                @cn.tools.reGlobal.radio("归一化", "sc",Seq(("col", "column"), ("row", "row"), ("none", "none")), "column", "")
+                                                @cn.tools.reGlobal.radio("是否取lg", "lg",Seq(("none", "none"), ("lg2", "lg2"), ("lg10", "lg10")), "none", "")
+                                                @cn.tools.reGlobal.radio("是否画格子边界", "hasborder",Seq(("none", "no"), ("white", "yes")), "none", "ShowCbc()")
+                                            </div>
+                                            <div class="tab-pane fade" id="colopara">
+                                                @cn.tools.reGlobal.radio("颜色 (数值从小到大)", "color",Seq(("#E41A1C:#FFFF00:#1E90FF", "蓝-黄-红"), ("#E41A1C:#FFFFFF:#1E90FF", "蓝-白-红"), ("0", "手动输入")), "", "ShowColor('color','inputColor')")
+
+                                                <div id="inputColor" class="form-group row " style="display:none">
+                                                    <div class="reDraw">
+                                                        <label class="col-sm-3 col-form-label"></label>
+                                                        <div style="border: 1px solid lightgrey;border-radius: 5px;padding: 10px;margin-left: 10px" class="col-sm-6">
+                                                            <div style="padding-left: 0">
+                                                                <div style="width: 100%;margin-left: 10px">
+                                                                    <label>自定义颜色（2-6个）：</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group-p" >
+                                                                <div class="form-group" style="width: 85%" id="mycolor"></div>
+                                                            </div>
+                                                            <div class="form-group-p" style="padding-left: 0">
+                                                                <input type="button" value="增加颜色" class="btn btn-primary btn-dark" onclick="addColor()" style="width: 100px;">
+                                                                <input type="button" value="删除颜色" class="btn btn-primary btn-dark" onclick="deleteColor()" style="width: 100px;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                @cn.tools.reGlobal.text("颜色渐变数量", "cc", "数字","30")
+                                                @cn.tools.reGlobal.color("缺失值数据颜色","nc","")
+                                                @cn.tools.reGlobal.color("边界颜色","cbc","r-cbc")
+
+                                                <div id="groupColor" style="border: 1px solid lightgrey;border-radius: 5px;display:none" class="form-group row">
+                                                    <div class="form-group-p" style="width:100%">
+                                                        <div class="reDraw">
+                                                            <label class="col-sm-3 col-form-label">行列分组颜色设置：</label>
+                                                        </div>
+                                                    </div>
+                                                    <div  style="width: 100%">
+                                                        <div  id="gColor"></div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="tab-pane fade" id="fontpara">
+                                                @cn.tools.reGlobal.radio("是否显示行名", "hasrname",Seq(("TRUE", "yes"), ("FALSE", "no")), "TRUE", "")
+                                                @cn.tools.reGlobal.radio("是否显示列名", "hascname",Seq(("TRUE", "yes"), ("FALSE", "no")), "TRUE", "")
+                                                @cn.tools.reGlobal.radio("格子上显示数字", "hasnum",Seq(("TRUE", "yes"), ("FALSE", "no")), "FALSE", "")
+                                                @cn.tools.reGlobal.radio("x轴字体旋转角度", "xfa",Seq(("0", "0"), ("315", "45"), ("90", "90"), ("270", "270")), "0", "")
+                                                @cn.tools.reGlobal.twoText("XY 轴字体大小","xfs","yfs","数字","10","数字","10",":")
+                                                @cn.tools.reGlobal.twoText("行 X 列聚类树高度","rtree","ctree","数字","50","数字","50","X")
+
+                                                @cn.tools.reGlobal.text("格子内字体大小", "fn", "数字","8")
+                                            </div>
+                                        </div>
+                                        @cn.tools.reGlobal.runButton()
+                                    </div>
+                                </form>
+                            </div>`
+            $("#redraw").empty().html(html)
+
+
+            $("#task_title").text(data.title)
+            $("#reButton").attr("onclick", "ReDraw('" + id + "')")
+            $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=heatmap/${id}/heatmap.png&num=` + Math.random())
+            let tableData = [];
+
+
+            $.each(data.tableData, (i, v) => {
+                tableData.push({
+                    "filename": v[0],
+                    "explain": v[1],
+                    "download": `<a class="result-download" href="/colorectal/cn/platform/tools/downloadToolsFile?path=heatmap/${id}/${v[0]}" ><i class="mdi mdi-download"></i></a>`
+                })
+            })
+
+            $("#fileTable").bootstrapTable({data: tableData})
+
+            const drawParams = data.drawParams;
+
+            $("#smt").val(drawParams["smt"]).select2()
+
+            let text = ["rp", "cp", "inr", "inc", "fn"]
+
+            $.each(text, (i, v) => {
+                $("#" + v).val(drawParams[v])
+            })
+
+            let radio = ["cluster_rows", "crm", "cluster_cols", "ccm", "sc", "lg", "hasborder"]
+
+            radio.forEach(v => {
+                $("input[name=" + v + "][value='" + drawParams[v] + "']").prop("checked", true)
+            })
+
+            if (drawParams["groupColor"] !== "") {
+                const $gcolor = $("#gColor");
+                $gcolor.empty();
+                const groupC = drawParams["groupColor"].split(",")
+                groupC.forEach((v, i) => {
+                    const group = v.split(":")
+                    $gcolor.append(`<div class="form-group row"><div class="reDraw"><label class="col-sm-4 col-form-label">${group[0]}：</label>
+                                    <div class="col-sm-4">
+                                        <input id='gcolor${i}' name='gcolor[]' class='colorPicker evo-cp0 form-control'></div>
+                                    </div></div>`)
+                })
+
+                $("#groupColor").show()
+            } else {
+                $("#groupColor").hide()
+            }
+
+            let mycolor = drawParams["color[]"].split(":")
+
+            $("#reForm").find("input[name=color][value='" + drawParams["color"] + "']").prop("checked", true)
+
+            $("#mycolor").empty();
+            mycolor.forEach((v, i) => {
+                $("#mycolor").append(`<div class="form-group row "  id="r-color${i}"><div class="reDraw"> <div  class="col-sm-9" ><input type="text" name="color[]" class="form-control" id="color${i}"></div></div></div>`);
+
+            })
+
+            ValidationReForm();
+
+            let colors = ["nc", "cbc"];
+
+            colors.forEach(v => {
+                $("#" + v).colorpicker({color: drawParams[v], defaultPalette: 'web', showOn: "button"})
+                        .on("change.color", function (event, color) { //选择颜色事件
+                            $("#reForm").formValidation("revalidateField",v)
+                            //formValidation重新验证颜色
+                        });
+            })
+
+            if (drawParams["groupColor"] !== "") {
+                const groupC = drawParams["groupColor"].split(",")
+                groupC.forEach((v, i) => {
+                    const group = v.split(":")
+                    $("#gcolor" + i).colorpicker({color: group[1], defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                $("#reForm").formValidation("revalidateField", "gcolor[]")
+                                //formValidation重新验证颜色
+                            });
+                })
+            }
+
+            mycolor.forEach((v,i)=>{
+                $("#color" + i).colorpicker({color: v, defaultPalette: 'web', showOn: "button"})
+                        .on("change.color", function (event, color) { //选择颜色事件
+                            $("#reForm").formValidation("revalidateField", "color[]")
+                            //formValidation重新验证颜色
+                        });
+            })
+
+            if (drawParams["color"] !== "#E41A1C:#FFFF00:#1E90FF" && drawParams["color"] !== "#E41A1C:#FFFFFF:#1E90FF") {
+                $("input[name=color][value='0']").prop("checked", true)
+            }
+
+            $result.show();
+            ShowCluster('cluster_rows', 'r-crm', 'r-rp');
+            ShowCluster('cluster_cols', 'r-ccm', 'r-cp');
+            ShowCbc(drawParams["cbc"]);
+            ShowColor('color', 'inputColor')
+
+            let target_top = $result.offset().top - 50;
+            $("html,body").animate({scrollTop: target_top}, 800);
+
+        })
+    }
+
+    function ShowCbc(color = "#ffffff") {
+        let hasborder = $("#reForm").find("input[name=hasborder]:checked").val();
+        if (hasborder == "white") {
+            $("#r-cbc").hide();
+            $("#cbc").colorpicker({color: "#ffffff", defaultPalette: 'web', showOn: "button"})
+                    .on("change.color", function (event, color) { //选择颜色事件
+                        //formValidation重新验证颜色
+                    });
+        } else {
+            $("#r-cbc").show();
+            $("#cbc").colorpicker({color: color, defaultPalette: 'web', showOn: "button"})
+                    .on("change.color", function (event, color) { //选择颜色事件
+                        //formValidation重新验证颜色
+                    });
+        }
+    }
+
+    function addColor() {
+        let length = $("input[name='color[]']").length;
+        if (length < 6) {
+           // $("#reForm").formValidation("destroy");
+
+            $("#mycolor").append(`<div class="form-group row "  id="r-color${length}"><div class="reDraw"> <div  class="col-sm-9">
+<input type="text" name="color[]" class="form-control" id="color${length}"></div></div></div>`);
+            $("#reForm").formValidation("addField","color[]")
+
+            $("#color" + length).colorpicker({color: "#E41A1C", defaultPalette: 'web', showOn: "button"})
+                    .on("change.color", function (event, color) { //选择颜色事件
+                        //formValidation重新验证颜色
+                    });
+
+           // ValidationReForm();
+        } else {
+            swal({
+                title: "添加颜色失败",
+                text: "添加失败，颜色最大数量为6个！",
+                type: "warning",
+                confirmButtonText: "确认"
+            });
+        }
+    }
+
+    function deleteColor() {
+        let length = $("input[name='color[]']").length;
+        if (length > 2) {
+           // $("#reForm").formValidation("destroy");
+            $("#r-color" + (length - 1)).remove();
+           // ValidationReForm();
+        } else {
+            swal({
+                title: "删除颜色失败",
+                text: "删除失败，颜色最小数量为2个！",
+                type: "warning",
+                confirmButtonText: "确认"
+            });
+        }
+
+    }
+
+    function ShowColor(color, id) {
+        const form = $("#reForm");
+        const r = form.find("input[name=" + color + "]:checked").val();
+        if (r === "0") {
+            $("#" + id).slideDown(400);
+        } else {
+            $("#" + id).slideUp(400);
+        }
+        form.data("formValidation").resetForm()
+    }
+
+    function ShowCluster(id, id1, id2) {
+        let form = $("#reForm");
+        let i = form.find("input[name=" + id + "]:checked").val();
+
+        if (i === "TRUE") {
+            form.find("#" + id1).slideDown(400)
+            form.find("#" + id2).slideDown(400)
+        } else if (i === "file") {
+            form.find("#" + id1).slideUp(400)
+            form.find("#" + id2).slideDown(400)
+        } else {
+            form.find("#" + id1).slideUp(400)
+            form.find("#" + id2).slideUp(400)
+        }
+        form.data("formValidation").resetForm()
+    }
+
+    function ValidationForm() {
+        let field = {};
+        let text = ["name"];
+        field = FieldText(field, text)
+        let file = ["matrix", "inputrow", "inputcol", "rowgroup", "colgroup", "tag"];
+        field = FieldFile(field, file)
+        addFormValidation("form", field)
+    }
+
+    function ValidationReForm() {
+        let field = {};
+        let number = ["rp", "cp", "cc", "xfs", "yfs", "rtree", "ctree", "fn"];
+        FieldNumber(field, number);
+        let color = ["nc", "cbc", "color[]", "gcolor[]"];
+        FieldColor(field, color);
+        let excluded = ["#rp:hidden", "#cp:hidden", "input[name='color[]']:hidden"]
+        addFormValidation("reForm", field, excluded)
+    }
+
+    </script>

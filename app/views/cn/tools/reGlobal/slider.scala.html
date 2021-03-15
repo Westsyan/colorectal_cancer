@@ -1,9 +1,11 @@
-@(question: String,name:String,min:String,max:String,step:String,value:String)
+@(question: String, name: String, min: String, max: String, step: String, value: String)
 
 
-<div  class="form-group row reDraw" >
-    <label class="col-sm-3 col-form-label">@question：</label>
-    <div  class="col-sm-9" style="line-height: 50px">
-        <input id="@name" name="@name" data-slider-id='s@name' type="text" data-slider-min="@min" data-slider-max="@max" data-slider-step="@step" data-slider-value="@value"/>
+<div class="form-group row reDraw" >
+    <div class="reDraw">
+        <label class="col-sm-3 col-form-label">@question：</label>
+        <div class="col-sm-9" style="line-height: 50px">
+            <input id="@name" name="@name" data-slider-id='s@name' type="text" data-slider-min="@min" data-slider-max="@max" data-slider-step="@step" data-slider-value="@value"/>
+        </div>
     </div>
 </div>

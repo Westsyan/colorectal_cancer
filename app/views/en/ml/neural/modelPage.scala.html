@@ -53,13 +53,21 @@
 
     <div class="col-md-12">
         <div class="form-group row">
+            <label class="col-sm-3 col-form-label">The maximum allowable number of weights:</label>
+            <div class="col-sm-4">
+                <input class="form-control" name="maxNWts" id="maxNWts" value="1000" placeholder="Default: 1000">
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="form-group row">
             <label class="col-sm-3 col-form-label">Top if the optimizer is unable to reduce the fit criterion by a factor of at least 1 - reltol :</label>
             <div class="col-sm-4">
                 <input class="form-control" name="reltol" id="reltol" value="1.0e-8" placeholder="Default: 1.0e-8">
             </div>
         </div>
     </div>
-
 </div>
 
     @en.ml.runButton()

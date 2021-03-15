@@ -10785,18 +10785,24 @@ textarea.form-control {
 
 .btn {
   display: inline-block;
-  font-weight: 400;
-  color: #000;
+  margin-bottom: 0;
+  font-weight: normal;
   text-align: center;
   vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
-  background-color: transparent;
-  border: 1px solid transparent;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
-  line-height: 1;
-  border-radius: 0.1875rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -19128,8 +19134,8 @@ code {
 
 .nav-tabs .nav-item .nav-link.active {
   border: 0;
-  border-bottom: 3px solid #5646ff;
-  color: #4d83ff;
+  border-bottom: 3px solid #2D8B67;
+  color: #2D8B67;
 }
 
 /*-------------------------------------------------------------------*/
@@ -19898,7 +19904,7 @@ code {
   color: #4a4a4a;
   margin-bottom: 1.5rem;
   text-transform: uppercase;
-  font-size: .875rem;
+  font-size: 1.1rem;
   font-weight: bold;
 }
 
@@ -20327,7 +20333,7 @@ code {
 
 /* Forms */
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .input-group-append,
@@ -20429,7 +20435,7 @@ select.form-control.border-dark:focus, .dataTables_wrapper select.border-dark:fo
   font-size: 0.875rem;
   line-height: 1.4rem;
   vertical-align: top;
-  margin-bottom: .5rem;
+/*  margin-bottom: .5rem;*/
 }
 
 .form-group.has-danger .form-control, .form-group.has-danger .dataTables_wrapper select, .dataTables_wrapper .form-group.has-danger select {

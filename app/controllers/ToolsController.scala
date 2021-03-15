@@ -16,7 +16,7 @@ import play.api.libs.streams.Accumulator
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, MultipartFormData, Request}
 import play.core.parsers.Multipart.{FileInfo, FilePartHandler}
-import tools.{Cca, PcaOrPcoa}
+import tools.{Cca, Heatmap, IgcOrItc, PcaOrPcoa}
 import utils.{ExecCommand, Global, Utils}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,7 +59,10 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
       val result = tools match {
         case x if x == "pca" || x == "pcoa" => PcaOrPcoa.Run(path, params, tools)
         case "cca" => Cca.Run(path, params)
+        case "heatmap" => Heatmap.Run(path, params)
+        case x if x == "igc" || x == "itc" => IgcOrItc.Run(path, params, tools)
       }
+
 
       toolsDao.updateState(id, result._1).toAwait
       FileUtils.writeStringToFile(s"$path/log.txt".toFile, result._2)
@@ -70,14 +73,19 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
   def getRedrawParams(id: Int, tools: String) = Action { implicit request =>
     val row = toolsDao.getById(id).toAwait
     val tableData = tools match {
-      case "pca" => Array(("pca.png", "PCA结果图"), ("pca.sdev.xls", "PCA值表格"), ("pca.rotation.xls", "特征向量矩阵表格"), ("pca.zip", "结果打包文件"))
-      case "pcoa" => Array(("pcoa.png", "PCOA结果图"), ("pcoa.sdev.xls", "PCOA值表格"), ("pcoa.zip", "结果打包文件"))
-      case "cca" => Array(("rdacca.png", "CCA/RDA结果图"), ("percent.xls", "百分比表"), ("samples.xls", "样本坐标表"),
-        ("species.xls","物种坐标表"),("envi.xls","环境因子坐标表"), ("rdacca.zip", "结果打包文件"))
+      case "pca" => Array(("pca.pdf", "PCA结果图"), ("pca.sdev.xls", "PCA值表格"), ("pca.rotation.xls", "特征向量矩阵表格"), ("pca.zip", "结果打包文件"))
+      case "pcoa" => Array(("pcoa.pdf", "PCOA结果图"), ("pcoa.sdev.xls", "PCOA值表格"), ("pcoa.zip", "结果打包文件"))
+      case "cca" => Array(("rdacca.pdf", "CCA/RDA结果图"), ("percent.xls", "百分比表"), ("samples.xls", "样本坐标表"),
+        ("species.xls", "物种坐标表"), ("envi.xls", "环境因子坐标表"), ("rdacca.zip", "结果打包文件"))
+      case "heatmap" => Array(("heatmap.pdf", "热图结果"))
+      case "igc" => Array(("cor.xls", "相关性系数矩阵"), ("pvalue.xls", "p值矩阵"), ("pandv.xls", "相关性系数c值和p值分析结果"),
+        ("p_star.xls", "根据p值生成的星星矩阵"), ("heatmap.pdf", "热图"))
     }
     val params = tools match {
       case x if x == "pca" || x == "pcoa" => PcaOrPcoa.GetParams(row, tools)
       case "cca" => Cca.GetParams(row)
+      case "heatmap" => Heatmap.GetParams(row)
+      case x if x == "igc" || x == "itc" => IgcOrItc.GetParams(row, tools)
     }
     Ok(params ++ Json.obj("tableData" -> tableData))
   }
@@ -90,6 +98,8 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
     toolsDao.updateState(id, 0).toAwait
     val result = tools match {
       case x if x == "pca" || x == "pcoa" => PcaOrPcoa.ReDraw
+      case "cca" => Cca.ReDraw
+      case "heatmap" => Heatmap.ReDraw(path)
     }
     toolsDao.updateDrawParamsAndStateById(id, result._1, result._3.toString).toAwait
     FileUtils.writeStringToFile(s"$path/log.txt".toFile, result._2)
@@ -108,5 +118,17 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
       Ok(Json.obj("code" -> 200))
     }
   }
+
+  def reDrawIgcOrItc = Action{implicit request=>
+    val data = request.body.asFormUrlEncoded.get.map(x => x._1 -> x._2.mkString(":"))
+    val id = data("id").toInt
+    val tools = data("tools")
+    val path = Global.getToolsPath(request.userId, id, tools)
+    toolsDao.updateState(id, 0).toAwait
+
+
+    Ok(Json.toJson("1"))
+  }
+
 
 }

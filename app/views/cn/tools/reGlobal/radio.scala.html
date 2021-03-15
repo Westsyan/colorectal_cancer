@@ -1,15 +1,17 @@
-@(question: String, name: String, options: Seq[(String, String)], checked: String, onclick: String)
+@(question: String, name: String, options: Seq[(String, String)], checked: String, onclick: String, id: String = "")
 
 
-<div class="form-group row reDraw" id="@name">
-    <label class="col-sm-3 col-form-label">@question：</label>
-    <div class="col-sm-9">
-    @for((value, option) <- options) {
-        <label class="col-form-label label-radio"> <input type="radio" name="@name" value="@value" onclick="@onclick"
-            @if(value == checked) {
-                checked="checked"
-            }
-            /> @option</label>
-    }
+<div class="form-group row" id="@id">
+    <div class="reDraw">
+        <label class="col-sm-3 col-form-label">@question：</label>
+        <div class="col-sm-9">
+        @for((value, option) <- options) {
+            <label class="col-form-label label-radio"> <input type="radio" name="@name" value="@value" onclick="@onclick"
+                @if(value == checked) {
+                    checked="checked"
+                }
+                /> @option</label>
+        }
+        </div>
     </div>
 </div>

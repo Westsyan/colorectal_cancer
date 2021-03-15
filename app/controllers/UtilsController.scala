@@ -19,6 +19,17 @@ class UtilsController @Inject()(cc: ControllerComponents)(implicit exec: Executi
     SendImg(file, request.headers)
   }
 
+  def downloadImage(path:String) = Action{implicit request=>
+    val name = path.split("/").last
+    Ok.sendFile(s"${Global.path}/$path".toFile).withHeaders(
+      //缓存
+      CACHE_CONTROL -> "max-age=3600",
+      CONTENT_DISPOSITION -> s"attachment; filename=$name",
+      CONTENT_TYPE -> "application/x-download"
+    )
+
+  }
+
   def getToolsImage(path:String,num:String)= Action { implicit request =>
     val file =  s"${Global.path}/data/${request.userId}/tools/$path".toFile
     SendImg(file, request.headers)

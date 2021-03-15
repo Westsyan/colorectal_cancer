@@ -308,9 +308,10 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
 
   }
 
-  def runRminer[T](request: Request[MultipartFormData[TemporaryFile]], name: String, ml: String, dependent: String, independent: Seq[String], rCmd: String, naPer: Option[String]) = {
+  def runRminer[T](request: Request[MultipartFormData[TemporaryFile]], name: String, ml: String, dependent: String, independent: Seq[String], rCmd: String, naPer: Option[String],fData:filterData) = {
     var valid = "true"
     var msg = ""
+
     try {
       var state = 1
       var log = ""
@@ -318,6 +319,7 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
       val userid = getUserId(request)
       val id = mlDao.insertReturnId(mlRow).toAwait
       val dir = s"${Global.path}/data/$userid/ml/$ml/$id"
+      //过滤参数，用于判断是数值类型还是字符类型
       val threshold = 0.7
       Future {
         try {
@@ -327,7 +329,7 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
           val encoding = getJavaEncode(sourceFile)
           val lines = sourceFile.readLines(encoding)
 
-          val head = lines.head.trim.split("\t").map(_.trim).zipWithIndex
+          var head = lines.head.trim.split("\t").map(_.trim).zipWithIndex
 
           val headIndex = head.map { x =>
             if (independent.contains(disposeTitle(x._1))) {
@@ -381,10 +383,17 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
             0.7
           }
 
-          val matrix = lastData.filter { x =>
-            val l = x.split("\t")
-            l.count(_ != "NA").toDouble / l.length.toDouble >= naData
-          }.map { x =>
+          val ll =if(fData.is0 == "yes"){
+            lastData.map(_.split("\t").map{y=>
+              if(y == "0") "NA" else y
+            }.mkString("\t"))
+          }else {
+            lastData
+          }
+
+          val matrix = ll.map(_.split("\t")).transpose.filter { l=>
+              l.count(_ != "NA").toDouble / l.length.toDouble >= naData
+          }.transpose.map(_.mkString("\t")).map { x =>
             val line = x.split("\t").map(_.trim)
             val line2 = line.zipWithIndex.filter { y =>
               headIndex.contains(y._2)
@@ -394,6 +403,8 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
           }
 
           FileUtils.writeLines(rf.toFile, matrix.asJava)
+
+          head = matrix.head.split("\t").zipWithIndex
 
           val filterJson = Json.toJson(matrix.map(_.split("\t")).transpose.zipWithIndex.map { case (datas, i) =>
             if (filterMap(datas.head)("type") == "num") {
@@ -541,13 +552,22 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
     title.replaceAll("\"", "").trim
   }
 
-  case class logisticData(name: String, dependent: String, independent: Seq[String])
+  case class filterData(is0:String)
+
+  val filterForm = Form(
+    mapping(
+      "is0" -> text
+    )(filterData.apply)(filterData.unapply)
+  )
+
+  case class logisticData(name: String, dependent: String, independent: Seq[String],is0:String)
 
   val logisticForm = Form(
     mapping(
       "name" -> text,
       "dependent" -> text,
-      "independent" -> seq(text)
+      "independent" -> seq(text),
+      "is0" -> text
     )(logisticData.apply)(logisticData.unapply)
   )
 
@@ -556,13 +576,15 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
     var msg = ""
     try {
       val data = logisticForm.bindFromRequest.get
+      val filterData = filterForm.bindFromRequest.get
+
       val cmd =
         s"""
            |rf_ntree <- fit(${data.dependent}~.,data=data,model='multinom',fdebug=TRUE)
            |M=crossvaldata(${data.dependent}~.,data,fit,predict,ngroup=3,model="multinom",task="prob")
            |""".stripMargin
       val naPer = naPerForm.bindFromRequest().get.naPer
-      val result = runRminer(request, data.name, "logistics", data.dependent, data.independent, cmd, naPer)
+      val result = runRminer(request, data.name, "logistics", data.dependent, data.independent, cmd, naPer,filterData)
       valid = result._1
       msg = result._2
     } catch {
@@ -596,6 +618,8 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
     var msg = ""
     try {
       val data = randomForestForm.bindFromRequest.get
+      val filterData = filterForm.bindFromRequest.get
+
       val mtry = if (data.mtry.nonEmpty) s",mtry=${data.mtry.get}" else ""
       val nodesize = if (data.nodesize.nonEmpty) s",nodesize=${data.nodesize.get}" else ""
       val maxnodes = if (data.maxnodes.nonEmpty) s",maxnodes=${data.maxnodes.get}" else ""
@@ -606,7 +630,7 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
            |M=crossvaldata(${data.dependent}~.,data,fit,predict,ngroup=3,model="randomForest",task="prob",search=search)
            |""".stripMargin
       val naPer = naPerForm.bindFromRequest().get.naPer
-      val result = runRminer(request, data.name, "rf", data.dependent, data.independent, cmd, naPer)
+      val result = runRminer(request, data.name, "rf", data.dependent, data.independent, cmd, naPer,filterData)
       valid = result._1
       msg = result._2
     } catch {
@@ -620,7 +644,7 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
 
   case class neuralData(name: String, dependent: String, independent: Seq[String], size: String = "3",
                         decay: String = "0", maxit: String = "100", rang: String = "0.7", abstol: String = "1.0e-4",
-                        reltol: String = "1.0e-8")
+                        reltol: String = "1.0e-8",maxNWts:String = "1000")
 
   val neuralForm = Form(
     mapping(
@@ -632,7 +656,8 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
       "maxit" -> text,
       "rang" -> text,
       "abstol" -> text,
-      "reltol" -> text
+      "reltol" -> text,
+      "maxNWts" -> text
     )(neuralData.apply)(neuralData.unapply)
   )
 
@@ -641,14 +666,16 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
     var msg = ""
     try {
       val data = neuralForm.bindFromRequest.get
+      val filterData = filterForm.bindFromRequest.get
+
       val cmd =
         s"""
-           |search=list(search=mparheuristic('mlpe'),size=${data.size},decay=${data.decay},maxit=${data.maxit},rang=${data.rang},abstol=${data.abstol},reltol=${data.reltol})
-           |rf_ntree <- fit(${data.dependent}~.,data=data,model='mlpe',search=search)
-           |M=crossvaldata(${data.dependent}~.,data,fit,predict,ngroup=3,model="mlpe",task="prob",search=search)
+           |search=list(search=mparheuristic('mlp'),size=${data.size},decay=${data.decay},maxit=${data.maxit},rang=${data.rang},abstol=${data.abstol},reltol=${data.reltol},MaxNWts=${data.maxNWts})
+           |rf_ntree <- fit(${data.dependent}~.,data=data,model='mlp',search=search)
+           |M=crossvaldata(${data.dependent}~.,data,fit,predict,ngroup=3,model="mlp",task="prob",search=search)
            |""".stripMargin
       val naPer = naPerForm.bindFromRequest().get.naPer
-      val result = runRminer(request, data.name, "neural", data.dependent, data.independent, cmd, naPer)
+      val result = runRminer(request, data.name, "neural", data.dependent, data.independent, cmd, naPer,filterData)
       valid = result._1
       msg = result._2
     } catch {
@@ -679,13 +706,15 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
     var msg = ""
     try {
       val data = svmForm.bindFromRequest.get
+      val filterData = filterForm.bindFromRequest.get
+
       val cmd =
         s"""
            |rf_ntree <- fit(${data.dependent}~.,data=data,model='svm',kernel='${data.kernel}', C = ${data.c}, epsilon = ${data.epsilon}, tol = ${data.tol})
            |M=crossvaldata(${data.dependent}~.,data,fit,predict,ngroup=3,model="mlp",task="prob",kernel='${data.kernel}', C = ${data.c}, epsilon = ${data.epsilon}, tol = ${data.tol})
            |""".stripMargin
       val naPer = naPerForm.bindFromRequest().get.naPer
-      val result = runRminer(request, data.name, "svm", data.dependent, data.independent, cmd, naPer)
+      val result = runRminer(request, data.name, "svm", data.dependent, data.independent, cmd, naPer,filterData)
       valid = result._1
       msg = result._2
     } catch {
@@ -717,6 +746,8 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
     var msg = ""
     try {
       val data = gbForm.bindFromRequest.get
+      val filterData = filterForm.bindFromRequest.get
+
       val cmd =
         s"""
            |search=list(eta=${data.eta},max_depth=${data.max_depth},min_child_weight=${data.min_child_weight},subsample=${data.subsample})
@@ -725,7 +756,7 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
            |
            |""".stripMargin
       val naPer = naPerForm.bindFromRequest().get.naPer
-      val result = runRminer(request, data.name, "gb", data.dependent, data.independent, cmd, naPer)
+      val result = runRminer(request, data.name, "gb", data.dependent, data.independent, cmd, naPer,filterData)
       valid = result._1
       msg = result._2
     } catch {
@@ -791,6 +822,8 @@ class MlController @Inject()(mlDao: MlDao, cc: ControllerComponents)
       var state = 1
       var log = ""
       val data = catboostForm.bindFromRequest.get
+      val filterData = filterForm.bindFromRequest.get
+
       val mlRow = MlRow(0, getUserId(request), data.name, "catboost", Utils.date, "", 0)
       val userid = getUserId(request)
       val id = mlDao.insertReturnId(mlRow).toAwait

@@ -1,250 +1,361 @@
 @(tools: String, title: String)(implicit session: Session)
-@cn.manage.main(title, "tools") {
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("bootstrap-slider-master/css/bootstrap-slider.css")" media="screen" />
-    <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("palette/evol-colorpicker.min.css")" media="screen" />
+    @cn.manage.main(title, "tools") {
+        <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("bootstrap-slider-master/css/bootstrap-slider.css")" media="screen" />
+        <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("palette/evol-colorpicker.min.css")" media="screen" />
 
-    <script src="@routes.Assets.versioned("modelb/js/file-upload-orgin.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.versioned("palette/jquery-ui.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.versioned("palette/evol-colorpicker.min.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.versioned("bootstrap-slider-master/bootstrap-slider.js")"></script>
+        <script src="@routes.Assets.versioned("modelb/js/file-upload-orgin.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("palette/jquery-ui.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("palette/evol-colorpicker.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("bootstrap-slider-master/bootstrap-slider.js")"></script>
 
-    <style>
-            .example {
-                font-size: 14px;
-            }
+        <style>
+                .example {
+                    font-size: 14px;
+                }
 
-            .form-check {
-                float: left;
-                margin-right: 40px;
-                width: 15%;
-                min-width: 100px;
-            }
+                .form-check {
+                    float: left;
+                    margin-right: 40px;
+                    width: 15%;
+                    min-width: 100px;
+                }
 
-            .select2-container--default .select2-selection--single {
-                height: 46px;
-            }
+/*                .form-control-feedback{
+                    background-color: transparent !important;
+                }*/
 
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                height: 46px;
-                line-height: 46px;
-            }
+                .select2-container--default .select2-selection--single {
+                    height: 46px;
+                }
 
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: 46px;
-            }
+                .select2-container--default .select2-selection--single .select2-selection__rendered {
+                    height: 46px;
+                    line-height: 46px;
+                }
 
-            .reDraw {
-                margin-bottom: 0px;
-            }
+                .select2-container--default .select2-selection--single .select2-selection__arrow {
+                    height: 46px;
+                }
 
-            .evo-cp-wrap {
-                width: 200px !important;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
+                .reDraw {
+                    margin-bottom: 0px;
+                    display: flex;
+                    width: 100%;
+                }
 
-            .colorPicker {
-                width: 80%;
-            }
+                .evo-cp-wrap {
+                    width: 200px !important;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
 
-            .evo-pop {
-                top: 53px;
-                border: 1px solid #dddddd;
-                border-radius: 5px;
-                padding: 0 10px;
-            }
+                .colorPicker {
+                    width: 80%;
+                }
 
-            .result-table .fixed-table-body {
-                min-height: unset;
-            }
+                .evo-pop {
+                    top: 53px;
+                    border: 1px solid #dddddd;
+                    border-radius: 5px;
+                    padding: 0 10px;
+                }
 
-        .result-download{
-            font-size: 20px;
-            padding: 5px 10px;
-        }
+                .result-table .fixed-table-body {
+                    min-height: unset;
+                }
 
-        .result-download:hover{
-            background-color: #dddddd;
-            border-radius: 5px;
-        }
+                .result-download {
+                    font-size: 20px;
+                    padding: 5px 10px;
+                }
 
-    </style>
+                .result-download:hover {
+                    background-color: #dddddd;
+                    border-radius: 5px;
+                }
 
-    <div class="content-wrapper">
-        <div class="row">
-            <div class="col-md-12 grid-margin">
-                <div class="d-flex justify-content-between flex-wrap">
-                    <div class="d-flex align-items-end flex-wrap">
-                        <div class="d-flex">
-                            <i class="icon icon text-muted hover-cursor"></i>
-                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;分析工具&nbsp;/&nbsp;</p>
-                            <p class="text-primary mb-0 hover-cursor">@title</p>
+                #reForm .form-control-feedback {
+                    margin-right: -20px;
+                }
+
+        </style>
+
+        <div class="content-wrapper">
+            <div class="row">
+                <div class="col-md-12 grid-margin">
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <div class="d-flex align-items-end flex-wrap">
+                            <div class="d-flex">
+                                <i class="icon icon text-muted hover-cursor"></i>
+                                <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;分析工具&nbsp;/&nbsp;</p>
+                                <p class="text-primary mb-0 hover-cursor">@title</p>
+                            </div>
+
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 stretch-card">
-                <div class="card">
-                    <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
 
-                        @{tools match{
-                            case "pca" => cn.tools.pcaOrPcoaPage("pca")
-                            case "pcoa" => cn.tools.pcaOrPcoaPage("pcoa")
-                            case "cca" => cn.tools.ccaPage()
-                        }}
+                        @{
+                            tools match {
+                                case "pca" => cn.tools.pcaOrPcoaPage("pca")
+                                case "pcoa" => cn.tools.pcaOrPcoaPage("pcoa")
+                                case "cca" => cn.tools.ccaPage()
+                                case "heatmap" => cn.tools.heatmapPage()
+                                case _ => cn.tools.test()
+                            }
+                        }
 
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-12 stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <div id="toolbar"></div>
-                        <table class="table table-bordered" id="table" data-pagination="true" data-advanced-sortable="true"
-                        data-toolbar="#toolbar">
-                            <thead>
-                                <tr>
-                                    <th data-field="name" data-valign="middle" data-sortable="true" data-search-type="text">
-                                        任务名</th>
-                                    <th data-field="start" data-valign="middle" data-sortable="true" data-search-type="date">
-                                        创建时间</th>
-                                    <th data-field="state" data-formatter="GetState" data-valign="middle" data-sortable="true" >
-                                        运行状态</th>
-                                    <th data-field="operation" data-formatter="GetOperation" data-valign="middle">
-                                        操作</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row" id="result" style="display: none">
-            <div class="col-md-12 grid-margin stretch-card">
-                <div class="card">
-                    <div class="card-body  dashboard-tabs p-0" style="padding: 10px">
-
-                        <h3 style="padding: 20px 20px 0px 20px" id="task_title"></h3>
-                        <p class="card-title" style="padding: 20px 20px 0px 20px">结果文件列表：</p>
-                        <div class="col-sm-12 result-table">
-                            <table class="table table-hover table-bordered table-striped" id="fileTable" style="width: 60%;margin-left: 50px">
+            <div class="row">
+                <div class="col-md-12 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="toolbar"></div>
+                            <table class="table table-bordered" id="table" data-pagination="true" data-advanced-sortable="true"
+                            data-toolbar="#toolbar">
                                 <thead>
                                     <tr>
-                                        <th data-field="filename">文件</th>
-                                        <th data-field="explain">说明</th>
-                                        <th data-field="download">下载</th>
+                                        <th data-field="name" data-valign="middle" data-sortable="true" data-search-type="text">
+                                            任务名</th>
+                                        <th data-field="start" data-valign="middle" data-sortable="true" data-search-type="date">
+                                            创建时间</th>
+                                        <th data-field="state" data-formatter="GetState" data-valign="middle" data-sortable="true" >
+                                            运行状态</th>
+                                        <th data-field="operation" data-formatter="GetOperation" data-valign="middle">
+                                            操作</th>
                                     </tr>
                                 </thead>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <p  class="card-title" style="padding: 20px 20px 0px 20px">重新绘图：</p>
+            <div class="row" id="result" style="display: none">
+                <div class="col-md-12 grid-margin stretch-card">
+                    <div class="card">
+                        <div class="card-body  dashboard-tabs p-0" style="padding: 10px">
 
-                        <div class="col-md-12" style="display: flex" id="redraw">
+                            <h3 style="padding: 20px 20px 0px 20px" id="task_title"></h3>
+                            <p class="card-title" style="padding: 20px 20px 0px 20px">结果文件列表：</p>
+                            <div class="col-sm-12 result-table">
+                                <table class="table table-hover table-bordered table-striped" id="fileTable" style="width: 60%;
+                                    margin-left: 50px">
+                                    <thead>
+                                        <tr>
+                                            <th data-field="filename">文件</th>
+                                            <th data-field="explain">说明</th>
+                                            <th data-field="download">下载</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+
+                            <div style="padding: 20px 20px 0px 20px" id="card-title"><span  class="card-title" >重新绘图：</span></div>
+
+
+                            <div class="col-md-12" style="display: flex" id="redraw">
+
+                            </div>
 
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="@routes.Assets.versioned("webscoket/webscoket.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("webscoket/webscoket.js")" type="text/javascript"></script>
 
-    <script>
+        <script>
 
 
-            $(function () {
-                $("#table").bootstrapTable();
-                UpdateTable();
+                $(function () {
+                    $("#table").bootstrapTable();
+                    UpdateTable();
 
-            })
-
-            function UpdateTable() {
-                $.post("@routes.ToolsController.getAllInfoByTools(tools)", (data) => {
-                    $("#table").bootstrapTable("load", data)
                 })
-            }
 
-            function GetState(value, row) {
-                if (row.state === "2") {
-                    return `<div class="failed">失败</div><input class='state' value='${row.state}'>`
-                } else if (row.state === "1") {
-                    return `<div class="success">成功</div><input class='state' value='${row.state}'>`
-                } else {
-                    return `<div>运行中 <img src='/assets/images/timg.gif'  style='width: 20px; height: 20px;'></div><input class='state' value='${row.state}'>`;
+                function UpdateTable() {
+                    $.post("@routes.ToolsController.getAllInfoByTools(tools)", (data) => {
+                        $("#table").bootstrapTable("load", data)
+                    })
                 }
-            }
 
-
-            function Run() {
-                $.ajax({
-                    url: "@routes.ToolsController.toolsRun(tools)",
-                    type: "post",
-                    processData: false,
-                    contentType: false,
-                    data: new FormData($("#form")[0]),
-                    success: function () {
-                        UpdateTable();
+                function GetState(value, row) {
+                    if (row.state === "2") {
+                        return `<div class="failed">失败</div><input class='state' value='${row.state}'>`
+                    } else if (row.state === "1") {
+                        return `<div class="success">成功</div><input class='state' value='${row.state}'>`
+                    } else {
+                        return `<div>运行中 <img src='/assets/images/timg.gif'  style='width: 20px; height: 20px;'></div><input class='state' value='${row.state}'>`;
                     }
-                })
-            }
+                }
 
-            function ReDraw(id) {
-                let index = MyTable.prototype.runningIcon();
-                $.ajax({
-                    url:"@routes.ToolsController.reDrawRun()",
-                    type:"post",
-                    data:$("#reForm").serialize() + "&id=" + id + "&tools=@tools",
-                    success:function (data) {
-                        OpenResult(id)
-                        layer.close(index);
+
+                function Run() {
+                    let form = $("#form");
+                    let fv = form.data("formValidation");
+                    fv.validate();
+                    if (fv.isValid()) {
+                        let index = MyTable.prototype.runningIcon();
+                        $.ajax({
+                            url: "@routes.ToolsController.toolsRun(tools)",
+                            type: "post",
+                            processData: false,
+                            contentType: false,
+                            data: new FormData($("#form")[0]),
+                            success: function () {
+                                UpdateTable();
+                                layer.close(index)
+                            }
+                        })
                     }
-                })
-            }
-
-            function GetOperation(value, row) {
-                let result = `<button class="btn btn-success btn-rounded btn-fw" onclick="OpenResult('${row.id}')" style="margin-right: 10px" >查看结果</button>`
-                let log = "<button class='btn btn-secondary btn-rounded btn-fw ' onclick=\"OpenLog('" + row.id + "')\" style='margin-right: 10px' >查看日志</button>";
-                let de = "<button class='btn btn-danger btn-rounded btn-fw' onclick=\"DeleteById('" + row.id + "')\" style='margin-right: 10px'>删除</button>";;
-                if (row.state === "0") {
-                    return de;
-                } else if (row.state === "2") {
-                    return log + de;
-                } else {
-                    return result + log + de;
                 }
-            }
 
-            function OpenLog(id) {
-                MyTable.prototype.openLog("/colorectal/cn/platform/tools/open@{tools}Log?id=" + id)
-            }
-
-            function DeleteById(id) {
-                MyTable.prototype.deleteByUrl("/colorectal/cn/platform/tools/delete@{tools}ById?id=" + id)
-            }
-
-            function ShowOrHide(name, id) {
-                let value = $("input[name=" + name + "]:checked").val()
-                if (value.toUpperCase() === "TRUE") {
-                    $("#" + id).slideDown(400)
-                } else {
-                    $("#" + id).slideUp(400)
+                function ReDraw(id) {
+                    let form = $("#reForm");
+                    let fv = form.data("formValidation");
+                    fv.validate();
+                    if (fv.isValid()) {
+                        let index = MyTable.prototype.runningIcon();
+                        $.ajax({
+                            url: "@routes.ToolsController.reDrawRun()",
+                            type: "post",
+                            data: $("#reForm").serialize() + "&id=" + id + "&tools=@tools",
+                            success: function (data) {
+                                OpenResult(id)
+                                layer.close(index);
+                            }
+                        })
+                    } else {
+                        switchToReInvalid(fv)
+                    }
                 }
-            }
+
+                function switchToReInvalid(fv) {
+                    let invalid = (fv.$invalidFields)[0];
+                    let id = $(invalid).parents(".tab-pane.fade").attr("id")
+                    $(`#${id}-tab`).click();
+                }
+
+                function GetOperation(value, row) {
+                    let result = `<button class="btn btn-success btn-rounded btn-fw" onclick="OpenResult('${row.id}')" style="margin-right: 10px" >查看结果</button>`
+                    let log = "<button class='btn btn-secondary btn-rounded btn-fw ' onclick=\"OpenLog('" + row.id + "')\" style='margin-right: 10px' >查看日志</button>";
+                    let de = "<button class='btn btn-danger btn-rounded btn-fw' onclick=\"DeleteById('" + row.id + "')\" style='margin-right: 10px'>删除</button>";;
+                    if (row.state === "0") {
+                        return de;
+                    } else if (row.state === "2") {
+                        return log + de;
+                    } else {
+                        return result + log + de;
+                    }
+                }
+
+                function OpenLog(id) {
+                    MyTable.prototype.openLog("/colorectal/cn/platform/tools/open@{tools}Log?id=" + id)
+                }
+
+                function DeleteById(id) {
+                    MyTable.prototype.deleteByUrl("/colorectal/cn/platform/tools/delete@{tools}ById?id=" + id)
+                }
+
+                function ShowOrHide(name, id) {
+                    let value = $("input[name=" + name + "]:checked").val()
+                    if (value.toUpperCase() === "TRUE") {
+                        $("#" + id).slideDown(400)
+                    } else {
+                        $("#" + id).slideUp(400)
+                    }
+                }
+
+                function addFormValidation(id, fields,excluded) {
+                    $('#' + id).formValidation({
+                        framework: 'bootstrap',
+                        icon: {
+                            valid: 'mdi mdi-check',
+                            invalid: 'mdi mdi-close',
+                            validating: 'mdi mdi-refresh'
+                        },
+                        excluded: excluded,
+                        fields: fields
+                    })
+                }
+
+                function FieldText(field, fields) {
+                    fields.forEach(x => {
+                        field[x] = {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空！'
+                                }
+                            }
+                        }
+                    })
+                    return field;
+                }
+
+                function FieldNumber(field, fields) {
+                    fields.forEach(x => {
+                        field[x] = {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空！'
+                                },
+                                numeric: {
+                                    message: "必须为数字"
+                                }
+                            }
+                        }
+                    })
+                    return field;
+                }
+
+                function FieldFile(field, fields) {
+                    fields.forEach(x => {
+                        field[x] = {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空！'
+                                },
+                                file: {
+                                    extension: 'txt',
+                                    message: '请上传txt格式的文件'
+                                }
+                            }
+                        }
+                    })
+                    return field;
+                }
+
+                function FieldColor(field,fields) {
+                    fields.forEach(x => {
+                        field[x] = {
+                            validators: {
+                                notEmpty: {
+                                    message: '不能为空!'
+                                },
+                                color: {
+                                    type: ['hex','keyword'],
+                                    message: "错误色值！支持hex或keyword色值"
+                                }
+                            }
+                        }
+                    })
+                    return field;
+                }
 
 
+        </script>
 
-    </script>
 
-
-}
+    }

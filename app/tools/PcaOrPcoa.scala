@@ -6,15 +6,15 @@ import org.apache.commons.io.FileUtils
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MultipartFormData, Request}
-import utils.{ExecCommand, Global, Utils}
+import utils.{ExecCommand, Global, PdfToPng, Utils}
 
 import scala.collection.mutable
 
-object PcaOrPcoa extends MyFile with MyRequest{
+object PcaOrPcoa extends MyFile with MyRequest {
 
-  def Run(path: String, params: Map[String, String],tools:String)(implicit request: Request[MultipartFormData[TemporaryFile]]): (Int, String) = {
+  def Run(path: String, params: Map[String, String], tools: String)(implicit request: Request[MultipartFormData[TemporaryFile]]): (Int, String) = {
     var state = 1
-    var msg = tools match{
+    var msg = tools match {
       case "pca" => "PCA Success!"
       case "pcoa" => "PCOA Success!"
     }
@@ -47,13 +47,22 @@ object PcaOrPcoa extends MyFile with MyRequest{
       }
 
       val plotCmd = s"Rscript  ${Global.toolsPath}/$tools/${tools}_plot.R -i $path/$tools.x.xls -si $path/$tools.sdev.xls $group " +
-        s"-o $path $groupName -if png -ss $showarrow -in $tools"
+        s"-o $path $groupName -if pdf -ss $showarrow -in $tools"
       exec.exect(Array(dataCmd, plotCmd), path)
+      println(dataCmd,plotCmd)
       if (!exec.isSuccess) {
         state = 2
         msg = exec.getErrStr
-      }else{
-
+      }else {
+        val pdf = s"$path/$tools.pdf".toFile
+        val png = s"$path/$tools.png".toFile
+        if (!Global.isWindow) {
+          val exec2 = new ExecCommand
+          val convert = s"convert -density 300 $pdf $png"
+          exec2.exect(convert, path)
+        }else{
+          PdfToPng.pdf2Png(pdf,png)
+        }
       }
     } catch {
       case e: Exception => state = 2; msg = e.getMessage
@@ -76,7 +85,7 @@ object PcaOrPcoa extends MyFile with MyRequest{
         case "pcoa" => "PCOA"
       }
 
-      Map("xdata" -> (dataN +"1"), "ydata" -> (dataN +"2"), "width" -> "15", "length" -> "12", "showname2" -> params("showname"),
+      Map("xdata" -> (dataN + "1"), "ydata" -> (dataN + "2"), "width" -> "15", "length" -> "12", "showname2" -> params("showname"),
         "showarrow2" -> params("showarrow"), "color" -> co, "resolution" -> "300", "xts" -> "15", "yts" -> "15", "xls" -> "17", "yls" -> "17",
         "lts" -> "14", "lms" -> "15", "lmtext" -> "", "ms" -> "17", "mstext" -> "", "c" -> "FALSE", "big" -> "no",
         "xdamin" -> "", "xdamax" -> "", "ydamin" -> "", "ydamax" -> "")
@@ -87,11 +96,11 @@ object PcaOrPcoa extends MyFile with MyRequest{
       val f = s"$path/group.txt".readLines
       val g = f.map(_.split("\t").last).tail
       val sample = s"$path/matrix.txt".readLines.head.split("\t").tail
-      if(g.length == sample.length) g.distinct else g.distinct :+ "nogroup"
+      if (g.length == sample.length) g.distinct else g.distinct :+ "nogroup"
     } else mutable.Buffer("nogroup")
     val col = s"$path/$tools.x.xls".readLines.head.replaceAll("\"", "").trim.split("\t").map(_.trim)
     val color = drawParams("color").split(":")
-    Json.obj("group" -> group, "cols" -> col, "color" -> color, "drawParams" -> drawParams , "title" -> row.name)
+    Json.obj("group" -> group, "cols" -> col, "color" -> color, "drawParams" -> drawParams, "title" -> row.name)
   }
 
   def ReDraw(implicit request: Request[AnyContent]) = {
@@ -99,7 +108,7 @@ object PcaOrPcoa extends MyFile with MyRequest{
     val data = request.body.asFormUrlEncoded.get.map(x => x._1 -> x._2.mkString(":")) ++ Map("width" -> "15", "length" -> "12")
     val id = data("id").toInt
     val tools = data("tools")
-    var msg = tools match{
+    var msg = tools match {
       case "pca" => "PCA Success!"
       case "pcoa" => "PCOA Success!"
     }
@@ -132,19 +141,30 @@ object PcaOrPcoa extends MyFile with MyRequest{
       val script = s"Rscript ${Global.toolsPath}/$tools/${tools}_plot.R -i $path/$tools.x.xls -si $path/$tools.sdev.xls"
       val plotCmd = s"$script $groupdata -o $path -pxy ${data("xdata")}:${data("ydata")} -is ${data("width")}:${data("length")} " +
         s"$c -dpi ${data("resolution")} -xts sans:plain:${data("xts")} -yts sans:plain:${data("yts")} -xls sans:plain:${data("xls")} " +
-        s"-yls sans:plain:${data("yls")} -lts sans:plain:${data("lts")} -if png -ss ${data("showarrow2")} $groupName $lms $ms -c ${data("c")} $big -in $tools"
+        s"-yls sans:plain:${data("yls")} -lts sans:plain:${data("lts")} -if pdf -ss ${data("showarrow2")} $groupName $lms $ms -c ${data("c")} $big -in $tools"
 
       val exec = new ExecCommand()
       exec.exect(Array(plotCmd), path)
       if (!exec.isSuccess) {
         state = 2
         msg = exec.getErrStr
-      }else state = 1
-    }catch {
-      case e:Exception => state = 2;msg = e.getMessage
+      } else {
+        val pdf = s"$path/$tools.pdf".toFile
+        val png = s"$path/$tools.png".toFile
+        if (!Global.isWindow) {
+          val exec2 = new ExecCommand
+          val convert = s"convert -density 300 $path/$tools.pdf $path/$tools.png"
+          exec2.exect(convert, path)
+        }else{
+          PdfToPng.pdf2Png(pdf,png)
+        }
+        state = 1
+      }
+    } catch {
+      case e: Exception => state = 2; msg = e.getMessage
     }
     val newDrawParams = Json.toJson(data)
-    (state, msg,newDrawParams)
+    (state, msg, newDrawParams)
   }
 
 

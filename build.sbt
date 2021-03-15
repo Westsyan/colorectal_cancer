@@ -37,6 +37,8 @@ libraryDependencies += "cn.edu.hfut.dmic.webcollector" % "WebCollector" % "2.71"
 
 libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.15"
 
+// https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox
+libraryDependencies += "org.apache.pdfbox" % "pdfbox" % "2.0.22"
 
 
 

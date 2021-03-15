@@ -27,10 +27,13 @@
 <script>
 
         $(function () {
+            ValidationForm()
+
             MyTable.prototype.getTaskName("@name.toUpperCase")
             ShowOrHide('showname', 'showarrow');
             ShowOrHide('isgroup', 'group');
             webScoket("@name")
+
         })
 
         function ShowRange() {
@@ -85,10 +88,14 @@
                                                 @cn.tools.reGlobal.radio("是否显示箭头", "showarrow2", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "")
                                                 @cn.tools.reGlobal.radio("是否画置信椭圆", "c", Seq(("TRUE", "是"), ("FALSE", "否")), "FALSE", "")
                                                 @cn.tools.reGlobal.radio("放大显示区域", "big", Seq(("no", "no"), ("x", "放大x轴范围"), ("y", "放大y轴范围")), "no", "ShowRange()")
-                                                @cn.tools.reGlobal.numRange("X范围", "xdamin", "", "xdamax", "", "xRange")
-                                                @cn.tools.reGlobal.numRange("Y范围", "ydamin", "", "ydamax", "", "yRange")
+
+                                                @cn.tools.reGlobal.twoText("X范围", "xdamin", "xdamax", placeholder1 ="数字", placeholder2 =  "数字", id ="xRange",symbol = "----")
+                                                @cn.tools.reGlobal.twoText("Y范围", "ydamin", "ydamax", placeholder1 ="数字", placeholder2 =  "数字", id ="yRange",symbol = "----")
+
                                                 @cn.tools.reGlobal.radio("清晰度", "resolution", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
-                                                @cn.tools.reGlobal.numRange("图片长宽", "width", "15", "length", "12", "imgRange")
+
+                                                @cn.tools.reGlobal.twoText("图片长宽", "width", "length", "数字", "15", "数字", "12" ,"----","imgRange")
+
                                             </div>
                                             <div class="tab-pane fade" id="colopara">
                                                 <p class="card-title" style="margin-left:12%">自定义颜色(当前分组 - 颜色)：</p>
@@ -140,22 +147,31 @@
                     let name ;
                     if (v === "nogroup") {
                         name = "未分组"
-                    } else{
+                    } else {
                         name = v
                     }
-                    let colo = `<div class="form-group row reDraw" >
+
+                    let colo = `<div class="form-group row" ><div class="reDraw">
                                         <label class="col-sm-3 col-form-label">${name}：</label>
-                                        <div  class="col-sm-9" style="display: flex">
+                                        <div  class="col-sm-4">
                                             <input id='color${i}'  name='color' class='colorPicker evo-cp0 form-control'>
-                                        </div>
+                                        </div></div>
                                     </div>`
                     $("#colopara").append(colo);
+
+                });
+
+                ValidationReForm();
+
+                //必须分开写，不然验证会有问题
+                $.each(data.group, function (i, v) {
                     $("#color" + i).colorpicker({color: data.color[i], defaultPalette: 'web', showOn: "button"})
                             .on("change.color", function (event, color) { //选择颜色事件
                                 //formValidation重新验证颜色
-
+                                $("#reForm").formValidation("revalidateField","color")
                             });
-                });
+
+                })
 
 
                 let slider = ["xts", "xls", "yts", "yls", "lts", "lms", "ms"]
@@ -181,10 +197,31 @@
                 ShowOrHide("showname2", "showarrow2");
                 ShowRange();
 
+
                 $result.show()
                 let target_top = $result.offset().top - 50;
                 $("html,body").animate({scrollTop: target_top}, 800);
             })
+        }
+
+
+        function ValidationForm() {
+            let field = {};
+            let text = ["name"];
+            field = FieldText(field, text)
+            let file = ["matrix", "group"];
+            field = FieldFile(field, file)
+            addFormValidation("form", field)
+        }
+
+        function ValidationReForm() {
+            let field = {};
+            let number = ["xdamin", "xdamax", "width", "length"];
+            FieldNumber(field, number);
+            let color = ["color"];
+            FieldColor(field, color);
+            let excluded = ["#xdamin:hidden", "#xdamax:hidden","#ydamin:hidden","#ydamax:hidden", "#width:hidden", "#length:hidden"]
+            addFormValidation("reForm", field, excluded)
         }
 
 
