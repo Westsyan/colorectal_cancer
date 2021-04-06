@@ -1,0 +1,11 @@
+@(nav: Seq[(String, String)], active: String)
+
+<ul class="nav nav-tabs px-4" role="tablist" style="border: none;
+    border-bottom: 1px solid #ddd">
+    @for((title, id) <- nav) {
+        <li class="nav-item">
+            <a class="nav-link @if(id == active) {active}" id="@id-tab" data-toggle="tab" href="#@id" role="tab" aria-controls="@id" aria-selected="true">
+            @title</a>
+        </li>
+    }
+</ul>

@@ -1,0 +1,167 @@
+<form class="form-horizontal row" id="form">
+
+    @cn.tools.global.taskname()
+
+    @cn.tools.global.file("上传文件", "matrix", "volcano.txt")
+
+    @cn.tools.global.text("P值阈值", "pcl", "数字", "10e-6")
+
+    @cn.tools.global.text("F值阈值", "fcl", "数字", "1")
+
+    @cn.tools.global.runButton()
+</form>
+
+
+<script>
+
+        $(function () {
+            ValidationForm();
+            MyTable.prototype.getTaskName("Volcano")
+            webScoket("volcano")
+        })
+
+        function OpenResult(id) {
+            $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=volcano", (data) => {
+
+                const html = `<div class="col-sm-6" style="min-width: 600px;
+                                margin-top: 35px">
+                                <img id="resultImg" width="100%"/>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <form id="reForm"  enctype="multipart/form-data">
+                                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                                        <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;
+                                            border-bottom: 1px solid #ddd">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="picpara-tab" data-toggle="tab" href="#picpara" role="tab" aria-controls="picpara" aria-selected="true">
+                                                    数据布局参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="colopara-tab" data-toggle="tab" href="#colopara" role="tab" aria-controls="colopara" aria-selected="false">
+                                                    颜色参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="fontpara-tab" data-toggle="tab" href="#fontpara" role="tab" aria-controls="fontpara" aria-selected="false">
+                                                    字体参数</a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content" style="box-sizing: border-box !important;
+                                            padding-top: 30px">
+                                            <div class="tab-pane fade active  show" id="picpara">
+                                                @cn.tools.reGlobal.text("P值阈值", "pcl", "数字")
+                                                @cn.tools.reGlobal.text("F值阈值", "fcl", "数字")
+
+                                                @cn.tools.reGlobal.twoText("X轴范围", "xrmin", "xrmax", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+                                                @cn.tools.reGlobal.twoText("Y轴范围", "yrmin", "yrmax", placeholder1 ="数字", placeholder2 =  "数字",symbol = "----")
+                                                @cn.tools.reGlobal.radio("是否绘制分界线", "sp", Seq(("TRUE", "yes"), ("FALSE", "no")), "yes", "")
+
+                                                @cn.tools.reGlobal.twoText("图片宽高", "width", "height", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+
+                                                @cn.tools.reGlobal.radio("清晰度", "dpi", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+
+                                            </div>
+                                            <div class="tab-pane fade" id="colopara">
+                                                @cn.tools.reGlobal.color("分界线颜色","color4","")
+
+                                                <p class="card-title" style="margin-left:12%">数据点颜色分布：</p>
+                                                @cn.tools.reGlobal.color("DOWN","color0","")
+                                                @cn.tools.reGlobal.color("UP","color1","")
+                                                @cn.tools.reGlobal.color("NO","color2","")
+
+                                            </div>
+                                            <div class="tab-pane fade" id="fontpara">
+                                                @cn.tools.reGlobal.slider("x轴字体大小", "xts", "0", "50", "1", "16")
+                                                @cn.tools.reGlobal.slider("x轴标题大小", "xls", "0", "50", "1", "18")
+                                                @cn.tools.reGlobal.slider("y轴字体大小", "yts", "0", "50", "1", "16")
+                                                @cn.tools.reGlobal.slider("y轴标题大小", "yls", "0", "50", "1", "18")
+                                                @cn.tools.reGlobal.slider("图例文字大小", "ltes", "0", "50", "1", "12")
+                                                @cn.tools.reGlobal.slider("图例标题大小", "lts", "0", "50", "1", "16")
+                                                @cn.tools.reGlobal.slider("主标题大小", "ts", "0", "50", "1", "20")
+                                                @cn.tools.reGlobal.text("X轴标题", "xtext", "标题不可含有汉字")
+                                                @cn.tools.reGlobal.text("Y轴标题", "ytext", "标题不可含有汉字")
+                                                @cn.tools.reGlobal.text("图例标题", "ltstext", "标题不可含有汉字")
+                                                @cn.tools.reGlobal.text("主标题", "tstext", "标题不可含有汉字")
+                                            </div>
+                                        </div>
+                                        @cn.tools.reGlobal.runButton()
+                                    </div>
+                                </form>
+                            </div>`
+
+                const $redraw = $("#redraw")
+                $redraw.empty().html(html)
+                $("#reButton").attr("onclick", "ReDraw('" + id + "')")
+
+                $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=volcano/${id}/volcano.png&num=` + Math.random())
+
+                const drawParams = data.drawParams;
+
+                let text = ["pcl", "fcl", "xrmin", "xrmax", "yrmin", "yrmax", "width", "height", "xtext", "ytext", "ltstext", "tstext"]
+
+                text.forEach(x => {
+                    $("#reForm").find("#" + x).val(drawParams[x])
+                })
+
+                let radio = ["sp", "dpi"]
+
+                radio.forEach(v => {
+                    $("input[name=" + v + "][value=" + drawParams[v] + "]").prop("checked", true)
+                })
+                ValidationReForm();
+
+
+                let color = [0, 1, 2, 4];
+
+
+                color.forEach(v => {
+                    $("#color" + v).colorpicker({
+                        color: drawParams["color" + v],
+                        defaultPalette: 'web',
+                        showOn: "button"
+                    })
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                $("#reForm").formValidation("revalidateField", v)
+                                //formValidation重新验证颜色
+                            });
+                })
+
+                let slider = ["xts", "xls", "yts", "yls", "ltes", "lts", "ts"]
+
+                $.each(slider, (i, v) => {
+                    let $sliderId = $("#" + v)
+                    $sliderId.bootstrapSlider({tooltip: 'always'});
+                    $sliderId.bootstrapSlider('setValue', drawParams[v]);
+                })
+
+
+                getTitleAndFile(data.title, data.tableData, "volcano", id)
+            })
+        }
+
+        function ValidationForm() {
+            let field = {};
+            let text = ["name"];
+            field = FieldName(field, text, "volcano")
+            let file = ["otu"];
+            field = FieldFile(field, file, "txt,biom")
+            let number = ["pcl", "fcl"]
+            FieldNumber(field, number);
+            addFormValidation("form", field)
+        }
+
+        function ValidationReForm() {
+            let field = {};
+            let number = ["pcl", "fcl", "xrmin", "xrmax", "yrmin", "yrmax", "width", "height"];
+            FieldNumber(field, number);
+            let text = ["xtext", "ytext", "ltstext", "tstext"];
+            FieldText(field, text)
+            let color = ["color0", "color1", "color2", "color4"];
+            FieldColor(field, color);
+            let excluded = []
+            addFormValidation("reForm", field, excluded)
+        }
+
+
+</script>

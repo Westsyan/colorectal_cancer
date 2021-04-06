@@ -5,7 +5,7 @@ import models.Tables.ToolsRow
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, MultipartFormData, Request}
-import utils.{ExecCommand, Global, PdfToPng, Utils}
+import utils.{ExecCommand, Global, PdfToImage, Utils}
 
 import scala.collection.mutable
 
@@ -52,15 +52,7 @@ object Heatmap extends MyFile with MyRequest {
         state = 2
         msg = exec.getErrStr
       }else {
-        val pdf = s"$path/heatmap.pdf".toFile
-        val png = s"$path/heatmap.png".toFile
-        if (!Global.isWindow) {
-          val exec2 = new ExecCommand
-          val convert = s"convert -density 300 $pdf $png"
-          exec2.exect(convert, path)
-        }else{
-          PdfToPng.pdf2Png(pdf,png)
-        }
+        PdfToImage.pdf2Png("heatmap",path)
       }
     } catch {
       case e: Exception => state = 2; msg = e.getMessage
@@ -171,15 +163,7 @@ object Heatmap extends MyFile with MyRequest {
         state = 2
         msg = exec.getErrStr
       } else {
-        val pdf = s"$path/heatmap.pdf".toFile
-        val png = s"$path/heatmap.png".toFile
-        if (!Global.isWindow) {
-          val exec2 = new ExecCommand
-          val convert = s"convert -density 300 $pdf $png"
-          exec2.exect(convert, path)
-        }else{
-          PdfToPng.pdf2Png(pdf,png)
-        }
+        PdfToImage.pdf2Png("heatmap",path)
         state = 1
       }
     } catch {

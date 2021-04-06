@@ -70,9 +70,7 @@ object IgcOrItc extends MyFile with MyRequest {
     }catch {
       case e:Exception => state = 2;msg = e.getMessage
     }
-
   }
-
 
   def getNetwork(drawParams: Map[String, String], path: String, tools: String) = {
     val matrix = s"$path/matrix.txt"

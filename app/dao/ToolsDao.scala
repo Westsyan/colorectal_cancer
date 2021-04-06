@@ -43,4 +43,8 @@ class ToolsDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     db.run(Tools.filter(_.userid === userId).filter(_.tool === tools).result)
   }
 
+  def checkName(userId:Int,tools:String,name:String) : Future[Boolean] = {
+    db.run(Tools.filter(_.userid === userId).filter(_.tool === tools).filter(_.name === name).exists.result)
+  }
+
 }

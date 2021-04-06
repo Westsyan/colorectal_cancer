@@ -8,6 +8,18 @@ function GetState(value, row) {
     }
 }
 
+function progressHandlingFunction(e,time) {
+    if (e.lengthComputable) {
+        let progress = $('#progress');
+        progress.attr({value: e.loaded, max: e.total}); //更新数据到进度条
+        let time1 = (new Date()).getTime();
+        let speed = (e.loaded / 1024) / ((time1 - time) / 1000);
+        let percent = e.loaded / e.total * 100;
+        progress.html(percent.toFixed(2) + "%   " + parseInt(speed) + "KB/S");
+        progress.css('width', percent.toFixed(2) + "%");
+    }
+}
+
 const MyTable = class {
     deleteByUrl(url) {
         swal({

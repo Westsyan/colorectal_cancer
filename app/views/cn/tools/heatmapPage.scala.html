@@ -198,21 +198,9 @@
             $("#redraw").empty().html(html)
 
 
-            $("#task_title").text(data.title)
             $("#reButton").attr("onclick", "ReDraw('" + id + "')")
             $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=heatmap/${id}/heatmap.png&num=` + Math.random())
-            let tableData = [];
 
-
-            $.each(data.tableData, (i, v) => {
-                tableData.push({
-                    "filename": v[0],
-                    "explain": v[1],
-                    "download": `<a class="result-download" href="/colorectal/cn/platform/tools/downloadToolsFile?path=heatmap/${id}/${v[0]}" ><i class="mdi mdi-download"></i></a>`
-                })
-            })
-
-            $("#fileTable").bootstrapTable({data: tableData})
 
             const drawParams = data.drawParams;
 
@@ -299,9 +287,7 @@
             ShowCbc(drawParams["cbc"]);
             ShowColor('color', 'inputColor')
 
-            let target_top = $result.offset().top - 50;
-            $("html,body").animate({scrollTop: target_top}, 800);
-
+            getTitleAndFile(data.title,data.tableData,"heatmap",id)
         })
     }
 
@@ -395,7 +381,7 @@
     function ValidationForm() {
         let field = {};
         let text = ["name"];
-        field = FieldText(field, text)
+        field = FieldName(field, text,"heatmap")
         let file = ["matrix", "inputrow", "inputcol", "rowgroup", "colgroup", "tag"];
         field = FieldFile(field, file)
         addFormValidation("form", field)

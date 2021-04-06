@@ -6,7 +6,7 @@ import org.apache.commons.io.FileUtils
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, MultipartFormData, Request}
-import utils.{ExecCommand, Global, PdfToPng, Utils}
+import utils.{ExecCommand, Global, PdfToImage, Utils}
 
 import scala.collection.mutable
 
@@ -54,15 +54,7 @@ object PcaOrPcoa extends MyFile with MyRequest {
         state = 2
         msg = exec.getErrStr
       }else {
-        val pdf = s"$path/$tools.pdf".toFile
-        val png = s"$path/$tools.png".toFile
-        if (!Global.isWindow) {
-          val exec2 = new ExecCommand
-          val convert = s"convert -density 300 $pdf $png"
-          exec2.exect(convert, path)
-        }else{
-          PdfToPng.pdf2Png(pdf,png)
-        }
+        PdfToImage.pdf2Png(tools,path)
       }
     } catch {
       case e: Exception => state = 2; msg = e.getMessage
@@ -149,15 +141,7 @@ object PcaOrPcoa extends MyFile with MyRequest {
         state = 2
         msg = exec.getErrStr
       } else {
-        val pdf = s"$path/$tools.pdf".toFile
-        val png = s"$path/$tools.png".toFile
-        if (!Global.isWindow) {
-          val exec2 = new ExecCommand
-          val convert = s"convert -density 300 $path/$tools.pdf $path/$tools.png"
-          exec2.exect(convert, path)
-        }else{
-          PdfToPng.pdf2Png(pdf,png)
-        }
+        PdfToImage.pdf2Png(tools,path)
         state = 1
       }
     } catch {

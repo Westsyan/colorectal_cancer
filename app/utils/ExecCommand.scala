@@ -2,9 +2,13 @@ package utils
 
 import java.io.File
 
+import config.MyFile
+import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.StringUtils
+
 import scala.sys.process._
 
-class ExecCommand {
+class ExecCommand extends MyFile {
   var isSuccess: Boolean = false
   val err = new StringBuilder
   val out = new StringBuilder
@@ -43,6 +47,28 @@ class ExecCommand {
     println(getInfo(command, exitCode))
     if (exitCode == 0) isSuccess = true
   }
+
+  def execShRun(command: List[String], path: String):Unit = {
+    val runFile = s"$path/run.sh".unixPath
+    val pidFile = s"$path/pid.txt".unixPath
+    val pidCommand =
+      s"""
+         |echo $$$$ > $pidFile
+         |""".stripMargin
+    val deletePidCommand =
+      s"""
+         |rm $pidFile
+         |""".stripMargin
+    val newBuffer = List(pidCommand) ::: command ::: List(deletePidCommand)
+    val shStr = newBuffer.flatMap { line =>
+      line.split("\r\n").map(_.trim)
+    }.filter(StringUtils.isNotBlank(_)).mkString(" &&\n")
+    FileUtils.writeStringToFile(runFile.toFile, shStr + "\n")
+    val dos2Unix = s"dos2unix ${runFile} "
+    val shCommand = s"sh $runFile"
+    exect(Array(dos2Unix, shCommand), path)
+  }
+
 
   def exect(command: String, tmpDir: String): Unit = {
     val exitCode = Process(command, new File(tmpDir)) ! log
@@ -90,6 +116,10 @@ class ExecCommand {
 
   def getOutStr: String = {
     out.toString()
+  }
+
+  def getLastStr:String = {
+    out.toString() + err.toString()
   }
 
 

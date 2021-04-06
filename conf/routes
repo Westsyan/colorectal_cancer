@@ -107,6 +107,7 @@ GET           /colorectal/cn/platform/tools/getToolsImage                    con
 GET           /colorectal/cn/platform/tools/downloadToolsFile                controllers.UtilsController.downloadToolsFile(path:String)
 POST          /colorectal/cn/platform/tools/getRedrawParams                  controllers.ToolsController.getRedrawParams(id:Int,tools:String)
 POST          /colorectal/platform/tools/reDrawRun                           controllers.ToolsController.reDrawRun
+POST          /colorectal/platform/tools/checkName                           controllers.ToolsController.checkName
 
 GET           /colorectal/utils/getImage                                     controllers.UtilsController.getImage(path:String)
 GET           /colorectal/utils/downloadImage                                controllers.UtilsController.downloadImage(path:String)

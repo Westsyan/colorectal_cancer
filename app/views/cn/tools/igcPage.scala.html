@@ -28,8 +28,6 @@
 
             const $result = $("#result")
 
-
-
             const html = `<ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
                             <li class="nav-item">
                                 <a class="nav-link active" id="redraw1-tab" data-toggle="tab" href="#redraw1" role="tab" aria-controls="redraw1" aria-selected="true">
@@ -277,19 +275,6 @@
 
             $("#gshape").select2();
 
-            let tableData = [];
-
-            $.each(data.tableData, (i, v) => {
-                tableData.push({
-                    "filename": v[0],
-                    "explain": v[1],
-                    "download": `<a class="result-download" href="/colorectal/cn/platform/tools/downloadToolsFile?path=igc/${id}/${v[0]}" ><i class="mdi mdi-download"></i></a>`
-                })
-            })
-
-            $("#fileTable").bootstrapTable({data: tableData})
-            $("#task_title").text(data.title)
-
             let colors = ["netcolor1", "netcolor2", "netcolor5","nc","cbc"];
             colors.forEach(v => {
                 $("#" + v).colorpicker({color: drawParams[v], defaultPalette: 'web', showOn: "button"});
@@ -366,12 +351,7 @@
                ShowCluster('cluster_cols', 'r-ccm', 'r-cp');
                ShowCbc(drawParams["cbc"]);*/
 
-            $result.show();
-
-            let target_top = $result.offset().top - 50;
-            $("html,body").animate({scrollTop: target_top}, 800);
-
-
+            getTitleAndFile(data.title,data.tableData,"igc",id)
         })
     }
 
@@ -459,7 +439,7 @@
     function ValidationForm() {
         let field = {};
         let text = ["name"];
-        field = FieldText(field, text)
+        field = FieldName(field, text,"igc")
         let file = ["matrix"];
         field = FieldFile(field, file)
         addFormValidation("form", field)
