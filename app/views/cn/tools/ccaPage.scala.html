@@ -25,11 +25,14 @@
 
         $(function () {
             ValidationForm();
-            MyTable.prototype.getTaskName("CCA")
+            getTaskName();
             ShowOrHide('isgroup', 'group');
             webScoket("cca")
         })
 
+        function getTaskName() {
+            MyTable.prototype.getTaskName("CCA")
+        }
 
         function OpenResult(id) {
             $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=cca", (data) => {
@@ -145,7 +148,7 @@
                     $("#" + v).val(drawParams[v])
                 })
 
-                let radio = ["showname",  "dpi","showevi","showspecies"]
+                let radio = ["showname", "dpi", "showevi", "showspecies"]
 
                 $.each(radio, (i, v) => {
                     $("input[name=" + v + "][value=" + drawParams[v] + "]").prop("checked", true)
@@ -161,7 +164,7 @@
                             });
                 })
 
-                let color = ["envColor","envLineColor","speciesColor"];
+                let color = ["envColor", "envLineColor", "speciesColor"];
 
                 $.each(color, (i, v) => {
                     console.log(drawParams[v])
@@ -172,11 +175,11 @@
                             });
                 })
 
-                ShowOrHide('showname','showEnvColor')
-                ShowOrHide('showevi','showEnvLineColor')
+                ShowOrHide('showname', 'showEnvColor')
+                ShowOrHide('showevi', 'showEnvLineColor')
                 ShowSpecies()
 
-                getTitleAndFile(data.title,data.tableData,"cca",id)
+                getTitleAndFile(data.title, data.tableData, "cca", id)
             })
         }
 
@@ -195,7 +198,7 @@
         function ValidationForm() {
             let field = {};
             let text = ["name"];
-            field = FieldName(field, text,"cca")
+            field = FieldName(field, text, "cca")
             let file = ["otu", "env", "group"];
             field = FieldFile(field, file)
             addFormValidation("form", field)
@@ -205,7 +208,7 @@
             let field = {};
             let number = ["xaxis", "yaxis", "samsize", "speciessize", "width", "length"];
             FieldNumber(field, number);
-            let color = ["envColor", "color","envLineColor","speciesColor"];
+            let color = ["envColor", "color", "envLineColor", "speciesColor"];
             FieldColor(field, color);
             let excluded = []
             addFormValidation("reForm", field, excluded)

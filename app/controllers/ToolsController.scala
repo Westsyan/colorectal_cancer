@@ -18,7 +18,7 @@ import play.api.libs.streams.Accumulator
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, MultipartFormData, Request}
 import play.core.parsers.Multipart.{FileInfo, FilePartHandler}
-import tools.{Cca, Heatmap, IgcOrItc, PcaOrPcoa, Tax4, Volcano}
+import tools._
 import utils.{ExecCommand, Global, Utils}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,6 +45,24 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
     Ok(views.html.cn.tools.toolsPage(tools, title))
   }
 
+  def toolsPageEn(tools: String) = Action { implicit request =>
+    val title = tools match {
+      case "pca" => "PCA"
+      case "pcoa" => "PCoA"
+      case "cca" => "CCA/RDA"
+      case "heatmap" => "Heatmap"
+      case "igc" => "Intra features correlation  analysis"
+      case "itc" => "Inter features correlation analysis"
+      case "tax4" => "Tax4Fun"
+      case "volcano" => "Volcano"
+      case "fh" => "Frequency histogram"
+      case "ternary" => "Ternary"
+      case "treemap" => "Treemap"
+      case "lefse" => "Lefse"
+    }
+    Ok(views.html.en.tools.toolsPage(tools, title))
+  }
+
   def getAllInfoByTools(tools: String) = Action.async { implicit request =>
     toolsDao.getByToolsAndUserId(request.userId, tools).map { x =>
       Ok(Json.toJson(x.sortBy(_.start).reverse.map(_.getJsonByT())))
@@ -62,11 +80,39 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
         case x if x == "pca" || x == "pcoa" => PcaOrPcoa.Run(path, params, tools)
         case "cca" => Cca.Run(path, params)
         case "heatmap" => Heatmap.Run(path, params)
-        case x if x == "igc" || x == "itc" => IgcOrItc.Run(path, params, tools)
+        case x if x == "igc" || x == "itc" =>
+          val drawParams = Map("net" -> Json.obj("gshape" -> "ellipse", "netcolor1" -> "#555555", "gopa" -> "1", "gsize" -> "5",
+            "gfont" -> "20", "netcolor2" -> "#ffffff", "eshape" -> "diamond", "netcolor3" -> "#5da5fb", "eopa" -> "1",
+            "esize" -> "10", "efont" -> "20", "netcolor4" -> "#ffffff", "netcolor5" -> "#737373", "opacity" -> "0.6",
+            "dot" -> "3", "pthres" -> "0.1", "cthres" -> "0.5").toString(),
+            "heatmap" -> Json.obj("smt" -> "full", "cluster_rows" -> "FALSE", "crm" -> "complete",
+              "rp" -> "1", "cluster_cols" -> "FALSE", "ccm" -> "complete", "cp" -> "1", "sc" -> "none", "lg" -> "none",
+              "color" -> "#E41A1C:#FFFF00:#1E90FF", "cc" -> "30", "nc" -> "#DDDDDD", "hasborder" -> "white",
+              "cbc" -> "#ffffff", "hasnum" -> "FALSE", "hasrname" -> "TRUE", "hascname" -> "TRUE",
+              "rtree" -> "50", "ctree" -> "50", "xfs" -> "10", "yfs" -> "10", "xfa" -> "90", "fn" -> "8", "lfi" -> "TRUE").toString())
+          toolsDao.updateDrawParamsById(id, Utils.mapToJson(drawParams)).toAwait
+          IgcOrItc.Run(path, params, tools)
         case "tax4" => Tax4.Run(path, params)
         case "volcano" => Volcano.Run(path, params)
-      }
+        case "fh" => Fh.Run(path, params)
+        case "ternary" => Ternary.Run(path, params)
+        case "treemap" => Treemap.Run(path, params)
+        case "lefse" =>
+          val drawParams = Map("res" -> Json.obj("resmfl" -> "60", "resffs" -> "7",
+            "rescfs" -> "7", "resdpi" -> "300", "restitle" -> "", "restfs" -> "12", "reswidth" -> "10",
+            "resheight" -> "4", "resorientation" -> "h", "resnscl" -> "1").toString,
+            "cla" -> Json.obj("clasc" -> "", "claevl" -> "1", "claml" -> "6", "clacs" -> "1.5",
+              "clarsl" -> "1", "clalstartl" -> "2", "clalstopl" -> "5", "claastartl" -> "3", "claastopl" -> "5",
+              "clamaxps" -> "6", "claminps" -> "1", "claalpha" -> "0.2", "clapew" -> "0.25", "clascw" -> "2",
+              "clapcw" -> "0.75", "clarsp" -> "0.15", "clatitle" -> "Cladogram", "clatfs" -> "14", "clalfs" -> "6",
+              "claclfs" -> "8", "cladpi" -> "300", "claclv" -> "1").toString,
+            "fea" -> Json.obj("feaf" -> "diff", "feafname" -> "", "feawidth" -> "13", "feaheight" -> "6",
+              "featop" -> "-1", "feabot" -> "0", "featfs" -> "14", "feacfs" -> "10", "feasmean" -> "y", "feasmedian" -> "y",
+              "feafs" -> "10", "feadpi" -> "300", "feaca" -> "0").toString)
 
+          toolsDao.updateDrawParamsById(id, Utils.mapToJson(drawParams)).toAwait
+          Lefse.Run(path, params)
+      }
 
       toolsDao.updateState(id, result._1).toAwait
       FileUtils.writeStringToFile(s"$path/log.txt".toFile, result._2)
@@ -82,11 +128,18 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
     "heatmap" -> Array(("heatmap.pdf", "热图结果")),
     "igc" -> Array(("cor.xls", "相关性系数矩阵"), ("pvalue.xls", "p值矩阵"), ("pandv.xls", "相关性系数c值和p值分析结果"),
       ("p_star.xls", "根据p值生成的星星矩阵"), ("heatmap.pdf", "热图")),
+    "itc" -> Array(("cor.xls", "相关性系数矩阵"), ("pvalue.xls", "p值矩阵"), ("pandv.xls", "相关性系数c值和p值分析结果"),
+      ("p_star.xls", "根据p值生成的星星矩阵"), ("heatmap.pdf", "热图")),
     "tax4" -> Array(("ko_table.xls", "kegg丰度表"), ("kegg_L1.txt", "kegg pathway 第一个层级丰度表"),
       ("kegg_L2.txt", "kegg pathway 第二个层级丰度表"), ("kegg_L3.txt", "kegg pathway 第三个层级丰度表"),
       ("kegg_enzyme.txt", "kegg enzyme丰度表"), ("kegg_pathway.txt", "kegg pathway丰度表"), ("pca.pdf", "PCA图"),
       ("kegg_L1.pdf", "第一个层级箱线图"), ("kegg_L2.pdf", "第二个层级箱线图"), ("kegg_L3.pdf", "第三个层级箱线图")),
-    "volcano" -> Array(("volcano.pdf", "火山图"))
+    "volcano" -> Array(("volcano.pdf", "火山图")),
+    "fh" -> Array(("Frequency_bar.pdf", "频率直方图")),
+    "ternary" -> Array(("ternary.pdf", "三原图")),
+    "treemap" -> Array(("treemap.pdf", "树图")),
+    "lefse" -> Array(("lefse_LDA.xls", "LDA判别分析结果"), ("lefse_LDA_diff.xls", "LDA判别分析结果（仅含差异显著）"),
+      ("lefse_LDA.pdf", "LDA分析柱图"), ("lefse_LDA.cladogram.pdf", "进化分支图"), ("lefse_LDA.features.pdf", "差异特征图"))
   )
 
 
@@ -100,6 +153,10 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
       case x if x == "igc" || x == "itc" => IgcOrItc.GetParams(row, tools)
       case "tax4" => Json.obj("title" -> row.name)
       case "volcano" => Volcano.GetParams(row)
+      case "fh" => Fh.GetParams(row)
+      case "ternary" => Ternary.GetParams(row)
+      case "treemap" => Treemap.GetParams(row)
+      case "lefse" => Lefse.GetParams(row)
     }
 
     Ok(params ++ Json.obj("tableData" -> tableData))
@@ -116,11 +173,20 @@ class ToolsController @Inject()(toolsDao: ToolsDao, cc: ControllerComponents)(im
       case x if x == "pca" || x == "pcoa" => PcaOrPcoa.ReDraw
       case "cca" => Cca.ReDraw
       case "heatmap" => Heatmap.ReDraw(path)
+      case x if x == "igc" || x == "itc" =>
+        val row = toolsDao.getById(id).toAwait
+        IgcOrItc.ReDraw(path, x, row)
       case "volcano" => Volcano.ReDraw(path)
+      case "fh" => Fh.ReDraw(path)
+      case "ternary" => Ternary.ReDraw(path)
+      case "treemap" => Treemap.ReDraw(path)
+      case "lefse" =>
+        val row = toolsDao.getById(id).toAwait
+        Lefse.ReDraw(path, row)
     }
     toolsDao.updateDrawParamsAndStateById(id, result._1, result._3.toString).toAwait
     FileUtils.writeStringToFile(s"$path/log.txt".toFile, result._2)
-    Ok(Json.toJson("success"))
+    Ok(Json.obj("state" -> result._1, "msg" -> result._2))
   }
 
   def openLog(id: Int, tools: String): Action[AnyContent] = Action { implicit request =>

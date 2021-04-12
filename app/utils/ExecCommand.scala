@@ -48,25 +48,31 @@ class ExecCommand extends MyFile {
     if (exitCode == 0) isSuccess = true
   }
 
-  def execShRun(command: List[String], path: String):Unit = {
-    val runFile = s"$path/run.sh".unixPath
-    val pidFile = s"$path/pid.txt".unixPath
-    val pidCommand =
-      s"""
-         |echo $$$$ > $pidFile
-         |""".stripMargin
-    val deletePidCommand =
-      s"""
-         |rm $pidFile
-         |""".stripMargin
-    val newBuffer = List(pidCommand) ::: command ::: List(deletePidCommand)
-    val shStr = newBuffer.flatMap { line =>
-      line.split("\r\n").map(_.trim)
-    }.filter(StringUtils.isNotBlank(_)).mkString(" &&\n")
-    FileUtils.writeStringToFile(runFile.toFile, shStr + "\n")
-    val dos2Unix = s"dos2unix ${runFile} "
-    val shCommand = s"sh $runFile"
-    exect(Array(dos2Unix, shCommand), path)
+  def execShRun(command: List[String], path: String): Unit = {
+    if (Global.isWindow) {
+      val cmd  = command.flatMap(_.trim.split("\n"))
+      exect(cmd.toArray,path)
+    } else {
+
+      val runFile = s"$path/run.sh".unixPath
+      val pidFile = s"$path/pid.txt".unixPath
+      val pidCommand =
+        s"""
+           |echo $$$$ > $pidFile
+           |""".stripMargin
+      val deletePidCommand =
+        s"""
+           |rm $pidFile
+           |""".stripMargin
+      val newBuffer = List(pidCommand) ::: command ::: List(deletePidCommand)
+      val shStr = newBuffer.flatMap { line =>
+        line.split("\r\n").map(_.trim)
+      }.filter(StringUtils.isNotBlank(_)).mkString(" &&\n")
+      FileUtils.writeStringToFile(runFile.toFile, shStr + "\n")
+      val dos2Unix = s"dos2unix ${runFile} "
+      val shCommand = s"sh $runFile"
+      exect(Array(dos2Unix, shCommand), path)
+    }
   }
 
 
@@ -118,7 +124,7 @@ class ExecCommand extends MyFile {
     out.toString()
   }
 
-  def getLastStr:String = {
+  def getLastStr: String = {
     out.toString() + err.toString()
   }
 

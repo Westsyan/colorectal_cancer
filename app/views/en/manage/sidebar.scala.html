@@ -77,3 +77,22 @@
             </ul>
         </nav>
     }
+
+@if(tp =="tools"){
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+            @en.tools.sidebarTools("PCA", "pca")
+            @en.tools.sidebarTools("PCoA", "pcoa")
+            @en.tools.sidebarTools("CCA/RDA", "cca")
+            @en.tools.sidebarTools("Heatmap", "heatmap")
+            @en.tools.sidebarTools("Intra features correlation", "igc")
+            @en.tools.sidebarTools("Inter features correlation", "itc")
+            @en.tools.sidebarTools("Tax4Fun", "tax4")
+            @en.tools.sidebarTools("Volcano", "volcano")
+            @en.tools.sidebarTools("Frequency histogram", "fh")
+            @en.tools.sidebarTools("Ternary", "ternary")
+            @en.tools.sidebarTools("Treemap", "treemap")
+            @en.tools.sidebarTools("Lefse", "lefse")
+        </ul>
+    </nav>
+}

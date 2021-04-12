@@ -6,8 +6,6 @@
 GET           /                                                              controllers.HomeController.index
 GET           /colorectal/en/home/index                                      controllers.HomeController.indexEn
 
-
-
 GET           /colorectal/user/loginPage                                     controllers.UserController.loginPage
 POST          /colorectal/user/checkLogin                                    controllers.UserController.checkLogin
 GET           /colorectal/user/checkAccount                                  controllers.UserController.checkAccount
@@ -19,8 +17,6 @@ GET           /colorectal/user/registerSuccess                               con
 GET           /colorectal/en/user/loginPage                                  controllers.UserController.loginPageEn
 GET           /colorectal/en/user/registerPage                               controllers.UserController.registerPageEn
 GET           /colorectal/en/user/registerSuccess                            controllers.UserController.registerSuccessEn
-
-
 
 GET           /colorectal/cn/ml/mlIndex                                      controllers.MlController.mlIndex
 
@@ -109,9 +105,13 @@ POST          /colorectal/cn/platform/tools/getRedrawParams                  con
 POST          /colorectal/platform/tools/reDrawRun                           controllers.ToolsController.reDrawRun
 POST          /colorectal/platform/tools/checkName                           controllers.ToolsController.checkName
 
+GET           /colorectal/en/platform/tools/$tools<[^/]+>Page                controllers.ToolsController.toolsPageEn(tools:String)
+
+
 GET           /colorectal/utils/getImage                                     controllers.UtilsController.getImage(path:String)
 GET           /colorectal/utils/downloadImage                                controllers.UtilsController.downloadImage(path:String)
 GET           /colorectal/utils/downloadExample                              controllers.UtilsController.downloadExample(file:String)
+GET           /colorectal/utils/openPdf                                      controllers.UtilsController.openPdf(path:String,num:String)
 
 GET           /ws                                                            controllers.SocketController.socket
 

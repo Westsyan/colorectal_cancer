@@ -16,9 +16,13 @@
 
         $(function () {
             ValidationForm();
-            MyTable.prototype.getTaskName("Volcano")
+            getTaskName();
             webScoket("volcano")
         })
+
+        function getTaskName() {
+            MyTable.prototype.getTaskName("Volcano")
+        }
 
         function OpenResult(id) {
             $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=volcano", (data) => {
@@ -153,10 +157,12 @@
 
         function ValidationReForm() {
             let field = {};
-            let number = ["pcl", "fcl", "xrmin", "xrmax", "yrmin", "yrmax", "width", "height"];
+            let number = ["pcl", "fcl", "width", "height"];
             FieldNumber(field, number);
+            let emptyNumber = ["xrmin", "xrmax", "yrmin", "yrmax"]
+            FieldNumberEmpty(field, emptyNumber)
             let text = ["xtext", "ytext", "ltstext", "tstext"];
-            FieldText(field, text)
+            FieldChinesName(field, text)
             let color = ["color0", "color1", "color2", "color4"];
             FieldColor(field, color);
             let excluded = []

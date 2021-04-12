@@ -39,6 +39,10 @@ class ToolsDao @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     db.run(Tools.filter(_.id === id).map(x=>(x.state,x.drawparams)).update((state,drawParams))).map(_=>())
   }
 
+  def updateDrawParamsById(id:Int,drawParams:String) : Future[Unit] = {
+    db.run(Tools.filter(_.id === id).map(_.drawparams).update(drawParams)).map(_=>())
+  }
+
   def getByUseridAndTools(userId:Int,tools: String) : Future[Seq[ToolsRow]] = {
     db.run(Tools.filter(_.userid === userId).filter(_.tool === tools).result)
   }

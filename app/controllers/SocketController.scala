@@ -61,7 +61,7 @@ class SocketController @Inject()(cc: ControllerComponents,
       case x if Array("rf","logistics","svm","neural","gb","catboost").contains(x) =>
         val task = mlDao.getByUseridAndMl(id, x).toAwait
         (task.length, task.map(_.state))
-      case x if Array("pca","pcoa","cca","heatmap","igc","tax4","volcano").contains(x) =>
+      case x if Array("pca","pcoa","cca","heatmap","igc","itc","tax4","volcano","fh","ternary","treemap","lefse").contains(x) =>
         val task = toolsDao.getByUseridAndTools(id, x).toAwait
         (task.length, task.map(_.state))
     }

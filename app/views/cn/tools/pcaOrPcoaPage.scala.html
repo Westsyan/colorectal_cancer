@@ -28,13 +28,16 @@
 
         $(function () {
             ValidationForm()
-
-            MyTable.prototype.getTaskName("@name.toUpperCase")
+            getTaskName()
             ShowOrHide('showname', 'showarrow');
             ShowOrHide('isgroup', 'group');
             webScoket("@name")
 
         })
+
+        function getTaskName() {
+            MyTable.prototype.getTaskName("@name.toUpperCase")
+        }
 
         function ShowRange() {
             let value = $("input[name=big]:checked").val()
@@ -159,7 +162,6 @@
                                 //formValidation重新验证颜色
                                 $("#reForm").formValidation("revalidateField","color")
                             });
-
                 })
 
 

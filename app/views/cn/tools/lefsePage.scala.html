@@ -1,0 +1,299 @@
+<form class="form-horizontal row" id="form">
+
+    @cn.tools.global.taskname()
+
+    @cn.tools.global.file("OTU丰度表", "otu", "lefse_otu_table.biom", "lefse_otutable.txt")
+
+    @cn.tools.global.file("上传分组文件", "group", "lefse_map.txt")
+
+    @cn.tools.global.text("最高分类学层级(默认6，到属水平)", "level", value = "6")
+    @cn.tools.global.text("类间因子Kruskal-Wallis秩检验的Alpha值", "a", value = "0.5")
+    @cn.tools.global.text("子类间配对Wilcoxon秩检验的Alpha值", "w", value = "0.5")
+    @cn.tools.global.text("差异特征LDA对数值的阈值", "l", value = "2")
+
+    @cn.tools.global.radio("多组分类分析的分析策略", "y", Seq(("1", "one-against-one"), ("0", "one-against-all（约束较不严,耗时长）")), "1", "")
+
+    @cn.tools.global.runButton()
+</form>
+
+<script>
+
+        $(function () {
+            ValidationForm();
+            getTaskName();
+
+
+            webScoket("lefse")
+        })
+
+        function getTaskName() {
+            MyTable.prototype.getTaskName("Lefse")
+        }
+
+        function ShowFname() {
+            let value = $("input[name=feaf]:checked").val()
+            if(value === "one"){
+                $("#showFeaFname").show()
+            }else{
+                $("#showFeaFname").hide()
+            }
+        }
+
+        function OpenResult(id) {
+            $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=lefse", (data) => {
+
+                const html = `
+                    <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="redraw1-tab" data-toggle="tab" href="#redraw1" role="tab" aria-controls="redraw1" aria-selected="true">
+                                LDA分析柱图</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="redraw2-tab" data-toggle="tab" href="#redraw2" role="tab" aria-controls="redraw2" aria-selected="false">
+                                进化分支图</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="redraw3-tab" data-toggle="tab" href="#redraw3" role="tab" aria-controls="redraw3" aria-selected="false">
+                                差异特征图</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" style="box-sizing: border-box !important;padding-top: 30px">
+                    <div class="tab-pane fade active  show" id="redraw1">
+                    <div style="display: flex">
+                    <div class="col-sm-6" style="min-width: 600px;margin-top: 15px">
+                        <iframe id="pdf1" width="100%" height="600px"></iframe>
+                    </div>
+                    <div class="col-sm-6">
+                    <form id="reForm" enctype="multipart/form-data">
+                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                    <h5>绘图参数：</h5>
+
+                    @cn.tools.reGlobal.radio("条形图方向", "resorientation", Seq(("h", "水平"), ("v", "垂直")), "v", "")
+
+                    @cn.tools.reGlobal.text("要绘制的标签级别数", "resnscl", "要绘制的标签级别数, -1 表示绘制所有, 1 为默认值", "1")
+                    @cn.tools.reGlobal.text("特征名最大长度", "resmfl", "数字", "")
+                    @cn.tools.reGlobal.text("主标题", "restitle", "标题不可含有汉字", "")
+
+                    @cn.tools.reGlobal.slider("标题字体大小", "restfs", "0", "30", "1", "")
+                    @cn.tools.reGlobal.slider("标签字体大小", "resffs", "0", "20", "1", "")
+                    @cn.tools.reGlobal.slider("类名字体大小", "rescfs", "0", "20", "1", "")
+
+                    @cn.tools.reGlobal.radio("清晰度", "resdpi", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+                    @cn.tools.reGlobal.twoText("图片宽高", "reswidth", "resheight", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+
+                    @cn.tools.reGlobal.runButton("reRes")
+                    </div>
+                    </form>
+                    </div>
+                    </div>
+                    </div>
+                    <div id="redraw2" class="col-md-12 tab-pane fade">
+                    <div style="display: flex">
+                    <div class="col-sm-6" style="min-width: 600px;margin-top: 35px">
+                        <iframe id="pdf2" width="100%" height="600px"></iframe>
+                    </div>
+                    <div class="col-sm-6">
+                    <form id="reForm2" enctype="multipart/form-data">
+
+                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                    <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
+                    <li class="nav-item">
+                    <a class="nav-link active" id="picpara-tab" data-toggle="tab" href="#picpara" role="tab" aria-controls="picpara" aria-selected="true">
+                    数据布局参数</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" id="fontpara-tab" data-toggle="tab" href="#fontpara" role="tab" aria-controls="fontpara" aria-selected="false">
+                    字体参数</a>
+                    </li>
+                    </ul>
+
+                    <div class="tab-content" style="box-sizing: border-box !important;
+                            padding-top: 30px">
+                    <div class="tab-pane fade active  show" id="picpara">
+                    @cn.tools.reGlobal.text("设置树的根节点", "clasc", "", "", "")
+                    @cn.tools.reGlobal.radio("是否展开非叶节点的分类学级别", "claevl", Seq(("1", "yes"), ("0", "no")), "", "")
+                    @cn.tools.reGlobal.text("最大分类学级别数", "claml", "", "", "")
+                    @cn.tools.reGlobal.radio("是否绘制左边分类图例", "claclv", Seq(("1", "yes"), ("0", "no")), "", "", "")
+                    @cn.tools.reGlobal.text("较低级别分类群之间的间隔", "clacs", "数字", "15", "")
+                    @cn.tools.reGlobal.text("径向上外部级别的数量", "clarsl", "数字", "15", "")
+                    @cn.tools.reGlobal.twoText("绘制标签的分类学级别范围", "clalstartl", "clalstopl", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+                    @cn.tools.reGlobal.twoText("标签缩写的分类学级别范围", "claastartl", "claastopl", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+                    @cn.tools.reGlobal.twoText("分类群节点大小范围(最小--最大)", "claminps", "clamaxps", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+                    @cn.tools.reGlobal.text("给右侧的水平空间比例", "clarsp", "数字", "", "")
+                    @cn.tools.reGlobal.radio("清晰度", "cladpi", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+                     </div>
+                    <div class="tab-pane fade" id="fontpara">
+                    @cn.tools.reGlobal.slider("进化枝标签透明度", "claalpha", "0", "1", "0.1", "")
+                    @cn.tools.reGlobal.slider("分类群节点边缘线宽度", "clapew", "0", "1", "0.05", "")
+                    @cn.tools.reGlobal.slider("兄弟节点连接线宽度", "clascw", "0", "5", "0.1", "")
+                    @cn.tools.reGlobal.slider("父节点连接线宽度", "clapcw", "0", "4", "0.05", "")
+                    @cn.tools.reGlobal.text("主标题", "clatitle", "标题不可含有汉字", "")
+                    @cn.tools.reGlobal.slider("标题文字大小", "clatfs", "0", "30", "1", "")
+                    @cn.tools.reGlobal.slider("标签和标签图例文字大小", "clalfs", "0", "20", "1", "")
+                    @cn.tools.reGlobal.slider("分类图例文字大小", "claclfs", "0", "30", "1", "")
+                    </div>
+                    </div>
+                    @cn.tools.reGlobal.runButton("reCla")
+                    </div>
+                    </form>
+                    </div></div>
+
+                    </div>
+                     <div id="redraw3" class="col-md-12 tab-pane fade">
+                    <div style="display: flex">
+                    <div class="col-sm-6" style="min-width: 600px;margin-top: 35px">
+                        <iframe id="pdf3" width="100%" height="600px"></iframe>
+                    </div>
+                    <div class="col-sm-6">
+                    <form id="reForm3" enctype="multipart/form-data">
+                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                    <div class="tab-content" style="box-sizing: border-box !important;
+                            padding-top: 30px">
+                     <h5>绘图参数：</h5>
+
+                    @cn.tools.reGlobal.radio("绘制选项", "feaf", Seq(("all", "绘制全部"), ("diff", "仅绘制差异显著特征"), ("one", "指定一个特征绘制（仅差异显著）")), "", "ShowFname()")
+                    @cn.tools.reGlobal.select("指定绘制特征名","feafname",Seq(),"showFeaFname")
+
+                    @cn.tools.reGlobal.radio("是否绘制平均线", "feasmean", Seq(("y", "yes"), ("n", "no")), "", "")
+                    @cn.tools.reGlobal.radio("是否绘制中位线", "feasmedian", Seq(("y", "yes"), ("n", "no")), "", "")
+                    @cn.tools.reGlobal.radio("类名标签旋转角度", "feaca", Seq(("0", "0"), ("45", "45"), ("90", "90"), ("315", "135"), ("270", "270")), "", "")
+                    @cn.tools.reGlobal.twoText("y值", "feabot", "featop", placeholder1 ="最小值", placeholder2 =  "最大值" ,symbol = "----")
+                    @cn.tools.reGlobal.slider("标题字体大小", "featfs", "0", "30", "1", "")
+                    @cn.tools.reGlobal.slider("标题字体大小", "feacfs", "0", "30", "1", "")
+                    @cn.tools.reGlobal.slider("副类名和Y轴字体大小", "feafs", "0", "30", "1", "")
+                    @cn.tools.reGlobal.radio("清晰度", "feadpi", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+                    @cn.tools.reGlobal.twoText("图片宽高", "feawidth", "feaheight", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+
+                    </div>
+                    @cn.tools.reGlobal.runButton("reFea")
+                    </div>
+                    </form>
+                    </div></div>
+                    </div>
+                    </div>
+                `
+
+                const $redraw = $("#redraw")
+                $redraw.removeAttr("style")
+                $redraw.empty().html(html)
+                $("#reRes").attr("onclick", "ReDrawLefse('" + id + "','reForm','res')")
+                $("#reCla").attr("onclick", "ReDrawLefse('" + id + "','reForm2','cla')")
+                $("#reFea").attr("onclick", "ReDrawLefse('" + id + "','reForm3','fea')")
+
+                $("#pdf1").attr("src", `/colorectal/utils/openPdf?path=lefse/${id}/lefse_LDA.pdf&num=` + Math.random())
+                $("#pdf2").attr("src", `/colorectal/utils/openPdf?path=lefse/${id}/lefse_LDA.cladogram.pdf&num=` + Math.random())
+                $("#pdf3").attr("src", `/colorectal/utils/openPdf?path=lefse/${id}/lefse_LDA.features.pdf&num=` + Math.random())
+
+
+                let radio1 = ["resorientation", "resdpi"];
+                reFormAddRadio(radio1, data.res)
+
+                let text1 = ["resnscl", "resmfl", "restitle", "reswidth", "resheight"]
+                reFormAddText(text1, data.res)
+
+                let slider1 = ["restfs", "resffs", "rescfs"]
+                reFormAddSlider(slider1, data.res)
+
+                let radio2 = ["claevl", "claclv", "cladpi"]
+                reFormAddRadio(radio2, data.cla)
+
+                let text2 = ["clasc", "claml", "clatitle", "clacs", "clarsl", "clalstartl", "clalstopl", "claastartl",
+                    "claastopl", "claminps", "clamaxps", "clarsp"]
+                reFormAddText(text2, data.cla, "reForm2")
+
+                let slider2 = ["claalpha", "clapew", "clascw", "clapcw", "clatfs", "clalfs", "claclfs"]
+                reFormAddSlider(slider2, data.cla)
+
+                let radio3 = ["feaf", "feasmean", "feasmedian", "feaca", "feadpi"]
+                reFormAddRadio(radio3, data.fea)
+
+                $("#feafname").select2({data: data.fname})
+
+                let fea =data.fea
+                if(fea["feaf"] === "one"){
+                    $("#feafname").val(fea["feafname"]).select2()
+                }
+
+                ShowFname()
+
+                let text3 = ["feabot", "featop", "feawidth", "feaheight"]
+                reFormAddText(text3, data.fea, "reForm3")
+
+                let slider3 = ["featfs", "feacfs", "feafs"]
+                reFormAddSlider(slider3, data.fea)
+
+                ValidationReForm()
+
+                getTitleAndFile(data.title, data.tableData, "lefse", id)
+            })
+        }
+
+        function ValidationForm() {
+            let field = {};
+            let text = ["name"];
+            field = FieldName(field, text, "lefse")
+            field = FieldFile(field, ["otu"], "txt,biom")
+            field = FieldFile(field, ["group"], "txt")
+            let number = ["level","a","w","l"]
+            field = FieldNumber(field, number)
+
+            addFormValidation("form", field)
+        }
+
+        function ValidationReForm() {
+            let field1 = {};
+            let number = ["resnscl", "resmfl", "reswidth", "resheight"];
+            FieldNumber(field1, number);
+            let text = ["restitle"]
+            FieldChinesName(field1, text)
+            let excluded = []
+            addFormValidation("reForm", field1, excluded);
+
+            let field2 = {};
+            let number2 = ["claml", "clacs", "clarsl", "clalstartl", "clalstopl", "claastartl",
+                "claastopl", "claminps", "clamaxps", "clarsp"]
+            FieldNumber(field2, number2);
+            let text2 = ["clatitle"]
+            FieldChinesName(field2, text2)
+            addFormValidation("reForm2", field2, excluded);
+
+            let field3 = {}
+            let number3 = ["feabot", "featop", "feawidth", "feaheight"]
+            FieldNumber(field3, number3);
+            addFormValidation("reForm3", field3, excluded);
+
+        }
+
+        function ReDrawLefse(id, formId, img) {
+            let form = $("#" + formId) ;
+            let fv = form.data("formValidation");
+            fv.validate();
+            if (fv.isValid()) {
+                let index = MyTable.prototype.runningIcon();
+                $.ajax({
+                    url: "@routes.ToolsController.reDrawRun()",
+                    type: "post",
+                    data: form.serialize() + "&id=" + id + "&tools=lefse" + "&img=" + img,
+                    success: function (data) {
+                        layer.close(index);
+                        if (data.state === 2) {
+                            $("#result").hide();
+                            swal("错误", data.msg, "error")
+                        } else {
+                            if (img === "res") {
+                                $("#pdf1").attr("src", `/colorectal/utils/openPdf?path=lefse/${id}/lefse_LDA.pdf&num=` + Math.random())
+                            } else if (img === "cla") {
+                                $("#pdf2").attr("src", `/colorectal/utils/openPdf?path=lefse/${id}/lefse_LDA.cladogram.pdf&num=` + Math.random())
+                            } else {
+                                $("#pdf3").attr("src", `/colorectal/utils/openPdf?path=lefse/${id}/lefse_LDA.features.pdf&num=` + Math.random())
+                            }
+                        }
+                    }
+                })
+            } else {
+                switchToReInvalid(fv)
+            }
+        }
+
+
+</script>

@@ -5,7 +5,7 @@ import models.Tables.ToolsRow
 import play.api.libs.Files.TemporaryFile
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, MultipartFormData, Request}
-import utils.{ExecCommand, Global, Utils}
+import utils.{ExecCommand, Global, PdfToImage, Utils}
 
 object IgcOrItc extends MyFile with MyRequest {
 
@@ -26,16 +26,21 @@ object IgcOrItc extends MyFile with MyRequest {
           s" -i1 $matrix -i2 $m2"
       }
 
-      val command1 = s"Rscript ${Global.toolsPath}/igc/cor_pvalue_calculate.R $cmdInput -o $path -m ${params("anatype")}"
-      val command2 = s"Rscript ${Global.toolsPath}/heatmap/heatMap.R -i $path/cor.xls -o $path -c #E41A1C:#FFFF00:#1E90FF " +
-        s"-lfi $path/p_star.xls -if png"
+      val cmd =
+        s"""
+           |Rscript ${Global.toolsPath}/igc/cor_pvalue_calculate.R $cmdInput -o $path -m ${params("anatype")}
+           |Rscript ${Global.toolsPath}/igc/node_attr_calculate.R -t $path/pandv.xls -pt 0.1 -ct 0.5 -o $path
+           |Rscript ${Global.toolsPath}/heatmap/heatMap.R -i $path/cor.xls -o $path -c #E41A1C:#FFFF00:#1E90FF -lfi $path/p_star.xls -if pdf
+           |""".stripMargin
 
       val exec = new ExecCommand()
-      exec.exect(Array(command1, command2), path)
+      exec.execShRun(List(cmd), path)
 
       if (!exec.isSuccess) {
         state = 2
         msg = exec.getErrStr
+      } else {
+        PdfToImage.pdf2Png("heatmap", path)
       }
     } catch {
       case e: Exception => state = 2; msg = e.getMessage
@@ -44,32 +49,73 @@ object IgcOrItc extends MyFile with MyRequest {
   }
 
   def GetParams(row: ToolsRow, tools: String)(implicit request: Request[AnyContent]): JsObject = {
-    val drawParams = if (row.drawparams == "") {
-      Map("gshape" -> "ellipse", "netcolor1" -> "#555555", "gopa" -> "1", "gsize" -> "5",
-        "gfont" -> "20", "netcolor2" -> "#ffffff", "eshape" -> "diamond", "netcolor3" -> "#5da5fb", "eopa" -> "1",
-        "esize" -> "10", "efont" -> "20", "netcolor4" -> "#ffffff", "netcolor5" -> "#737373", "opacity" -> "0.6",
-        "dot" -> "3", "pthres" -> "0.1", "cthres" -> "0.5")
-    } else {
-      Utils.jsonToMap(row.drawparams)
-    }
+    val drawParams = Utils.jsonToMap(row.drawparams)
     val path = Global.getToolsPath(request.userId, row.id, tools)
-    val (rows, selector) = getNetwork(drawParams, path, tools)
-
-    Json.obj("rows" -> rows, "selector" -> selector, "title" -> row.name, "drawParams" -> drawParams)
+    val net = Utils.jsonToMap(drawParams("net"))
+    val heatmap = Utils.jsonToMap(drawParams("heatmap"))
+    val (rows, selector) = getNetwork(net, path, tools)
+    val head = s"$path/cor.xls".readFileToString.trim.split("\n")
+    val rnum = head.length - 1
+    val cnum = head(1).trim.split("\t").length - 1
+    Json.obj("rows" -> rows, "selector" -> selector, "title" -> row.name, "net" -> net,
+      "heatmap" -> heatmap, "rnum" -> rnum, "cnum" -> cnum)
   }
 
-  def ReDrawNetWork(path: String,tools:String)(implicit request: Request[AnyContent]) = {
+  def ReDraw(path: String, tools: String, row: ToolsRow)(implicit request: Request[AnyContent]) = {
     var state = 0
-    var msg = "Heatmap Success!"
-    val data = request.body.asFormUrlEncoded.get.map(x => x._1 -> x._2.mkString(":"))
-    try{
-
-
-
-
-    }catch {
-      case e:Exception => state = 2;msg = e.getMessage
+    var msg = tools match {
+      case "igc" => "Inner-group Correlation Analysis Success!"
+      case "itc" => "Intraclass Correlation Analysis Success!"
     }
+
+    val data = request.body.asFormUrlEncoded.get.map(x => x._1 -> x._2.mkString(":"))
+    try {
+      val img = data("img")
+
+      val command = img match {
+        case "net" => s"Rscript ${Global.toolsPath}/igc/node_attr_calculate.R -t $path/pandv.xls -pt ${data("pthres")} -ct ${data("cthres")} -o $path"
+        case "heatmap" =>
+          val lfi = if (data("lfi") == "TRUE") s" -lfi $path/p_star.xls " else ""
+          val rowclu = if (data("cluster_rows") == "TRUE") {
+            s" -crw ${data("cluster_rows")} -crm ${data("crm")} -rp ${data("rp")}"
+          } else {
+            s" -crw ${data("cluster_rows")}"
+          }
+          val colclu = if (data("cluster_cols") == "TRUE") {
+            s" -ccl ${data("cluster_cols")} -ccm ${data("ccm")} -cp ${data("cp")}"
+          } else {
+            s" -ccl ${data("cluster_cols")}"
+          }
+
+          val tableFile = s"$path/cor.xls"
+
+          val color = if (data("color") == "#E41A1C:#FFFF00:#1E90FF" || data("color") == "#E41A1C:#FFFFFF:#1E90FF") data("color") else data("color[]")
+
+          s"Rscript ${Global.toolsPath}/heatmap/heatMap.R -i $tableFile -o $path  -smt ${data("smt")} $lfi $rowclu " +
+            s" $colclu  -sc ${data("sc")} -lg ${data("lg")} -c $color -cc ${data("cc")} -nc ${data("nc")} " +
+            s" -cbc ${data("cbc")} -sn ${data("hasrname")}:${data("hascname")}:${data("hasnum")}  -th " +
+            s" ${data("rtree")}:${data("ctree")} -fs ${data("yfs")}:${data("xfs")} -if pdf -cln TRUE -xfa ${data("xfa")} " +
+            s" -fn ${data("fn")}"
+      }
+
+      val execCommand = new ExecCommand
+      execCommand.exect(command, path)
+      if (!execCommand.isSuccess) {
+        state = 2
+        msg = execCommand.getErrStr
+      } else {
+        if (img == "heatmap") {
+          PdfToImage.pdf2Png("heatmap", path)
+        }
+
+        state = 1
+      }
+    } catch {
+      case e: Exception => state = 2; msg = e.getMessage
+    }
+    val drawParams = Utils.jsonToMap(row.drawparams)
+    val newDrawParams = drawParams ++ Map(data("img") -> Utils.mapToJson(data))
+    (state, msg, Json.toJson(newDrawParams))
   }
 
   def getNetwork(drawParams: Map[String, String], path: String, tools: String) = {

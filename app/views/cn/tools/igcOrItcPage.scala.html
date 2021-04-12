@@ -1,0 +1,558 @@
+@(name: String)
+
+<script type="text/javascript" src="@routes.Assets.versioned("cytoscape3.15.1/cytoscape.min.js")"></script>
+
+<form class="form-horizontal row" id="form">
+
+    @cn.tools.global.taskname()
+
+
+    @if(name == "itc") {
+        @cn.tools.global.file("上传矩阵文件1", "matrix", "itc_table.txt")
+        @cn.tools.global.file("上传矩阵文件2", "matrix2", "itc_table2.txt")
+    }else{
+        @cn.tools.global.file("上传矩阵文件", "matrix", "Igc.txt")
+    }
+
+    @cn.tools.global.radio("分析类型", "anatype", Seq(("pearson", "pearson"), ("spearman", "spearman")), "pearson", "")
+
+    @cn.tools.global.runButton()
+</form>
+
+<script>
+
+        let cy
+
+        $(function () {
+            ValidationForm()
+            getTaskName();
+            webScoket("igc")
+        })
+
+        function getTaskName() {
+            MyTable.prototype.getTaskName("@{name.toUpperCase}")
+        }
+
+        function OpenResult(id) {
+            $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=@name", (data) => {
+
+                const $result = $("#result")
+
+                const html = `<ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="redraw1-tab" data-toggle="tab" href="#redraw1" role="tab" aria-controls="redraw1" aria-selected="true">
+                                    权重网络图</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="redraw2-tab" data-toggle="tab" href="#redraw2" role="tab" aria-controls="redraw2" aria-selected="false">
+                                    Heatmap 热图</a>
+                            </li>
+                         </ul>
+                         <div class="tab-content" style="box-sizing: border-box !important;padding-top: 30px">
+                            <div class="tab-pane fade active  show" id="redraw1">
+                                <div class="redraw-head" style="margin-top: 10px;display: flex;align-items: baseline;margin-left:20px">
+                                    <span class="card-title" >重新绘图：</span>
+                                    <div class="dropdown" style="display: inline-block">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"
+                                            style="padding: 7px 30px;text-shadow: unset;border-radius: 7px;line-height: 1.4;margin-left: 20px">
+                                            下载结果图
+                                        </button>
+                                        <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute;
+                                            transform: translate3d(0px, 35px, 0px);top: 0px;left: 0px;will-change: transform;width: 150px">
+                                            <a class="dropdown-item" onclick="down('jpg')">下载 jpg</a>
+                                            <a class="dropdown-item" onclick="down('png')">下载 png</a>
+                                            <a class="dropdown-item" onclick="downJson()">下载 json</a>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown" style="display: inline-block;margin-left: 40px">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"
+                                            style="padding: 7px 30px;text-shadow: unset;border-radius: 7px;line-height: 1.4">
+                                                下载当前节点、边详细信息
+                                        </button>
+                                    <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute;
+                                        transform: translate3d(0px, 35px, 0px);top: 0px;left: 0px;will-change: transform;">
+                                        <a class="dropdown-item" style="width: auto;" href="/colorectal/cn/platform/tools/downloadToolsFile?path=@name/${id}/Network_Edges.xls">边信息(包含对应r，p，-ln(p)等数据)</a>
+                                        <a class="dropdown-item" style="width: auto;" href="/colorectal/cn/platform/tools/downloadToolsFile?path=@name/${id}/Network_Nodes.xls">节点信息文件(包含点度中心性、紧密度中间性等)</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex">
+                                <div class="col-sm-6" style="min-width: 600px;margin-top: 15px">
+                                    <span style="color: gray;font-size: 13px">提示：点击连线或结点，可查看对应的p值和c值</span>
+                                    <div id="cy" style="width: 100%;height: 600px;border: 1px solid #8b8b8b9c;margin: 10px 0px 10px 0px;"></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <form id="reForm" enctype="multipart/form-data">
+                                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                                        <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="drawData-tab" data-toggle="tab" href="#drawData" role="tab" aria-controls="drawData" aria-selected="true">
+                                                    绘图数据筛选</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="matrixData-tab" data-toggle="tab" href="#matrixData" role="tab" aria-controls="matrixData" aria-selected="false">
+                                                    矩阵文件</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="matrixData2-tab" data-toggle="tab" href="#matrixData2" role="tab" aria-controls="matrixData2" aria-selected="false">
+                                                    矩阵文件2</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" style="box-sizing: border-box !important;padding-top: 30px">
+                                            <div class="tab-pane fade active  show" id="drawData">
+                                                @cn.tools.reGlobal.text("显示小数点位数", "dot", "数字", "3")
+                                                @cn.tools.reGlobal.text("p值检验阈值(0-1)", "pthres", "数字", "0.1")
+                                                @cn.tools.reGlobal.text("c值(绝对值)检验阈值(0-1)", "cthres", "数字", "0.5")
+                                                @cn.tools.reGlobal.color("连线颜色", "netcolor5", "")
+                                                @cn.tools.reGlobal.text("连线透明度", "opacity", "数字", "0.4")
+                                            </div>
+                                            <div class="tab-pane fade" id="matrixData">
+                                                @cn.tools.reGlobal.select("基因节点形状", "gshape", Seq(("ellipse", "圆形"), ("triangle", "三角形"),
+                                                                         ("round-triangle", "圆角三角形"), ("rectangle", "矩形"), ("round-rectangle", "圆角矩形"), ("bottom-round-rectangle", "底部圆角矩形"),
+                                                                         ("cut-rectangle", "切角矩形"), ("barrel", "桶形"), ("rhomboid", "长斜方形"), ("diamond", "菱形"),
+                                                                         ("round-diamond", "圆角菱形"), ("pentagon", "五角形"), ("round-pentagon", "圆角五角形"),
+                                                                         ("hexagon", "六边形"), ("round-hexagon", "圆角六边形"), ("concave-hexagon", "凹面六边形"),
+                                                                         ("heptagon", "七边形"), ("round-heptagon", "圆角七边形"), ("octagon", "八边形"), ("round-octagon", "圆角八边形"),
+                                                                         ("star", "星形"), ("tag", "标签"), ("round-tag", "圆角标签"), ("vee", "V型")))
+                                                @cn.tools.reGlobal.color("基因节点颜色", "netcolor1", "")
+                                                @cn.tools.reGlobal.text("基因节点透明度", "gopa", "数字", "1")
+                                                @cn.tools.reGlobal.text("基因节点大小(0-10)", "gsize", "数字", "5")
+                                                @cn.tools.reGlobal.text("基因名大小(0即不显示)", "gfont", "数字", "12")
+                                                @cn.tools.reGlobal.color("基因名颜色", "netcolor2", "")
+                                            </div>
+                                            <div class="tab-pane fade" id="matrixData2">
+                                                @cn.tools.reGlobal.select("基因节点形状", "eshape", Seq(("ellipse", "圆形"), ("triangle", "三角形"),
+                                                                         ("round-triangle", "圆角三角形"), ("rectangle", "矩形"), ("round-rectangle", "圆角矩形"), ("bottom-round-rectangle", "底部圆角矩形"),
+                                                                         ("cut-rectangle", "切角矩形"), ("barrel", "桶形"), ("rhomboid", "长斜方形"), ("diamond", "菱形"),
+                                                                         ("round-diamond", "圆角菱形"), ("pentagon", "五角形"), ("round-pentagon", "圆角五角形"),
+                                                                         ("hexagon", "六边形"), ("round-hexagon", "圆角六边形"), ("concave-hexagon", "凹面六边形"),
+                                                                         ("heptagon", "七边形"), ("round-heptagon", "圆角七边形"), ("octagon", "八边形"), ("round-octagon", "圆角八边形"),
+                                                                         ("star", "星形"), ("tag", "标签"), ("round-tag", "圆角标签"), ("vee", "V型")))
+                                                @cn.tools.reGlobal.color("基因节点颜色", "netcolor3", "#5da5fb")
+                                                @cn.tools.reGlobal.text("基因节点透明度", "eopa", "数字", "1")
+                                                @cn.tools.reGlobal.text("基因节点大小(0-10)", "esize", "数字", "10")
+                                                @cn.tools.reGlobal.text("基因名大小(0即不显示)", "efont", "数字", "20")
+                                                @cn.tools.reGlobal.color("基因名颜色", "netcolor4", "#ffffff")
+                                            </div>
+                                            @cn.tools.reGlobal.runButton()
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                         </div>
+                     </div>
+                     <div id="redraw2" class="col-md-12 tab-pane fade">
+                         <div class="redraw-head" style="margin-top: 10px;margin-left:20px">
+                            <span class="card-title" >重新绘图：</span></div>
+                         <div style="display: flex">
+                            <div class="col-sm-6" style="min-width: 600px;margin-top: 35px">
+                                <img id="resultImg" width="100%"/>
+                            </div>
+                         <div class="col-sm-6">
+                            <form id="reForm2" enctype="multipart/form-data">
+                                <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                                    <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;border-bottom: 1px solid #ddd">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="picpara-tab" data-toggle="tab" href="#picpara" role="tab" aria-controls="picpara" aria-selected="true">
+                                                    数据布局参数</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="colopara-tab" data-toggle="tab" href="#colopara" role="tab" aria-controls="colopara" aria-selected="false">
+                                                    颜色参数</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="fontpara-tab" data-toggle="tab" href="#fontpara" role="tab" aria-controls="fontpara" aria-selected="false">
+                                                    字体参数</a>
+                                        </li>
+                                    </ul>
+
+                        <div class="tab-content" style="box-sizing: border-box !important;
+                            padding-top: 30px">
+                            <div class="tab-pane fade active  show" id="picpara">
+                                @cn.tools.reGlobal.select("热图显示部分", "smt", Seq(("full", "全部"), ("left", "左半边"), ("right", "右半边"), ("top", "上半边"), ("bottom", "下半边"), ("topTriangle", "右上三角"), ("bottomTriangle", "左下三角")))
+                                @cn.tools.reGlobal.radio("是否使用星星矩阵", "lfi", Seq(("TRUE", "yes"), ("FALSE", "no")),"","")
+                                @cn.tools.reGlobal.radio("是否对行聚类", "cluster_rows", Seq(("FALSE", "不聚类"), ("TRUE", "自动聚类"), ("file", "使用上传的聚类信息文件")), "", "ShowCluster('cluster_rows','r-crm','r-rp')")
+                                @cn.tools.reGlobal.radio("自动行聚类方法", "crm", Seq(("complete", "complete"), ("single", "single"), ("ward.D", "ward"), ("average", "average"), ("mcquitty", "mcquitty")), "", "", "r-crm")
+                                @cn.tools.reGlobal.text("聚类分割数(1-)", "rp", "数字", "1", "r-rp")
+
+                                @cn.tools.reGlobal.radio("是否对列聚类", "cluster_cols", Seq(("FALSE", "不聚类"), ("TRUE", "自动聚类"), ("file", "使用上传的聚类信息文件")), "", "ShowCluster('cluster_cols','r-ccm','r-cp')")
+                                @cn.tools.reGlobal.radio("自动列聚类方法", "ccm", Seq(("complete", "complete"), ("single", "single"), ("ward.D", "ward"), ("average", "average"), ("mcquitty", "mcquitty")), "", "", "r-ccm")
+                                @cn.tools.reGlobal.text("聚类分割数(1-)", "cp", "数字", "1", "r-cp")
+
+                                @cn.tools.reGlobal.text("选择用于作图的行", "inr", "如1-10,13,15-20")
+                                @cn.tools.reGlobal.text("选择用于作图的列", "inc", "如1-10,13,15-20")
+                                @cn.tools.reGlobal.radio("归一化", "sc", Seq(("col", "column"), ("row", "row"), ("none", "none")), "column", "")
+                                @cn.tools.reGlobal.radio("是否取lg", "lg", Seq(("none", "none"), ("lg2", "lg2"), ("lg10", "lg10")), "none", "")
+                                @cn.tools.reGlobal.radio("是否画格子边界", "hasborder", Seq(("none", "no"), ("white", "yes")), "none", "ShowCbc()")
+                            </div>
+                            <div class="tab-pane fade" id="colopara">
+                                @cn.tools.reGlobal.radio("颜色 (数值从小到大)", "color", Seq(("#E41A1C:#FFFF00:#1E90FF", "蓝-黄-红"), ("#E41A1C:#FFFFFF:#1E90FF", "蓝-白-红"), ("0", "手动输入")), "#E41A1C:#FFFFFF:#1E90FF", "ShowColor('color','inputColor')")
+
+                            <div id="inputColor" class="form-group row " style="display: none">
+                                <div class="reDraw">
+                                    <label class="col-sm-3 col-form-label"></label>
+                                    <div style="border: 1px solid lightgrey;
+                                        border-radius: 5px;
+                                        padding: 10px;
+                                        margin-left: 10px" class="col-sm-6">
+                                        <div style="padding-left: 0">
+                                            <div style="width: 100%;
+                                                margin-left: 10px">
+                                                <label>自定义颜色（2-6个）：</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group-p" >
+                                            <div class="form-group" style="width: 85%" id="mycolor"></div>
+                                        </div>
+                                        <div class="form-group-p" style="padding-left: 0">
+                                            <input type="button" value="增加颜色" class="btn btn-primary btn-dark" onclick="addColor()" style="width: 100px;">
+                                            <input type="button" value="删除颜色" class="btn btn-primary btn-dark" onclick="deleteColor()" style="width: 100px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                                @cn.tools.reGlobal.text("颜色渐变数量", "cc", "数字", "30")
+                                @cn.tools.reGlobal.color("缺失值数据颜色", "nc", "")
+                                @cn.tools.reGlobal.color("边界颜色", "cbc", "r-cbc")
+                            </div>
+                            <div class="tab-pane fade" id="fontpara">
+                                @cn.tools.reGlobal.radio("是否显示行名", "hasrname", Seq(("TRUE", "yes"), ("FALSE", "no")), "TRUE", "")
+                                @cn.tools.reGlobal.radio("是否显示列名", "hascname", Seq(("TRUE", "yes"), ("FALSE", "no")), "TRUE", "")
+                                @cn.tools.reGlobal.radio("格子上显示数字", "hasnum", Seq(("TRUE", "yes"), ("FALSE", "no")), "FALSE", "")
+                                @cn.tools.reGlobal.radio("x轴字体旋转角度", "xfa", Seq(("0", "0"), ("315", "45"), ("90", "90"), ("270", "270")), "0", "")
+                                @cn.tools.reGlobal.twoText("XY 轴字体大小", "xfs", "yfs", "数字", "10", "数字", "10", ":")
+                                @cn.tools.reGlobal.twoText("行 X 列聚类树高度", "rtree", "ctree", "数字", "50", "数字", "50", "X")
+
+                                @cn.tools.reGlobal.text("格子内字体大小", "fn", "数字", "8")
+                            </div>
+                        </div>
+                        @cn.tools.reGlobal.runButton("reButton2")
+                    </div>
+                </form>
+            </div></div>
+
+    </div>
+</div>`
+
+                $("#card-title").remove()
+                $("#redraw").removeAttr("style")
+                $("#redraw").empty().html(html)
+
+                if ("@name" === "igc") {
+                    $("#matrixData2").hide()
+                    $("#matrixData2-tab").hide()
+                }
+
+                $("#reButton").attr("onclick", "ReDrawIgc('" + id + "','reForm','net')")
+                $("#reButton2").attr("onclick", "ReDrawIgc('" + id + "','reForm2','heatmap')")
+
+                $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=@name/${id}/heatmap.png&num=` + Math.random())
+
+                const net = data.net;
+
+
+                cy = window.cy = cytoscape({
+                    container: document.getElementById('cy'),
+                    layout: {
+                        name: 'cose',
+                        idealEdgeLength: 100,
+                        nodeOverlap: 20,
+                        refresh: 20,
+                        fit: true,
+                        padding: 30,
+                        randomize: false,
+                        componentSpacing: 100,
+                        nodeRepulsion: 400000,
+                        edgeElasticity: 100,
+                        nestingFactor: 5,
+                        gravity: 80,
+                        numIter: 1000,
+                        initialTemp: 200,
+                        coolingFactor: 0.95,
+                        minTemp: 1.0
+                    },
+                    style: data.selector,
+                    elements: data.rows,
+                    minZoom: 1e-1,
+                    maxZoom: 5,
+                    wheelSensitivity: 0.05
+                });
+                cy.unbind('click');
+                cy.bind('click', function (e) {
+                    if (e.target === cy) {
+                        cy.edges().removeClass('highlighted');
+                    } else if (e.target.group() == "nodes") {
+                        if (cy.edges("[target='" + e.target.id() + "']").hasClass('highlighted') || cy.edges("[source='" + e.target.id() + "']").hasClass('highlighted')) {
+                            cy.edges().removeClass('highlighted');
+                        } else {
+                            cy.edges().removeClass('highlighted');
+                            cy.edges("[target='" + e.target.id() + "']").addClass('highlighted');
+                            cy.edges("[source='" + e.target.id() + "']").addClass('highlighted');
+                        }
+                    } else {
+                        if (cy.edges("[id='" + e.target.id() + "']").hasClass('highlighted'))
+                            cy.edges("[id='" + e.target.id() + "']").removeClass('highlighted');
+                        else cy.edges("[id='" + e.target.id() + "']").addClass('highlighted');
+                    }
+                });
+
+                let textNet = ["dot", "pthres", "cthres", "opacity", "gopa", "gsize", "gfont"]
+
+                reFormAddText(textNet, net)
+
+                $("#gshape").val(net["gshape"]).select2();
+                $("#eshape").val(net["eshape"]).select2();
+
+
+                const drawParams = data.heatmap;
+                $("#smt").val(drawParams["smt"]).select2()
+
+                let mycolor = drawParams["color"].split(":")
+
+                $("#mycolor").empty();
+                mycolor.forEach((v, i) => {
+                    $("#mycolor").append(`<div class="form-group row "  id="r-color${i}"><div class="reDraw"> <div  class="col-sm-9" ><input type="text" name="color[]" class="form-control" id="color${i}"></div></div></div>`);
+                })
+
+
+                let text = ["rp", "cp", "inr", "inc", "fn", "cc", "xfs", "yfs", "rtree", "ctree"]
+
+                $.each(text, (i, v) => {
+                    $("#" + v).val(drawParams[v])
+                })
+
+                let radio = ["lfi", "cluster_rows", "crm", "cluster_cols", "ccm", "sc", "lg", "color",
+                    "hasborder", "hascname", "hasrname"]
+
+                radio.forEach(v => {
+                    $("input[name=" + v + "][value='" + drawParams[v] + "']").prop("checked", true)
+                })
+
+                ValidationReForm()
+
+                let colors1 = ["netcolor1", "netcolor2", "netcolor3", "netcolor4", "netcolor5", "nc", "cbc"];
+                colors1.forEach(v => {
+                    $("#" + v).colorpicker({color: net[v], defaultPalette: 'web', showOn: "button"});
+                })
+
+
+                let colors = ["nc", "cbc"];
+
+                colors.forEach(v => {
+                    $("#" + v).colorpicker({color: drawParams[v], defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                $("#reForm2").formValidation("revalidateField", v)
+                                //formValidation重新验证颜色
+                            });
+                })
+
+
+                mycolor.forEach((v,i)=>{
+                    $("#color" + i).colorpicker({color: v, defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                $("#reForm2").formValidation("revalidateField", "color[]")
+                                //formValidation重新验证颜色
+                            });
+                })
+
+                if (drawParams["color"] !== "#E41A1C:#FFFF00:#1E90FF" && drawParams["color"] !== "#E41A1C:#FFFFFF:#1E90FF") {
+                    $("input[name=color][value='0']").prop("checked", true)
+                }
+
+                ShowColor('color', 'inputColor')
+                ValidationReForm();
+
+                ShowCluster('cluster_rows', 'r-crm', 'r-rp');
+                ShowCluster('cluster_cols', 'r-ccm', 'r-cp');
+                ShowCbc(drawParams["cbc"]);
+
+                getTitleAndFile(data.title, data.tableData, "igc", id)
+            })
+        }
+
+        function down(param) {
+            var pic = "";
+            if (param == "jpg") pic = cy.jpg();
+            else pic = cy.png({"bg": "#fff"});
+            var a = document.createElement('a');          // 创建一个a节点插入的document
+            var event = new MouseEvent('click');          // 模拟鼠标click点击事件
+            a.download = 'netPic';                 // 设置a节点的download属性值
+            a.href = pic;                                 // 将图片的src赋值给a节点的href
+            a.dispatchEvent(event);
+        }
+
+        function downJson() {
+            var ele = document.createElement('a');
+            ele.download = "test.json";
+            var blob = new Blob([JSON.stringify(cy.json(), null, 2)], {type: 'application/json,charset=utf-8;'});
+            var blob = new Blob([JSON.stringify(cy.json())]);
+            ele.href = URL.createObjectURL(blob);
+            document.body.appendChild(ele);
+            ele.click();
+            document.body.removeChild(ele);
+            console.log(JSON.stringify(cy.json()));
+        }
+
+        function ShowCbc(color = "#ffffff") {
+            let hasborder = $("#reForm2").find("input[name=hasborder]:checked").val();
+            if (hasborder == "white") {
+                $("#r-cbc").show();
+                $("#cbc").colorpicker({color: color, defaultPalette: 'web', showOn: "button"})
+                        .on("change.color", function (event, color) { //选择颜色事件
+                            //formValidation重新验证颜色
+                        });
+            } else {
+                $("#r-cbc").hide();
+                $("#cbc").colorpicker({color: "#ffffff", defaultPalette: 'web', showOn: "button"})
+                        .on("change.color", function (event, color) { //选择颜色事件
+                            //formValidation重新验证颜色
+                        });
+            }
+        }
+
+        function addColor() {
+            let $colors = $("input[name='color[]']")
+            let length = $colors.length;
+
+            if (length < 6) {
+                let colors = []
+                $.each($colors, (i, v) => {
+                    colors.push($(v).val())
+                })
+                colors.push("#E41A1C")
+                $("#mycolor").empty()
+                colors.forEach((v, i) => {
+                    $("#mycolor").append(`<div class="form-group row"  id="r-color${i}"><div class="reDraw"> <div  class="col-sm-9"><input type="text" name="color[]" class="form-control" id="color${i}"></div></div></div>`);
+                })
+
+                $("#reForm2").formValidation("addField", "color[]", {
+                    validators: {
+                        notEmpty: {
+                            message: '不能为空!'
+                        },
+                        color: {
+                            type: ['hex', 'keyword'],
+                            message: "错误色值！支持hex或keyword色值"
+                        }
+                    }
+                })
+                colors.forEach((v, i) => {
+                    $("#color" + i).colorpicker({color: v, defaultPalette: 'web', showOn: "button"})
+                            .on("change.color", function (event, color) { //选择颜色事件
+                                $("#reForm2").formValidation("revalidateField", "color[]")
+                                //formValidation重新验证颜色
+                            });
+
+                })
+            } else {
+                swal({
+                    title: "添加颜色失败",
+                    text: "添加失败，颜色最大数量为6个！",
+                    type: "warning",
+                    confirmButtonText: "确认"
+                });
+            }
+        }
+
+        function deleteColor() {
+            let length = $("input[name='color[]']").length;
+            if (length > 2) {
+                $("#reForm2").formValidation("destroy");
+                $("#r-color" + (length - 1)).remove();
+                ValidationReForm();
+            } else {
+                swal({
+                    title: "删除颜色失败",
+                    text: "删除失败，颜色最小数量为2个！",
+                    type: "warning",
+                    confirmButtonText: "确认"
+                });
+            }
+
+        }
+
+        function ShowColor(color, id) {
+            const r = $("#reForm2").find("input[name=" + color + "]:checked").val();
+            if (r === "0") {
+                $("#" + id).slideDown(400);
+            } else {
+                $("#" + id).slideUp(400);
+            }
+        }
+
+        function ShowCluster(id, id1, id2) {
+            let form = $("#reForm2");
+            let i = form.find("input[name=" + id + "]:checked").val();
+
+            if (i === "TRUE") {
+                form.find("#" + id1).slideDown(400)
+                form.find("#" + id2).slideDown(400)
+            } else if (i === "file") {
+                form.find("#" + id1).slideUp(400)
+                form.find("#" + id2).slideDown(400)
+            } else {
+                form.find("#" + id1).slideUp(400)
+                form.find("#" + id2).slideUp(400)
+            }
+            form.data("formValidation").resetForm()
+        }
+
+        function ValidationForm() {
+            let field = {};
+            let text = ["name"];
+            field = FieldName(field, text, "igc")
+            let file = ["matrix"];
+            field = FieldFile(field, file)
+            addFormValidation("form", field)
+        }
+
+        function ValidationReForm() {
+            let field = {};
+            let number = ["dot", "pthres", "cthres", "opacity", "gopa", "gsize", "gfont"]
+            field = FieldNumber(field, number)
+            let color = ["netcolor1", "netcolor2", "netcolor3", "netcolor4", "netcolor5"]
+            field = FieldColor(field, color)
+            let excluded = []
+            addFormValidation("reForm", field, excluded)
+
+            let field2 = {};
+            let number2 = ["cc", "xfs", "yfs", "rtree", "ctree", "fn"]
+            field2 = FieldNumber(field2, number2)
+            let color2 = ["nc", "cbc", "color[]"]
+            field2 = FieldColor(field2, color2)
+            let excluded2 = []
+            addFormValidation("reForm2", field2, excluded2)
+        }
+
+        function ReDrawIgc(id, formId, img) {
+            let form = $("#" + formId) ;
+            let fv = form.data("formValidation");
+            fv.validate();
+            if (fv.isValid()) {
+                let index = MyTable.prototype.runningIcon();
+                $.ajax({
+                    url: "@routes.ToolsController.reDrawRun()",
+                    type: "post",
+                    data: form.serialize() + "&id=" + id + "&tools=@name" + "&img=" + img,
+                    success: function (data) {
+                        layer.close(index);
+                        if (data.state === 2) {
+                            $("#result").hide();
+                            swal("错误", data.msg, "error")
+                        } else {
+                            if (img === "heatmap") {
+                                $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=@name/${id}/heatmap.png&num=` + Math.random())
+                            } else {
+                                OpenResult(id)
+
+                            }
+                        }
+                    }
+                })
+            } else {
+                switchToReInvalid(fv)
+            }
+        }
+
+</script>

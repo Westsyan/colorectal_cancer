@@ -1,4 +1,4 @@
-@(title:String,name:String,example:String)
+@(title: String, name: String, example: String, example2: String = "")
 
 <div class="col-md-12" id="@name">
     <div class="form-group row">
@@ -16,6 +16,14 @@
                         示例文件</em>
             </a>
             </span>
+
+            @if(example2 != "") {
+                <span class="example"><a href="/colorectal/utils/downloadExample?file=@example2"><em id="egCrics">
+                    示例文件2</em>
+                </a>
+                </span>
+
+            }
         </div>
     </div>
 </div>

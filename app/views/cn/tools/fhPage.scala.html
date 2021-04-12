@@ -1,0 +1,143 @@
+<form class="form-horizontal row" id="form">
+
+    @cn.tools.global.taskname()
+
+    @cn.tools.global.file("上传文件", "matrix", "freqhisto.txt")
+
+    @cn.tools.global.text("设置频率", "bw", "不填,自适应", "")
+
+    @cn.tools.global.runButton()
+</form>
+
+<script>
+
+        $(function () {
+            ValidationForm();
+            getTaskName();
+            webScoket("fh")
+        })
+
+        function getTaskName() {
+            MyTable.prototype.getTaskName("FH")
+        }
+
+        function OpenResult(id) {
+            $.post("/colorectal/cn/platform/tools/getRedrawParams?id=" + id + "&tools=fh", (data) => {
+
+                const html = `<div class="col-sm-6" style="min-width: 600px;
+                                margin-top: 35px">
+                                <img id="resultImg" width="100%"/>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <form id="reForm"  enctype="multipart/form-data">
+                                    <div class="redraw_panel redraw-right" style="margin-bottom: 30px;">
+                                        <ul class="nav nav-tabs  px-4" role="tablist" style="border: none;
+                                            border-bottom: 1px solid #ddd">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="picpara-tab" data-toggle="tab" href="#picpara" role="tab" aria-controls="picpara" aria-selected="true">
+                                                    数据布局参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="colopara-tab" data-toggle="tab" href="#colopara" role="tab" aria-controls="colopara" aria-selected="false">
+                                                    颜色参数</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="fontpara-tab" data-toggle="tab" href="#fontpara" role="tab" aria-controls="fontpara" aria-selected="false">
+                                                    字体参数</a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content" style="box-sizing: border-box !important;
+                                            padding-top: 30px">
+                                            <div class="tab-pane fade active  show" id="picpara">
+                                                @cn.tools.reGlobal.text("频率(不填,自适应)", "bw", "数字")
+
+                                                @cn.tools.reGlobal.twoText("图片宽高", "width", "height", placeholder1 ="数字", placeholder2 =  "数字" ,symbol = "----")
+
+                                                @cn.tools.reGlobal.radio("清晰度", "dpi", Seq(("300", "300"), ("600", "600"), ("96", "96"), ("72", "72")), "300", "")
+
+                                            </div>
+                                            <div class="tab-pane fade" id="colopara">
+                                                @cn.tools.reGlobal.color("直方图颜色","color","")
+
+                                            </div>
+                                            <div class="tab-pane fade" id="fontpara">
+                                                @cn.tools.reGlobal.slider("x轴字体距X轴距离", "xtphjust", "0", "2", "0.1", "")
+                                                @cn.tools.reGlobal.slider("x轴字体旋转角度", "xtpangle", "0", "360", "5", "")
+                                                @cn.tools.reGlobal.slider("X轴字体大小", "xts", "0", "30", "1", "")
+                                                @cn.tools.reGlobal.slider("X轴标题大小", "xls", "0", "30", "1", "")
+                                                @cn.tools.reGlobal.slider("Y轴字体大小", "yts", "0", "30", "1", "")
+                                                @cn.tools.reGlobal.slider("Y轴标题大小", "yls", "0", "30", "1", "")
+                                                @cn.tools.reGlobal.slider("主标题大小", "ms", "0", "30", "1", "")
+                                                @cn.tools.reGlobal.text("X轴标题", "xtext", "标题不可含有汉字")
+                                                @cn.tools.reGlobal.text("Y轴标题", "ytext", "标题不可含有汉字")
+                                                @cn.tools.reGlobal.text("主标题", "mstext", "标题不可含有汉字")
+                                            </div>
+                                        </div>
+                                        @cn.tools.reGlobal.runButton()
+                                    </div>
+                                </form>
+                            </div>`
+
+                const $redraw = $("#redraw")
+                $redraw.empty().html(html)
+                $("#reButton").attr("onclick", "ReDraw('" + id + "')")
+
+                $("#resultImg").attr("src", `/colorectal/cn/platform/tools/getToolsImage?path=fh/${id}/Frequency_bar.png&num=` + Math.random())
+
+                const drawParams = data.drawParams;
+
+                let text = ["bw", "width", "height", "xtext", "ytext", "mstext"]
+
+                reFormAddText(text, drawParams)
+
+                let radio = ["dpi"]
+
+                reFormAddRadio(radio, drawParams)
+
+                ValidationReForm();
+
+                $("#color").colorpicker({
+                    color: drawParams["color"],
+                    defaultPalette: 'web',
+                    showOn: "button"
+                }).on("change.color", function (event, color) { //选择颜色事件
+                    $("#reForm").formValidation("revalidateField", "color")
+                    //formValidation重新验证颜色
+                });
+
+                let slider = ["xtphjust", "xtpangle", "xts", "xls", "yts", "yls", "ms"]
+                reFormAddSlider(slider, drawParams)
+
+                getTitleAndFile(data.title, data.tableData, "fh", id)
+            })
+        }
+
+        function ValidationForm() {
+            let field = {};
+            let text = ["name"];
+            field = FieldName(field, text, "fh")
+            let file = ["matrix"];
+            field = FieldFile(field, file, "txt")
+            let number = ["bw"]
+            FieldNumberEmpty(field, number);
+            addFormValidation("form", field)
+        }
+
+        function ValidationReForm() {
+            let field = {};
+            let number = ["width", "height"];
+            FieldNumber(field, number);
+            let emptyNumber = ["bw"]
+            FieldNumberEmpty(field, emptyNumber)
+            let text = ["xtext", "ytext", "mstext"];
+            FieldChinesName(field, text)
+            let color = ["color"];
+            FieldColor(field, color);
+            let excluded = []
+            addFormValidation("reForm", field, excluded)
+        }
+
+
+</script>

@@ -70,8 +70,7 @@
 
     $(function () {
         ValidationForm()
-
-        MyTable.prototype.getTaskName("Heatmap")
+        getTaskName();
 
         ShowHeatmap('cluster_rows', 'crm', 'inputrow');
         ShowHeatmap('cluster_cols', 'ccm', 'inputcol');
@@ -81,6 +80,10 @@
         webScoket("heatmap")
 
     })
+
+    function getTaskName() {
+        MyTable.prototype.getTaskName("Heatmap")
+    }
 
     function ShowHeatmap(name, id1, id2) {
         let value = $("input[name=" + name + "]:checked").val()
@@ -252,7 +255,7 @@
             colors.forEach(v => {
                 $("#" + v).colorpicker({color: drawParams[v], defaultPalette: 'web', showOn: "button"})
                         .on("change.color", function (event, color) { //选择颜色事件
-                            $("#reForm").formValidation("revalidateField",v)
+                            $("#reForm").formValidation("revalidateField", v)
                             //formValidation重新验证颜色
                         });
             })
@@ -269,7 +272,7 @@
                 })
             }
 
-            mycolor.forEach((v,i)=>{
+            mycolor.forEach((v, i) => {
                 $("#color" + i).colorpicker({color: v, defaultPalette: 'web', showOn: "button"})
                         .on("change.color", function (event, color) { //选择颜色事件
                             $("#reForm").formValidation("revalidateField", "color[]")
@@ -287,21 +290,21 @@
             ShowCbc(drawParams["cbc"]);
             ShowColor('color', 'inputColor')
 
-            getTitleAndFile(data.title,data.tableData,"heatmap",id)
+            getTitleAndFile(data.title, data.tableData, "heatmap", id)
         })
     }
 
     function ShowCbc(color = "#ffffff") {
         let hasborder = $("#reForm").find("input[name=hasborder]:checked").val();
         if (hasborder == "white") {
-            $("#r-cbc").hide();
-            $("#cbc").colorpicker({color: "#ffffff", defaultPalette: 'web', showOn: "button"})
+            $("#r-cbc").show();
+            $("#cbc").colorpicker({color: color, defaultPalette: 'web', showOn: "button"})
                     .on("change.color", function (event, color) { //选择颜色事件
                         //formValidation重新验证颜色
                     });
         } else {
-            $("#r-cbc").show();
-            $("#cbc").colorpicker({color: color, defaultPalette: 'web', showOn: "button"})
+            $("#r-cbc").hide();
+            $("#cbc").colorpicker({color: "#ffffff", defaultPalette: 'web', showOn: "button"})
                     .on("change.color", function (event, color) { //选择颜色事件
                         //formValidation重新验证颜色
                     });
@@ -309,20 +312,39 @@
     }
 
     function addColor() {
-        let length = $("input[name='color[]']").length;
+        let $colors = $("input[name='color[]']")
+        let length = $colors.length;
+
         if (length < 6) {
-           // $("#reForm").formValidation("destroy");
+            let colors = []
+            $.each($colors, (i, v) => {
+                colors.push($(v).val())
+            })
+            colors.push("#E41A1C")
+            $("#mycolor").empty()
+            colors.forEach((v, i) => {
+                $("#mycolor").append(`<div class="form-group row"  id="r-color${i}"><div class="reDraw"> <div  class="col-sm-9"><input type="text" name="color[]" class="form-control" id="color${i}"></div></div></div>`);
+            })
 
-            $("#mycolor").append(`<div class="form-group row "  id="r-color${length}"><div class="reDraw"> <div  class="col-sm-9">
-<input type="text" name="color[]" class="form-control" id="color${length}"></div></div></div>`);
-            $("#reForm").formValidation("addField","color[]")
+            $("#reForm").formValidation("addField", "color[]", {
+                validators: {
+                    notEmpty: {
+                        message: '不能为空!'
+                    },
+                    color: {
+                        type: ['hex', 'keyword'],
+                        message: "错误色值！支持hex或keyword色值"
+                    }
+                }
+            })
+            colors.forEach((v, i) => {
+                $("#color" + i).colorpicker({color: v, defaultPalette: 'web', showOn: "button"})
+                        .on("change.color", function (event, color) { //选择颜色事件
+                            $("#reForm").formValidation("revalidateField", "color[]")
+                            //formValidation重新验证颜色
+                        });
 
-            $("#color" + length).colorpicker({color: "#E41A1C", defaultPalette: 'web', showOn: "button"})
-                    .on("change.color", function (event, color) { //选择颜色事件
-                        //formValidation重新验证颜色
-                    });
-
-           // ValidationReForm();
+            })
         } else {
             swal({
                 title: "添加颜色失败",
@@ -336,9 +358,9 @@
     function deleteColor() {
         let length = $("input[name='color[]']").length;
         if (length > 2) {
-           // $("#reForm").formValidation("destroy");
+            // $("#reForm").formValidation("destroy");
             $("#r-color" + (length - 1)).remove();
-           // ValidationReForm();
+            // ValidationReForm();
         } else {
             swal({
                 title: "删除颜色失败",
@@ -381,7 +403,7 @@
     function ValidationForm() {
         let field = {};
         let text = ["name"];
-        field = FieldName(field, text,"heatmap")
+        field = FieldName(field, text, "heatmap")
         let file = ["matrix", "inputrow", "inputcol", "rowgroup", "colgroup", "tag"];
         field = FieldFile(field, file)
         addFormValidation("form", field)
