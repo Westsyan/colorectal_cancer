@@ -6,11 +6,10 @@
 
     @cn.tools.global.taskname()
 
-
     @if(name == "itc") {
         @cn.tools.global.file("上传矩阵文件1", "matrix", "itc_table.txt")
         @cn.tools.global.file("上传矩阵文件2", "matrix2", "itc_table2.txt")
-    }else{
+    } else {
         @cn.tools.global.file("上传矩阵文件", "matrix", "Igc.txt")
     }
 
@@ -21,7 +20,7 @@
 
 <script>
 
-        let cy
+        let cy;
 
         $(function () {
             ValidationForm()
@@ -348,7 +347,7 @@
                 })
 
 
-                mycolor.forEach((v,i)=>{
+                mycolor.forEach((v, i) => {
                     $("#color" + i).colorpicker({color: v, defaultPalette: 'web', showOn: "button"})
                             .on("change.color", function (event, color) { //选择颜色事件
                                 $("#reForm2").formValidation("revalidateField", "color[]")
@@ -501,9 +500,16 @@
         function ValidationForm() {
             let field = {};
             let text = ["name"];
-            field = FieldName(field, text, "igc")
-            let file = ["matrix"];
-            field = FieldFile(field, file)
+            field = FieldName(field, text, "@name")
+
+            if ("@name" === "igc") {
+                let file = ["matrix"];
+                field = FieldFile(field, file)
+            }else {
+                let file = ["matrix","matrix2"];
+                field = FieldFile(field, file)
+            }
+
             addFormValidation("form", field)
         }
 

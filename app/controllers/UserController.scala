@@ -55,7 +55,7 @@ class UserController @Inject()(userDao: UserDao, cc: ControllerComponents) exten
   def loginSuccess: Action[AnyContent] = Action { implicit request =>
     val data = userForm.bindFromRequest.get
     val userId = userDao.getUserId(data.user, data.pwd).toAwait.toString
-    Redirect(routes.MlController.modelResult("logistics")).withNewSession.withSession("id" -> userId, "user" -> data.user)
+    Redirect(routes.MlController.modelPage("logistics")).withNewSession.withSession("id" -> userId, "user" -> data.user)
   }
 
   def register: Action[AnyContent] = Action { implicit request =>

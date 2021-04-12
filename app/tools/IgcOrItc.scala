@@ -30,9 +30,10 @@ object IgcOrItc extends MyFile with MyRequest {
         s"""
            |Rscript ${Global.toolsPath}/igc/cor_pvalue_calculate.R $cmdInput -o $path -m ${params("anatype")}
            |Rscript ${Global.toolsPath}/igc/node_attr_calculate.R -t $path/pandv.xls -pt 0.1 -ct 0.5 -o $path
-           |Rscript ${Global.toolsPath}/heatmap/heatMap.R -i $path/cor.xls -o $path -c #E41A1C:#FFFF00:#1E90FF -lfi $path/p_star.xls -if pdf
+           |Rscript ${Global.toolsPath}/heatmap/heatMap.R -i $path/cor.xls -o $path -c "#E41A1C:#FFFF00:#1E90FF" -lfi $path/p_star.xls -if pdf
            |""".stripMargin
 
+      println(cmd)
       val exec = new ExecCommand()
       exec.execShRun(List(cmd), path)
 
