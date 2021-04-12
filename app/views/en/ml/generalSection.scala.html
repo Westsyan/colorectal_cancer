@@ -72,9 +72,30 @@
             <label class="col-sm-3 col-form-label">Independent variable :</label>
             <div class="col-sm-7" id="independent" style="display: flex;
                 flex-wrap: wrap">
+            </div>
 
-                                        </div>
+            <div class="col-sm-12">
+                <label class="col-sm-3"></label>
+                <button class="btn btn-primary" type="button" onclick="SelectAll()">Checked All</button>
+                <button class="btn btn-primary" type="button" onclick="UnSelectAll()">UnChecked All</button>
+            </div>
         </div>
     </div>
-
 </div>
+
+<script>
+
+        function SelectAll() {
+            $.each($("input[name='independent[]']"), (i, v) => {
+                console.log($(v).val())
+                $(v).prop("checked", true)
+            })
+        }
+
+        function UnSelectAll() {
+            $.each($("input[name='independent[]']"), (i, v) => {
+                $(v).prop("checked", false)
+            })
+        }
+
+    </script>

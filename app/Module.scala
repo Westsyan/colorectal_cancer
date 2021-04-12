@@ -2,6 +2,7 @@ import java.time.Clock
 
 import com.google.inject.AbstractModule
 import services.{ApplicationTimer, OnStart}
+import utils.Global
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -21,7 +22,10 @@ class Module extends AbstractModule {
     // Ask Guice to create an instance of ApplicationTimer when the
     // application starts.
     bind(classOf[ApplicationTimer]).asEagerSingleton()
- //  bind(classOf[OnStart]).asEagerSingleton()
+
+    if(!Global.isWindow){
+      bind(classOf[OnStart]).asEagerSingleton()
+    }
 
   }
 

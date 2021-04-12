@@ -123,7 +123,7 @@ class PublicdbController @Inject()(cc: ControllerComponents, cBioPortalDao: CBio
     Ok(views.html.en.public.tcgaPage())
   }
 
-  def getTcgaData = Action{implicit request=>
+  def getTcgaData = Action { implicit request =>
     val page = pageForm.bindFromRequest.get
     val orderX = TableUtils.dealMapDataByPage(TableUtils.tcgaRow, page)
     val total = orderX.size
@@ -133,14 +133,24 @@ class PublicdbController @Inject()(cc: ControllerComponents, cBioPortalDao: CBio
   }
 
 
-
-
   def oncominePage = Action { implicit request =>
     Ok(views.html.cn.public.oncominePage())
   }
 
   def oncominePageEn = Action { implicit request =>
     Ok(views.html.en.public.oncominePage())
+  }
+
+  def ncbiPage = Action { implicit request =>
+    Ok(views.html.cn.public.ncbiPage())
+  }
+
+  def ncbiPageEn = Action { implicit request =>
+    Ok(views.html.en.public.ncbiPage())
+  }
+
+  def getNcbiData = Action { implicit request =>
+    Ok(Json.toJson(TableUtils.ncbiRow))
   }
 
 }

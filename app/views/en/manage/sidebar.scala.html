@@ -3,82 +3,89 @@
 <link rel="stylesheet" href="@routes.Assets.versioned("icomoon/style.css")">
 
 
-    @if(tp == "ml") {
+@if(tp == "ml") {
 
-        <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <ul class="nav">
-                @en.ml.siderbarMl("Logistic Regression", "logistics")
-                @en.ml.siderbarMl("Random Forest", "rf")
-                @en.ml.siderbarMl("Neural Network", "neural")
-                @en.ml.siderbarMl("GBDT", "gb")
-                @en.ml.siderbarMl("CatBoost", "catboost")
-                @en.ml.siderbarMl("SVM", "svm")
-            </ul>
-        </nav>
-    }
-    @if(tp == "samples") {
-        <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="@routes.SampleController.samplePageEn()" >
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+            @en.ml.siderbarMl("Logistic Regression", "logistics")
+            @en.ml.siderbarMl("Random Forest", "rf")
+            @en.ml.siderbarMl("Neural Network", "neural")
+            @en.ml.siderbarMl("GBDT", "gb")
+            @en.ml.siderbarMl("CatBoost", "catboost")
+            @en.ml.siderbarMl("SVM", "svm")
+        </ul>
+    </nav>
+}
+@if(tp == "samples") {
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.SampleController.samplePageEn()" >
 
-                        <i class="icon icon-browse  menu-icon"></i>
-                        <span class="menu-title">Sample Browser</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="@routes.SampleController.sampleTypingEn()" >
+                    <i class="icon icon-browse  menu-icon"></i>
+                    <span class="menu-title">Sample Browser</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.SampleController.sampleTypingEn()" >
 
-                        <i class="icon icon-type-in  menu-icon"></i>
-                        <span class="menu-title">Sample Upload</span>
-                    </a>
-                </li>
+                    <i class="icon icon-type-in  menu-icon"></i>
+                    <span class="menu-title">Sample Upload</span>
+                </a>
+            </li>
 
-            </ul>
-        </nav>
-    }
+        </ul>
+    </nav>
+}
 
-    @if(tp == "publicdb") {
-        <nav class="sidebar sidebar-offcanvas" id="sidebar">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="@routes.PublicdbController.tcgaPageEn()" >
+@if(tp == "publicdb") {
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.PublicdbController.tcgaPageEn()" >
 
-                        <i class="menu-icon"><img src="/assets/images/tcga.icon" width="17px"/></i>
-                        <span class="menu-title">TCGA Database</span>
-                    </a>
-                </li>
+                    <i class="menu-icon"><img src="/assets/images/tcga.icon" width="17px"/></i>
+                    <span class="menu-title">TCGA Database</span>
+                </a>
+            </li>
 
-                <li class="nav-item" id="cbioportal">
-                    <a class="nav-link" href="@routes.PublicdbController.cBioPortalPageEn()" >
+            <li class="nav-item" id="cbioportal">
+                <a class="nav-link" href="@routes.PublicdbController.cBioPortalPageEn()" >
 
-                        <i class=" menu-icon"><img src="/assets/images/cbioportal_icon.png" width="17px"/></i>
-                        <span class="menu-title">cBioPortal Database</span>
-                    </a>
-                </li>
-
-
-                <li class="nav-item">
-                    <a class="nav-link" href="@routes.PublicdbController.oncominePageEn()" >
-
-                        <i class="menu-icon"><img src="/assets/images/omg_log.ico" width="17px"/></i>
-                        <span class="menu-title">Oncomine Database</span>
-                    </a>
-                </li>
+                    <i class=" menu-icon"><img src="/assets/images/cbioportal_icon.png" width="17px"/></i>
+                    <span class="menu-title">cBioPortal Database</span>
+                </a>
+            </li>
 
 
-                <li class="nav-item">
-                    <a class="nav-link" href="@routes.PublicdbController.seerPageEn()" >
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.PublicdbController.oncominePageEn()" >
 
-                        <i class="icon icon-browse  menu-icon"></i>
-                        <span class="menu-title">Seer Database</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    }
+                    <i class="menu-icon"><img src="/assets/images/omg_log.ico" width="17px"/></i>
+                    <span class="menu-title">Oncomine Database</span>
+                </a>
+            </li>
 
-@if(tp =="tools"){
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.PublicdbController.seerPageEn()" >
+
+                    <i class="menu-icon"><img src="/assets/images/seer_logo.png" width="17px"/></i>
+                    <span class="menu-title">Seer Database</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="@routes.PublicdbController.ncbiPageEn()" >
+
+                    <i class="menu-icon"><img src="/assets/images/ncbi.png" width="17px"/></i>
+                    <span class="menu-title">Single Cell Data</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@if(tp == "tools") {
     <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
             @en.tools.sidebarTools("PCA", "pca")

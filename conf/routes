@@ -72,6 +72,8 @@ GET           /colorectal/platform/publicdb/insertCbio                       con
 GET           /colorectal/cn/platform/publicdb/tcgaPage                      controllers.PublicdbController.tcgaPage
 POST          /colorectal/platform/publicdb/getTcgaData                      controllers.PublicdbController.getTcgaData
 GET           /colorectal/cn/platform/publicdb/oncominePage                  controllers.PublicdbController.oncominePage
+GET           /colorectal/cn/platform/publicdb/ncbiPage                      controllers.PublicdbController.ncbiPage
+POST          /colorectal/platform/publicdb/getNcbiData                      controllers.PublicdbController.getNcbiData
 
 
 GET           /colorectal/en/publicdb/index                                  controllers.PublicdbController.indexPageEn
@@ -81,6 +83,7 @@ GET           /colorectal/en/platform/publicdb/cbioportalFilesPage           con
 GET           /colorectal/en/platform/publicdb/cbioportalDbPageEn            controllers.PublicdbController.cbioportalDbPageEn(db:String,name:String)
 GET           /colorectal/en/platform/publicdb/tcgaPage                      controllers.PublicdbController.tcgaPageEn
 GET           /colorectal/en/platform/publicdb/oncominePage                  controllers.PublicdbController.oncominePageEn
+GET           /colorectal/en/platform/publicdb/ncbiPage                      controllers.PublicdbController.ncbiPageEn
 
 GET           /colorectal/cn/prevent/:page                                   controllers.PreventController.preventPage(page:String)
 GET           /colorectal/en/prevent/:page                                   controllers.PreventController.preventPageEn(page:String)

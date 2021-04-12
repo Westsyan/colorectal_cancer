@@ -17,6 +17,8 @@ object TableUtils extends MyRow {
 
   var searchSeq: Seq[(Int, String)] = Seq()
 
+  var ncbiRow:Seq[Map[String,String]] = Seq()
+
   def isDouble(value: String): Boolean = {
     try {
       value.toDouble

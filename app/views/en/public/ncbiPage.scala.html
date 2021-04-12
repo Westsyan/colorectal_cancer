@@ -1,0 +1,88 @@
+@()(implicit session: Session)
+@en.manage.main("Single Cell Data", "publicdb") {
+
+    <style>
+            .form-check-label {
+                cursor: pointer;
+            }
+
+            .bootstrap-table .fixed-table-container .table td {
+                white-space: nowrap;
+            }
+
+    </style>
+
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="d-flex justify-content-between flex-wrap">
+                    <div class="d-flex align-items-end flex-wrap">
+                        <div class="d-flex">
+                            <i class="mdi mdi-home text-muted hover-cursor"></i>
+                            <p class="text-muted mb-0 hover-cursor">&nbsp;&nbsp;Public DataBase&nbsp;/&nbsp;</p>
+                            <p class="text-primary mb-0 hover-cursor">Single Cell Data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table" id="table"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+            $(function () {
+
+                $.ajax({
+                    url: "@routes.PublicdbController.getNcbiData()",
+                    type: "post",
+                    success: function (data) {
+                        $("#table").bootstrapTable({
+                            data: data,
+                            pageNumber: 1,
+                            pagination: true,
+                            pageList: [15],
+                            pageSize: 15,
+                            advancedSortable: true,
+                            columns: [{
+                                field: "id",
+                                title: "ID",
+                                sortable: true,
+                                searchType: "text"
+                            }, {
+                                field: "title",
+                                title: "Title",
+                                sortable: true,
+                                searchType: "text"
+                            }, {
+                                field: "code",
+                                title: "Number",
+                                sortable: true,
+                                searchType: "text",
+                                formatter: function (v, row) {
+                                    return `<a href="${row.link}" target="_blank">${v}</a>`
+                                }
+                            }, {
+                                field: "source",
+                                title: "Source",
+                                sortable: true,
+                                searchType: "text"
+                            }]
+                        })
+                    }
+                })
+            })
+
+
+    </script>
+
+
+}
